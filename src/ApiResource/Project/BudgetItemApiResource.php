@@ -61,14 +61,14 @@ class BudgetItemApiResource
     public string $description;
 
     /**
-     * How much money necessary to cover this item.
+     * How much money it's needed for this item to be succesfully satisfied.
      */
-    #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public Money $money;
+    public Money $minimum;
 
     /**
-     * Is this item necessary for the Project's success?
+     * How much money would be ideal for this item to be fully satisfied.
      */
-    public bool $required = true;
+    #[Assert\Valid()]
+    public Money $optimum;
 }
