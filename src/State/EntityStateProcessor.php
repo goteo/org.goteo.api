@@ -18,7 +18,7 @@ class EntityStateProcessor implements ProcessorInterface
 
     public function __construct(
         #[Autowire(service: RemoveProcessor::class)]
-        private ProcessorInterface $deleteProcessor,
+        private ProcessorInterface $removeProcessor,
         #[Autowire(service: PersistProcessor::class)]
         private ProcessorInterface $persistProcessor,
         private EntityManagerInterface $entityManager,
@@ -34,7 +34,7 @@ class EntityStateProcessor implements ProcessorInterface
         }
 
         if ($operation instanceof DeleteOperationInterface) {
-            return $this->deleteProcessor->process($data, $operation, $uriVariables, $context);
+            return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
         }
 
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
@@ -53,7 +53,7 @@ class EntityStateProcessor implements ProcessorInterface
                 return $this->deleteLocalizedContent($data, $operation, $uriVariables, $context, $languages);
             }
 
-            return $this->deleteProcessor->process($data, $operation, $uriVariables, $context);
+            return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
         }
 
         $language = $languages[0] ?? $this->localizationService->getDefaultLanguage();
