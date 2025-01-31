@@ -2,17 +2,21 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Money;
-use App\Entity\Trait\LocalizedContent;
+use App\Entity\Trait\LocalizedEntityTrait;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\BudgetItemRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: BudgetItemRepository::class)]
-class BudgetItem
+class BudgetItem implements LocalizedEntityInterface
 {
-    use LocalizedContent;
+    use LocalizedEntityTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
