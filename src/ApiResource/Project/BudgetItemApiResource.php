@@ -22,11 +22,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class
 )]
-#[API\GetCollection()]
-#[API\Post()]
-#[API\Get()]
-#[API\Patch()]
-#[API\Delete()]
 class BudgetItemApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
