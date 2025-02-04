@@ -89,10 +89,17 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: Reward::class)]
     private Collection $rewards;
 
+    /**
+     * @var Collection<int, BudgetItem>
+     */
+    #[ORM\OneToMany(targetEntity: BudgetItem::class, mappedBy: 'project')]
+    private Collection $budgetItems;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
+        $this->budgetItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -203,6 +210,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($reward->getProject() === $this) {
                 $reward->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BudgetItem>
+     */
+    public function getBudgetItems(): Collection
+    {
+        return $this->budgetItems;
+    }
+
+    public function addBudgetItem(BudgetItem $budgetItem): static
+    {
+        if (!$this->budgetItems->contains($budgetItem)) {
+            $this->budgetItems->add($budgetItem);
+            $budgetItem->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBudgetItem(BudgetItem $budgetItem): static
+    {
+        if ($this->budgetItems->removeElement($budgetItem)) {
+            // set the owning side to null (unless already changed)
+            if ($budgetItem->getProject() === $this) {
+                $budgetItem->setProject(null);
             }
         }
 

@@ -9,8 +9,10 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Mapping\Transformer\BudgetMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
+use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -94,4 +96,19 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $rewards;
+
+    /**
+     * A detailed breakdown of the budget for this Project, as described by the associated BudgetItems.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(source: Project::class, transformer: BudgetMapTransformer::class)]
+    public Budget $budget;
+
+    /**
+     * A list of the BudgetItems composing the budget of this Project.
+     *
+     * @var array<int, BudgetItemApiResource>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $budgetItems;
 }

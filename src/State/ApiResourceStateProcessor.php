@@ -10,8 +10,8 @@ use App\Mapping\AutoMapper;
 class ApiResourceStateProcessor implements ProcessorInterface
 {
     public function __construct(
-        private EntityStateProcessor $entityStateProcessor,
         private AutoMapper $autoMapper,
+        private EntityStateProcessor $entityStateProcessor,
     ) {}
 
     /**
@@ -19,8 +19,7 @@ class ApiResourceStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        $entity = $this->getEntity($data, $operation->getStateOptions());
-
+        $entity = $this->asEntity($data, $operation->getStateOptions());
         $entity = $this->entityStateProcessor->process($entity, $operation, $uriVariables, $context);
 
         if ($entity === null) {
@@ -30,7 +29,7 @@ class ApiResourceStateProcessor implements ProcessorInterface
         return $this->autoMapper->map($entity, $data);
     }
 
-    public function getEntity(mixed $data, Options $options): object
+    public function asEntity(mixed $data, Options $options): object
     {
         /** @var object */
         $entity = $this->autoMapper->map($data, $options->getEntityClass());
