@@ -1,4 +1,4 @@
 #!/bin/bash
 
-command="docker exec -it goteo-v4-$1 "${@:2}""
+command="docker exec -it goteo-api-$1 "${@:2}""
 $command
