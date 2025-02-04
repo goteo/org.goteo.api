@@ -106,7 +106,7 @@ class ProjectApiResource
 
     /**
      * A list of the BudgetItems composing the budget of this Project.
-     * 
+     *
      * @var array<int, BudgetItemApiResource>
      */
     #[API\ApiProperty(writable: false)]

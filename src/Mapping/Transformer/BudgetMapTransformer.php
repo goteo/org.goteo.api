@@ -13,10 +13,10 @@ use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class BudgetMapTransformer implements PropertyTransformerInterface
 {
-    const VALID_SUMMARY_TYPES = ['minimum', 'optimum'];
+    public const VALID_SUMMARY_TYPES = ['minimum', 'optimum'];
 
     public function __construct(
-        private MoneyService $moneyService
+        private MoneyService $moneyService,
     ) {}
 
     /**
@@ -43,8 +43,8 @@ class BudgetMapTransformer implements PropertyTransformerInterface
 
     /**
      * @param BudgetItem[] $items
-     * 
-     * @return array{minimum: \App\Entity\Money, optimum: \App\Entity\Money}
+     *
+     * @return array{minimum: Money, optimum: Money}
      */
     private function calcItemsTotal(array $items, string $currency): array
     {
