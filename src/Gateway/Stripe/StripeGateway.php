@@ -2,7 +2,6 @@
 
 namespace App\Gateway\Stripe;
 
-use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Gateway\Checkout;
 use App\Entity\User\User;
 use App\Gateway\ChargeType;
@@ -34,7 +33,6 @@ class StripeGateway implements GatewayInterface
         private CheckoutService $checkoutService,
         private CheckoutRepository $checkoutRepository,
         private EntityManagerInterface $entityManager,
-        private IriConverterInterface $iriConverter,
     ) {
         $this->stripe = new StripeClient($stripeApiKey);
     }
@@ -94,16 +92,18 @@ class StripeGateway implements GatewayInterface
             throw new \Exception(sprintf("Stripe checkout '%s' exists but no Checkout with that reference was found.", $sessionId));
         }
 
+        $redirection = $this->checkoutService->getRedirection($checkout);
+
         if ($checkout->getStatus() === CheckoutStatus::Charged) {
-            return $checkout;
+            return $redirection;
         }
 
         if ($request->query->get('type') !== CheckoutService::RESPONSE_TYPE_SUCCESS) {
-            return $checkout;
+            return $redirection;
         }
 
         if ($session->payment_status !== StripeSession::PAYMENT_STATUS_PAID) {
-            return $checkout;
+            return $redirection;
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
@@ -111,8 +111,7 @@ class StripeGateway implements GatewayInterface
         $this->entityManager->persist($checkout);
         $this->entityManager->flush();
 
-        // TO-DO: This should redirect the user to a GUI
-        return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+        return $redirection;
     }
 
     public function handleWebhook(Request $request): Response
