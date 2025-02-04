@@ -59,6 +59,14 @@ class CheckoutApiResource
     public array $charges = [];
 
     /**
+     * Gateways will redirect the user back to the v4 API,
+     * which will then redirect the user to this address.
+     */
+    #[Assert\NotBlank()]
+    #[Assert\Url()]
+    public string $returnUrl;
+
+    /**
      * The status of this Checkout, as confirmed by the Gateway.
      */
     #[API\ApiProperty(writable: false)]
