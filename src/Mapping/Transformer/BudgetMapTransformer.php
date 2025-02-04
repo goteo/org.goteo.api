@@ -53,14 +53,21 @@ class BudgetMapTransformer implements PropertyTransformerInterface
 
         foreach ($items as $item) {
             $itemMinimum = $item->getMinimum();
-            if ($itemMinimum !== null && $itemMinimum->amount > 0) {
-                $totalMinimum = $this->moneyService->add($itemMinimum, $totalMinimum);
+
+            if ($itemMinimum === null || $itemMinimum->currency === '') {
+                $itemMinimum = new Money(0, $currency);
             }
 
+            $totalMinimum = $this->moneyService->add($itemMinimum, $totalMinimum);
+
             $itemOptimum = $item->getOptimum();
-            if ($itemOptimum !== null && $itemOptimum->amount > 0) {
-                $totalOptimum = $this->moneyService->add($itemOptimum, $totalOptimum);
+
+            if ($itemOptimum === null || $itemOptimum->currency === '') {
+                $itemOptimum = new Money(0, $currency);
             }
+
+            $itemOptimum = $this->moneyService->add($itemMinimum, $itemOptimum);
+            $totalOptimum = $this->moneyService->add($itemOptimum, $totalOptimum);
         }
 
         return ['minimum' => $totalMinimum, 'optimum' => $totalOptimum];
