@@ -21,6 +21,8 @@ final class UserSignupProcessor implements ProcessorInterface
 
     /**
      * @param UserSignupDto $data
+     *
+     * @return UserApiResource
      */
     public function process(mixed $data, API\Operation $operation, array $uriVariables = [], array $context = [])
     {
