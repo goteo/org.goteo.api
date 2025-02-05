@@ -2,18 +2,14 @@
 
 namespace App\Gateway\Stripe;
 
-use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Gateway\Checkout;
 use App\Entity\User\User;
+use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\GatewayInterface;
 use App\Gateway\Link;
 use App\Gateway\LinkType;
 use App\Gateway\Tracking;
-use App\Repository\Gateway\CheckoutRepository;
-use App\Service\Gateway\CheckoutService;
-use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
 use Stripe\Webhook as StripeWebhook;
@@ -22,7 +18,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class StripeGateway implements GatewayInterface
+class StripeGateway extends AbstractGateway
 {
     public const TRACKING_TITLE_CHECKOUT = 'Stripe Checkout Session ID';
 
@@ -31,10 +27,6 @@ class StripeGateway implements GatewayInterface
     public function __construct(
         private string $stripeApiKey,
         private string $stripeWebhookSecret,
-        private CheckoutService $checkoutService,
-        private CheckoutRepository $checkoutRepository,
-        private EntityManagerInterface $entityManager,
-        private IriConverterInterface $iriConverter,
     ) {
         $this->stripe = new StripeClient($stripeApiKey);
     }
@@ -85,25 +77,20 @@ class StripeGateway implements GatewayInterface
 
     public function handleRedirect(Request $request): RedirectResponse
     {
-        $sessionId = $request->query->get('session_id');
+        // TO-DO: handle non-success type redirect
 
-        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
-        $checkout = $this->checkoutRepository->find($request->query->get('checkoutId'));
-
-        if ($checkout === null) {
-            throw new \Exception(sprintf("Stripe checkout '%s' exists but no Checkout with that reference was found.", $sessionId));
-        }
+        $checkout = $this->getAfterRedirectCheckout($request);
+        $redirection = $this->getRedirectResponse($checkout);
 
         if ($checkout->getStatus() === CheckoutStatus::Charged) {
-            return $checkout;
+            return $redirection;
         }
 
-        if ($request->query->get('type') !== CheckoutService::RESPONSE_TYPE_SUCCESS) {
-            return $checkout;
-        }
+        $sessionId = $request->query->get('session_id');
+        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
 
         if ($session->payment_status !== StripeSession::PAYMENT_STATUS_PAID) {
-            return $checkout;
+            return $redirection;
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
@@ -111,8 +98,7 @@ class StripeGateway implements GatewayInterface
         $this->entityManager->persist($checkout);
         $this->entityManager->flush();
 
-        // TO-DO: This should redirect the user to a GUI
-        return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+        return $redirection;
     }
 
     public function handleWebhook(Request $request): Response

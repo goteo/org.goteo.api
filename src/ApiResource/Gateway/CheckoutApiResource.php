@@ -8,6 +8,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
+use App\Gateway\LinkType;
 use App\Gateway\Tracking;
 use App\Mapping\Transformer\GatewayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
@@ -58,6 +59,14 @@ class CheckoutApiResource
     public array $charges = [];
 
     /**
+     * Gateways will redirect the user back to the v4 API,
+     * which will then redirect the user to this address.
+     */
+    #[Assert\NotBlank()]
+    #[Assert\Url()]
+    public string $returnUrl;
+
+    /**
      * The status of this Checkout, as confirmed by the Gateway.
      */
     #[API\ApiProperty(writable: false)]
@@ -69,6 +78,7 @@ class CheckoutApiResource
      * @var Link[]
      */
     #[API\ApiProperty(writable: false)]
+    #[MapFrom(transformer: [self::class, 'parseLinks'])]
     public array $links = [];
 
     /**
@@ -79,6 +89,19 @@ class CheckoutApiResource
     #[API\ApiProperty(writable: false)]
     #[MapFrom(transformer: [self::class, 'parseTrackings'])]
     public array $trackings = [];
+
+    public static function parseLinks(array $values)
+    {
+        return \array_map(function ($value) {
+            $link = new Link();
+            $link->href = $value['href'];
+            $link->rel = $value['rel'];
+            $link->method = $value['method'];
+            $link->type = LinkType::tryFrom($value['type']);
+
+            return $link;
+        }, $values);
+    }
 
     public static function parseTrackings(array $values)
     {

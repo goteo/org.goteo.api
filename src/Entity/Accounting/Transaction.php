@@ -2,7 +2,6 @@
 
 namespace App\Entity\Accounting;
 
-use ApiPlatform\Metadata as API;
 use App\Entity\Money;
 use App\Repository\Accounting\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,7 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * \
  * AccountingTransactions are generated for each GatewayCharge in a GatewayCheckout once it becomes successful.
  */
-#[API\Get()]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
@@ -30,7 +28,6 @@ class Transaction
      */
     #[Assert\Valid()]
     #[Assert\NotBlank()]
-    #[API\ApiProperty(writable: false)]
     #[ORM\Embedded(class: Money::class)]
     private ?Money $money = null;
 

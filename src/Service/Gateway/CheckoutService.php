@@ -19,7 +19,8 @@ class CheckoutService
     ) {}
 
     /**
-     * Generates a suitable value for redirection params to external gateways.
+     * Generates a suitable value for the redirection params to external gateways
+     * with the internal redirection back to the API.
      *
      * @return string Absolute URL to the gateways redirection handler
      */
