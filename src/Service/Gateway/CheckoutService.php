@@ -7,8 +7,6 @@ use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
 class CheckoutService
@@ -19,17 +17,6 @@ class CheckoutService
     public function __construct(
         private RouterInterface $router,
     ) {}
-
-    /**
-     * @return RedirectResponse loaded with the `returnUrl` of the given Checkout.
-     */
-    public function getRedirection(Checkout $checkout): RedirectResponse
-    {
-        return new RedirectResponse(
-            $checkout->getReturnUrl(),
-            Response::HTTP_FOUND
-        );
-    }
 
     /**
      * Generates a suitable value for the redirection params to external gateways
