@@ -2,19 +2,15 @@
 
 namespace App\Gateway\Paypal;
 
-use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\GatewayInterface;
 use App\Gateway\Link;
 use App\Gateway\LinkType;
 use App\Gateway\Tracking;
-use App\Repository\Gateway\CheckoutRepository;
-use App\Service\Gateway\CheckoutService;
 use Brick\Money\Money as BrickMoney;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @see https://developer.paypal.com/studio/checkout/standard/integrate
  */
-class PaypalGateway implements GatewayInterface
+class PaypalGateway extends AbstractGateway
 {
     public const PAYPAL_API_ADDRESS_LIVE = 'https://api-m.paypal.com';
     public const PAYPAL_API_ADDRESS_SANDBOX = 'https://api-m.sandbox.paypal.com';
@@ -45,10 +41,6 @@ class PaypalGateway implements GatewayInterface
 
     public function __construct(
         private PaypalService $paypal,
-        private CheckoutService $checkoutService,
-        private CheckoutRepository $checkoutRepository,
-        private EntityManagerInterface $entityManager,
-        private IriConverterInterface $iriConverter,
     ) {}
 
     public static function getName(): string
@@ -96,34 +88,25 @@ class PaypalGateway implements GatewayInterface
 
     public function handleRedirect(Request $request): RedirectResponse
     {
-        if ($request->query->get('type') !== CheckoutService::RESPONSE_TYPE_SUCCESS) {
-            throw new \Exception(sprintf('Checkout was not completed successfully.'));
-        }
+        // TO-DO: handle non-success type redirect requests
 
-        $checkoutId = $request->query->get('checkoutId');
-
-        $checkout = $this->checkoutRepository->find($checkoutId);
-        if ($checkout === null) {
-            throw new \Exception(sprintf("Checkout '%s' could not be found.", $checkoutId));
-        }
+        $checkout = $this->getAfterRedirectCheckout($request);
+        $redirection = $this->getRedirectResponse($checkout);
 
         if ($checkout->getStatus() === CheckoutStatus::Charged) {
-            return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+            return $redirection;
         }
 
         $orderId = $request->query->get('token');
-        if (!$orderId) {
-            throw new \Exception(sprintf('PayPal checkout order ID not provided by the gateway.'));
-        }
-
         $order = $this->paypal->getOrder($orderId);
+
         if ($order['status'] !== self::PAYPAL_STATUS_APPROVED) {
-            throw new \Exception(sprintf("PayPal checkout '%s' has not yet been processed successfully by the gateway.", $orderId));
+            return $redirection;
         }
 
         $capture = $this->paypal->captureOrderPayment($order);
         if ($capture['status'] !== self::PAYPAL_STATUS_COMPLETED) {
-            throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was not completed.", $orderId));
+            return $redirection;
         }
 
         foreach ($capture['purchase_units'] as $purchaseUnit) {
@@ -139,8 +122,7 @@ class PaypalGateway implements GatewayInterface
         $this->entityManager->persist($checkout);
         $this->entityManager->flush();
 
-        // TO-DO: This should redirect the user to a GUI
-        return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+        return $redirection;
     }
 
     public function handleWebhook(Request $request): Response
