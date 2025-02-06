@@ -8,11 +8,8 @@ class EmbedService
 {
     private Embera $embera;
 
-    /**
-     * @param iterable $providerFilters
-     */
     public function __construct(
-        iterable $providerFilters
+        iterable $providerFilters,
     ) {
         $embera = new Embera();
 
