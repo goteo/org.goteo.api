@@ -28,12 +28,18 @@ class EmbedService
         $this->embera = $embera;
     }
 
-    public function getData(string $url): ?EmbedData
+    /**
+     * @param string $url A URL to the a video resource
+     *
+     * @throws \Exception When the URL does not contain any embedable data
+     */
+    public function getData(string $url): EmbedData
     {
+        $url = $this->parseUrl($url);
         $data = $this->embera->getUrlData($url);
 
         if (empty($data)) {
-            return null;
+            throw new \Exception(\sprintf('Could not extract embed data from %s', $url));
         }
 
         $data = $data[$url];
@@ -41,6 +47,32 @@ class EmbedService
         return new EmbedData(
             $this->getIframeSrc($data['html']),
             \trim($data['thumbnail_url']),
+        );
+    }
+
+    private function parseUrl(string $url): string
+    {
+        $urlData = \parse_url($url);
+
+        if (!\array_key_exists('path', $urlData) || empty($urlData['path'])) {
+            return '';
+        }
+
+        if (!\array_key_exists('scheme', $urlData)) {
+            return $this->parseUrl(\sprintf('https://%s', $url));
+        }
+
+        $query = '';
+        if (\array_key_exists('query', $urlData)) {
+            $query = \sprintf('?%s', $urlData['query']);
+        }
+
+        return \sprintf(
+            '%s://%s%s%s',
+            $urlData['scheme'],
+            $urlData['host'],
+            $urlData['path'],
+            $query
         );
     }
 
