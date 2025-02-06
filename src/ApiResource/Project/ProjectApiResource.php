@@ -9,10 +9,13 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\ProjectVideo;
 use App\Mapping\Transformer\BudgetMapTransformer;
+use App\Mapping\Transformer\ProjectVideoMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
 use AutoMapper\Attribute\MapFrom;
+use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -81,6 +84,21 @@ class ProjectApiResource
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $description;
+
+    /**
+     * A URL to a video showcasing the Project.
+     */
+    #[Assert\Url()]
+    #[API\ApiProperty(readable: false)]
+    #[MapTo(target: Project::class, transformer: ProjectVideoMapTransformer::class)]
+    public string $video;
+
+    /**
+     * Extracted embedding data from the Project's video.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(source: Project::class, property: 'video')]
+    public ProjectVideo $videoEmbed;
 
     /**
      * The status of a Project represents how far it is in it's life-cycle.

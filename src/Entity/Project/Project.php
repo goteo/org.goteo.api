@@ -63,6 +63,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private ?string $description = null;
 
     /**
+     * A video showcasing the Project.
+     */
+    #[ORM\Embedded(class: ProjectVideo::class)]
+    private ?ProjectVideo $video = null;
+
+    /**
      * Since Projects can be recipients of funding, they are assigned an Accounting when created.
      * A Project's Accounting represents how much money the Project has raised from the community.
      */
@@ -158,6 +164,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setDescription(string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getVideo(): ?ProjectVideo
+    {
+        return $this->video;
+    }
+
+    public function setVideo(?ProjectVideo $video): static
+    {
+        $this->video = $video;
 
         return $this;
     }
