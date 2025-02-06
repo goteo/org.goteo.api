@@ -16,6 +16,8 @@ services:
             tags: ['app.gateway.gateway']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
+        App\Service\Embed\EmbedFilterInterface:
+            tags: ['app.embed.embed_filter']
         AutoMapper\Provider\ProviderInterface:
             tags: ['app.mapping.map_provider']
         AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface:
@@ -62,6 +64,10 @@ services:
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'
+
+    App\Service\Embed\EmbedService:
+        arguments:
+            - !tagged 'app.embed.embed_filter'
 
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
