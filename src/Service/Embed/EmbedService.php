@@ -33,7 +33,7 @@ class EmbedService
      *
      * @throws \Exception When the URL does not contain any embedable data
      */
-    public function getData(string $url): EmbedData
+    public function getVideo(string $url): EmbedVideo
     {
         $url = $this->parseUrl($url);
         $data = $this->embera->getUrlData($url);
@@ -44,7 +44,7 @@ class EmbedService
 
         $data = $data[$url];
 
-        return new EmbedData(
+        return new EmbedVideo(
             $this->getIframeSrc($data['html']),
             \trim($data['thumbnail_url']),
         );

@@ -2,7 +2,7 @@
 
 namespace App\Tests\Service\Embed;
 
-use App\Service\Embed\EmbedData;
+use App\Service\Embed\EmbedVideo;
 use App\Service\Embed\EmbedService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -22,13 +22,13 @@ class EmbedServiceTest extends KernelTestCase
      */
     public function testGetsEmbedData(string $url)
     {
-        $data = $this->embedService->getData($url);
+        $embed = $this->embedService->getVideo($url);
 
-        $this->assertInstanceOf(EmbedData::class, $data);
-        $this->assertNotEmpty($data->videoUrl);
-        $this->assertStringStartsWith('http', $data->videoUrl);
-        $this->assertNotEmpty($data->thumbnailUrl);
-        $this->assertStringStartsWith('http', $data->thumbnailUrl);
+        $this->assertInstanceOf(EmbedVideo::class, $embed);
+        $this->assertNotEmpty($embed->src);
+        $this->assertStringStartsWith('http', $embed->src);
+        $this->assertNotEmpty($embed->thumbnail);
+        $this->assertStringStartsWith('http', $embed->thumbnail);
     }
 
     public function provideUrls(): array
@@ -56,7 +56,7 @@ class EmbedServiceTest extends KernelTestCase
     {
         $this->expectException(\Exception::class);
 
-        $this->embedService->getData($string);
+        $this->embedService->getVideo($string);
     }
 
     public function provideNotUrls()
