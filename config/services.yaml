@@ -18,6 +18,8 @@ services:
             tags: ['app.lib.economy.currency.exchange']
         App\Service\Embed\EmbedFilterInterface:
             tags: ['app.embed.embed_filter']
+        App\Service\Embed\Provider\EmbedProviderFactoryInterface:
+            tags: ['app.embed.provider_factory']
         AutoMapper\Provider\ProviderInterface:
             tags: ['app.mapping.map_provider']
         AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface:
@@ -69,6 +71,12 @@ services:
         arguments:
             - '%kernel.cache_dir%'
             - !tagged 'app.embed.embed_filter'
+            - !tagged 'app.embed.provider_factory'
+    
+    App\Service\Embed\Provider\PeertubeEmbedProviderFactory:
+        bind:
+            $hosts:
+                - 'peertube.plataformess.org'
 
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
