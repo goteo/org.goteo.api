@@ -16,7 +16,7 @@ services:
             tags: ['app.gateway.gateway']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
-        App\Service\Embed\EmbedFilterInterface:
+        App\Service\Embed\Filter\EmbedFilterInterface:
             tags: ['app.embed.embed_filter']
         App\Service\Embed\Provider\EmbedProviderFactoryInterface:
             tags: ['app.embed.provider_factory']

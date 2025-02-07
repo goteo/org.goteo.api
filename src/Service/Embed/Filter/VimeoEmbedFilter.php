@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Embed;
+namespace App\Service\Embed\Filter;
 
 class VimeoEmbedFilter implements EmbedFilterInterface
 {
