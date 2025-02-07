@@ -67,6 +67,7 @@ services:
 
     App\Service\Embed\EmbedService:
         arguments:
+            - '%kernel.cache_dir%'
             - !tagged 'app.embed.embed_filter'
 
     App\Library\Economy\Currency\ExchangeLocator:

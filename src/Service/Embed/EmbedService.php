@@ -2,16 +2,23 @@
 
 namespace App\Service\Embed;
 
+use Embera\Cache\Filesystem;
 use Embera\Embera;
+use Embera\Http\HttpClient;
+use Embera\Http\HttpClientCache;
 
 class EmbedService
 {
+    public const HTTP_CACHE_TTL = 86400;
+    public const HTTP_CACHE_DIR = 'embera';
+
     private Embera $embera;
 
     public function __construct(
+        string $cacheDir,
         iterable $providerFilters,
     ) {
-        $embera = new Embera();
+        $embera = new Embera([], null, $this->buildHttpCache($cacheDir));
 
         /** @var EmbedFilterInterface[] */
         $filters = \iterator_to_array($providerFilters);
@@ -26,6 +33,21 @@ class EmbedService
         }
 
         $this->embera = $embera;
+    }
+
+    private function buildHttpCache(string $rootCacheDir)
+    {
+        $emberaCacheDir = \sprintf(
+            '%s%s%s',
+            $rootCacheDir,
+            \DIRECTORY_SEPARATOR,
+            self::HTTP_CACHE_DIR
+        );
+
+        $httpCache = new HttpClientCache(new HttpClient());
+        $httpCache->setCachingEngine(new Filesystem($emberaCacheDir, self::HTTP_CACHE_TTL));
+
+        return $httpCache;
     }
 
     /**
