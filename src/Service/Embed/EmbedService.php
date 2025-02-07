@@ -6,10 +6,12 @@ use Embera\Cache\Filesystem;
 use Embera\Embera;
 use Embera\Http\HttpClient;
 use Embera\Http\HttpClientCache;
+use Embera\ProviderCollection\DefaultProviderCollection;
 
 class EmbedService
 {
-    public const HTTP_CACHE_TTL = 86400;
+    public const HTTP_CACHE_TTL = 86400 * 2;
+
     public const HTTP_CACHE_DIR = 'embera';
 
     private Embera $embera;
@@ -17,8 +19,13 @@ class EmbedService
     public function __construct(
         string $cacheDir,
         iterable $providerFilters,
+        iterable $providerFactories,
     ) {
-        $embera = new Embera([], null, $this->buildHttpCache($cacheDir));
+        $embera = new Embera(
+            config: $this->buildConfig($providerFactories),
+            collection: $this->buildCollection($providerFactories),
+            httpClient: $this->buildHttpCache($cacheDir)
+        );
 
         /** @var EmbedFilterInterface[] */
         $filters = \iterator_to_array($providerFilters);
@@ -33,6 +40,38 @@ class EmbedService
         }
 
         $this->embera = $embera;
+    }
+
+    /**
+     * @param iterable<Provider\EmbedProviderFactoryInterface> $providerFactories
+     */
+    private function buildConfig(iterable $providerFactories)
+    {
+        $config = [];
+
+        foreach ($providerFactories as $factory) {
+            $config = [...$config, ...$factory->getConfig()];
+        }
+
+        return $config;
+    }
+
+    /**
+     * @param iterable<Provider\EmbedProviderFactoryInterface> $providerFactories
+     */
+    private function buildCollection(iterable $providerFactories)
+    {
+        $defaultCollection = new DefaultProviderCollection();
+
+        foreach ($providerFactories as $factory) {
+            $providers = $factory->createProviders();
+
+            foreach ($providers as $host => $provider) {
+                $defaultCollection->addProvider($host, $provider);
+            }
+        }
+
+        return $defaultCollection;
     }
 
     private function buildHttpCache(string $rootCacheDir)
