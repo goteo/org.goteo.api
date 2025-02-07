@@ -4,6 +4,12 @@ namespace App\Service\Embed\Provider;
 
 use Embera\Provider\ProviderInterface as EmbedProviderInterface;
 
+/**
+ * Embera expects that each is provider is for one specific host,
+ * but there are many PeerTube hosts that can be accepted.
+ *
+ * This factory creates PeertubeEmbedProviders for each known Peertube instance host.
+ */
 class PeertubeEmbedProviderFactory implements EmbedProviderFactoryInterface
 {
     /**

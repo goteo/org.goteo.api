@@ -6,12 +6,18 @@ use Embera\Provider\ProviderAdapter as EmbedProvider;
 use Embera\Provider\ProviderInterface as EmbedProviderInterface;
 use Embera\Url;
 
+/**
+ * Generic PeerTube provider for Embera that can work for many instance hosts.
+ */
 class PeertubeEmbedProvider extends EmbedProvider implements EmbedProviderInterface
 {
     protected $endpoint = '/services/oembed';
 
     protected static $hosts = [];
 
+    /**
+     * Is updated when Embera decides this provider works for the URL when validating it.
+     */
     private ?string $currentHost = null;
 
     protected $httpsSupport = true;
@@ -42,7 +48,7 @@ class PeertubeEmbedProvider extends EmbedProvider implements EmbedProviderInterf
 
     public function getEndpoint(): string
     {
-        return \sprintf('https://%s%s', self::$currentHost, $this->endpoint);
+        return \sprintf('https://%s%s', $this->currentHost, $this->endpoint);
     }
 
     /** inline {@inheritdoc} */
