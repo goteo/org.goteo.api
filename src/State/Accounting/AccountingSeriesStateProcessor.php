@@ -4,13 +4,13 @@ namespace App\State\Accounting;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\ApiResource\Accounting\AccountingSerieApiResource;
+use App\ApiResource\Accounting\AccountingSeriesApiResource;
 use App\Dto\AccountingSerieDto;
 use App\Entity\Accounting\Accounting;
 use App\Mapping\AutoMapper;
 use App\Service\AccountingService;
 
-class AccountingSerieStateProcessor implements ProcessorInterface
+class AccountingSeriesStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private AutoMapper $autoMapper,
@@ -20,26 +20,29 @@ class AccountingSerieStateProcessor implements ProcessorInterface
     /**
      * @param AccountingSerieDto $data
      *
-     * @return AccountingSerieApiResource
+     * @return AccountingSeriesApiResource
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         /** @var Accounting */
         $accounting = $this->autoMapper->map($data->accounting, Accounting::class);
 
-        $balanceData = $this->accountingService->calcBalanceSerie(
+        $points = $this->accountingService->calcBalanceSeries(
             $accounting,
-            $data->dateStart,
-            $data->dateEnd,
-            $data->maxLength
+            new \DatePeriod(
+                $data->start,
+                new \DateInterval(\sprintf('PT%s', $data->interval)),
+                $data->end,
+                \DatePeriod::INCLUDE_END_DATE
+            )
         );
 
-        /** @var AccountingSerieApiResource */
-        $serie = $this->autoMapper->map($data, AccountingSerieApiResource::class);
+        /** @var AccountingSeriesApiResource */
+        $series = $this->autoMapper->map($data, AccountingSeriesApiResource::class);
 
-        $serie->data = $balanceData;
-        $serie->length = \count($balanceData);
+        $series->data = $points;
+        $series->length = \count($points);
 
-        return $serie;
+        return $series;
     }
 }
