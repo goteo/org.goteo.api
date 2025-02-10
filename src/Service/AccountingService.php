@@ -40,4 +40,42 @@ class AccountingService
 
         return $balance;
     }
+
+    /**
+     * Calculates a balance data series for a given Accounting over a period of time.
+     *
+     * @param Accounting The Accounting to calc the data series for
+     * @param \DateTimeInterface|null The date to start calculating from
+     * @param \DateTimeInterface|null The date to calculate up to. Inclusive
+     * @param int $maxLength The max number of data points to include in the returned series
+     *
+     * @return array<int, Money> a series of aggregated balances, up to $maxLength in size
+     */
+    public function calcBalanceSerie(
+        Accounting $accounting,
+        ?\DateTimeInterface $dateStart = null,
+        ?\DateTimeInterface $dateEnd = null,
+        int $maxLength = 10,
+    ): array {
+        $transactions = $this->transactionRepository->findByAccounting($accounting, $dateStart, $dateEnd, true);
+
+        $dataPointLength = \ceil(\count($transactions) / $maxLength);
+        $dataPointLength = $dataPointLength < 1 ? 1 : $dataPointLength;
+
+        $dataPointItems = \array_chunk($transactions, $dataPointLength);
+
+        /** @var Money[] */
+        $dataPoints = [];
+        foreach ($dataPointItems as $dataPointItem) {
+            $dataPointBalance = $dataPointItem[0]->getMoney();
+
+            foreach (\array_slice($dataPointItem, 1) as $trx) {
+                $dataPointBalance = $this->money->add($trx->getMoney(), $dataPointBalance);
+            }
+
+            $dataPoints[] = $dataPointBalance;
+        }
+
+        return $dataPoints;
+    }
 }
