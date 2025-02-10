@@ -3,6 +3,7 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\Money;
+use App\Entity\Trait\TimestampedCreationEntity;
 use App\Repository\Accounting\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -18,6 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
+    use TimestampedCreationEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
