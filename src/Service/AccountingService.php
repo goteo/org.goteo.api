@@ -69,6 +69,10 @@ class AccountingService
         foreach ($dataPointItems as $dataPointItem) {
             $dataPointBalance = $dataPointItem[0]->getMoney();
 
+            if (!empty($dataPoints)) {
+                $dataPointBalance = $this->money->add(\end($dataPoints), $dataPointBalance);
+            }
+
             foreach (\array_slice($dataPointItem, 1) as $trx) {
                 $dataPointBalance = $this->money->add($trx->getMoney(), $dataPointBalance);
             }
