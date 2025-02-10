@@ -59,19 +59,26 @@ class AccountingServiceTest extends KernelTestCase
         }, $tipjars);
     }
 
-    public function testBalanceSerieNotOverLength()
+    public function testBalanceSerieAggregatesData()
     {
         $accountings = $this->getBalancedAccountings();
 
+        $period = new \DatePeriod(
+            (new \DateTime('now'))->sub(new \DateInterval('PT1H')),
+            new \DateInterval('PT10M'),
+            new \DateTime('now')
+        );
+
         foreach ($accountings as $accounting) {
-            $serie = $this->accountingService->calcBalanceSerie($accounting, maxLength: 3);
+            $series = $this->accountingService->calcBalanceSeries($accounting, $period);
 
-            $this->assertLessThanOrEqual(3, \count($serie));
+            $this->assertCount(6, $series);
 
-            foreach ($serie as $dataPoint) {
-                $this->assertInstanceOf(Money::class, $dataPoint);
-                $this->assertGreaterThan(0, $dataPoint->amount);
+            foreach ($series as $point) {
+                $this->assertInstanceOf(Money::class, $point);
             }
+
+            $this->assertNotEquals(0, end($series)->amount);
         }
     }
 }

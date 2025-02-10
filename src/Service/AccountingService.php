@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\User\User;
 use App\Gateway\Wallet\WalletService;
@@ -26,9 +27,9 @@ class AccountingService
         }
 
         $balance = new Money(0, $accounting->getCurrency());
-        $transactions = $this->transactionRepository->findByAccounting($accounting);
+        $trxs = $this->transactionRepository->findByAccounting($accounting);
 
-        foreach ($transactions as $transaction) {
+        foreach ($trxs as $transaction) {
             if ($transaction->getTarget() === $accounting) {
                 $balance = $this->money->add($transaction->getMoney(), $balance);
             }
@@ -44,42 +45,58 @@ class AccountingService
     /**
      * Calculates a balance data series for a given Accounting over a period of time.
      *
-     * @param Accounting The Accounting to calc the data series for
-     * @param \DateTimeInterface|null The date to start calculating from
-     * @param \DateTimeInterface|null The date to calculate up to. Inclusive
-     * @param int $maxLength The max number of data points to include in the returned series
+     * @param Accounting  $accounting The Accounting to calc the data series for
+     * @param \DatePeriod $period     A period of time for the desired transactions and time unit of the serie
      *
-     * @return array<int, Money> a series of aggregated balances, up to $maxLength in size
+     * @return array<int, Money> A series of aggregated balances
      */
-    public function calcBalanceSerie(
+    public function calcBalanceSeries(
         Accounting $accounting,
-        ?\DateTimeInterface $dateStart = null,
-        ?\DateTimeInterface $dateEnd = null,
-        int $maxLength = 10,
+        \DatePeriod $period,
     ): array {
-        $transactions = $this->transactionRepository->findByAccounting($accounting, $dateStart, $dateEnd, true);
+        $trxs = $this->transactionRepository->findByAccounting(
+            $accounting,
+            $period->getStartDate(),
+            $period->getEndDate(),
+            true
+        );
 
-        $dataPointLength = \ceil(\count($transactions) / $maxLength);
-        $dataPointLength = $dataPointLength < 1 ? 1 : $dataPointLength;
+        /** @var Transaction[][] */
+        $intervals = [];
 
-        $dataPointItems = \array_chunk($transactions, $dataPointLength);
+        foreach ($period as $lowerBound) {
+            $upperBound = \DateTime::createFromInterface($lowerBound);
+            $upperBound->add($period->getDateInterval());
 
-        /** @var Money[] */
-        $dataPoints = [];
-        foreach ($dataPointItems as $dataPointItem) {
-            $dataPointBalance = $dataPointItem[0]->getMoney();
-
-            if (!empty($dataPoints)) {
-                $dataPointBalance = $this->money->add(\end($dataPoints), $dataPointBalance);
-            }
-
-            foreach (\array_slice($dataPointItem, 1) as $trx) {
-                $dataPointBalance = $this->money->add($trx->getMoney(), $dataPointBalance);
-            }
-
-            $dataPoints[] = $dataPointBalance;
+            $intervals[] = [...\array_filter($trxs, function (Transaction $trx) use ($lowerBound, $upperBound) {
+                return $trx->getDateCreated() >= $lowerBound
+                    && $trx->getDateCreated() < $upperBound;
+            })];
         }
 
-        return $dataPoints;
+        /** @var Money[] */
+        $points = [];
+
+        foreach ($intervals as $interval) {
+            $point = new Money(0, $accounting->getCurrency());
+
+            foreach ($interval as $trx) {
+                if ($trx->getTarget() === $accounting) {
+                    $point = $this->money->add($trx->getMoney(), $point);
+                }
+
+                if ($trx->getOrigin() === $accounting) {
+                    $point = $this->money->substract($trx->getMoney(), $point);
+                }
+            }
+
+            if (!empty($points)) {
+                $point = $this->money->add(\end($points), $point);
+            }
+
+            $points[] = $point;
+        }
+
+        return $points;
     }
 }
