@@ -3,7 +3,6 @@
 namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Metadata as API;
-use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\AccountingSerieDto;
 use App\State\Accounting\AccountingSerieStateProcessor;
 
@@ -18,7 +17,7 @@ use App\State\Accounting\AccountingSerieStateProcessor;
 class AccountingSerieApiResource
 {
     /**
-     * The source Accounting for the data serie. 
+     * The source Accounting for the data serie.
      */
     public AccountingApiResource $accounting;
 
