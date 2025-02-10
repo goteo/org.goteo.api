@@ -28,3 +28,7 @@ jobs:
           file: docker/php/Dockerfile
           target: prod
           tags: ${{ secrets.REGISTRY_URL }}/goteo-v4:latest
+
+      - name: Notify Webhook
+        run: |
+          curl -X POST ${{ secrets.WEBHOOK_URL }} -d 'success'
