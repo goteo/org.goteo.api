@@ -19,6 +19,7 @@ trait OpenApiMetadataTrait
         $resource = $operation->getTags()[0];
 
         $operationType = $this->getOperationType($operation);
+        $operationSummary = $operation->getSummary();
         $operationDescription = $operation->getDescription();
 
         switch ($operationType) {
@@ -56,7 +57,7 @@ trait OpenApiMetadataTrait
             $pathItem->getPost(),
             $pathItem->getPut(),
             $pathItem->getPatch(),
-            $pathItem->getDelete()
+            $pathItem->getDelete(),
         ])][0];
 
         $operationType = $this->getOperationType($operation);
