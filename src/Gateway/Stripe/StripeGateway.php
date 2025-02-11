@@ -2,7 +2,9 @@
 
 namespace App\Gateway\Stripe;
 
+use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Entity\Project\Project;
 use App\Entity\User\User;
 use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
@@ -10,6 +12,7 @@ use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\LinkType;
 use App\Gateway\Tracking;
+use App\Service\Gateway\CheckoutService;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
 use Stripe\Webhook as StripeWebhook;
@@ -54,7 +57,10 @@ class StripeGateway extends AbstractGateway
             // is not properly sent to Stripe and the redirection fails,
             // that's why we add the session_id template variable like this.
             // https://docs.stripe.com/payments/checkout/custom-success-page?lang=php#modify-the-success-url
-            'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $this->checkoutService->generateRedirectUrl($checkout)),
+            'success_url' => \sprintf(
+                '%s&session_id={CHECKOUT_SESSION_ID}',
+                $this->checkoutService->generateRedirectUrl($checkout, CheckoutService::RESPONSE_TYPE_SUCCESS)
+            ),
         ]);
 
         $link = new Link();
@@ -150,10 +156,8 @@ class StripeGateway extends AbstractGateway
             $price = [
                 'currency' => $charge->getMoney()->currency,
                 'unit_amount' => $charge->getMoney()->amount,
-                'product_data' => \array_filter([
-                    'name' => $charge->getTitle(),
-                    'statement_descriptor' => $charge->getDescription(),
-                ], fn($v) => $v !== null),
+                'product' => $this->getStripeProduct($charge),
+                'nickname' => $charge->getTitle(),
             ];
 
             if ($charge->getType() === ChargeType::Recurring) {
@@ -167,5 +171,38 @@ class StripeGateway extends AbstractGateway
         }
 
         return $items;
+    }
+
+    private function getStripeProduct(Charge $charge)
+    {
+        $target = $charge->getTarget()->getOwner();
+
+        if (!$target instanceof Project) {
+            throw new \Exception(\sprintf(
+                "Charges with Stripe must be to Projects, instance of '%s' supplied",
+                $target::class
+            ));
+        }
+
+        $id = \sprintf('P%d', $target->getId());
+
+        try {
+            $product = $this->stripe->products->retrieve($id);
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
+            if (!$e->getStripeCode() === 'resource_missing') {
+                throw $e;
+            }
+
+            $name = $target->getTitle();
+            $description = $target->getSubtitle();
+
+            $product = $this->stripe->products->create([
+                'id' => $id,
+                'name' => $name,
+                'description' => $description,
+            ]);
+        }
+
+        return $product;
     }
 }
