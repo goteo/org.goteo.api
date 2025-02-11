@@ -11,6 +11,7 @@ use ApiPlatform\OpenApi\OpenApi;
 class OpenApiFactory implements OpenApiFactoryInterface
 {
     use OpenApiMetadataTrait;
+    use RedocExtensionsTrait;
 
     public function __construct(private OpenApiFactoryInterface $decorated) {}
 
@@ -77,6 +78,7 @@ class OpenApiFactory implements OpenApiFactoryInterface
         $openApi = $openApi->withInfo($this->getInfoWithDescription($openApi));
         $openApi = $openApi->withTags($this->getComponentsSchemasTags($openApi));
         $openApi = $openApi->withPaths($this->getUpdatedPaths($openApi));
+        $openApi = $openApi->withExtensionProperty('x-tagGroups', $this->getTagGroups($openApi));
 
         $securitySchemes = $openApi->getComponents()->getSecuritySchemes() ?: new \ArrayObject();
         $securitySchemes['access_token'] = new SecurityScheme(
