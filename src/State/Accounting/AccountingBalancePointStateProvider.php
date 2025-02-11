@@ -25,9 +25,7 @@ class AccountingBalancePointStateProvider implements ProviderInterface
         $accounting = $this->getAccounting($parameters);
         $period = $this->buildPeriod($parameters);
 
-        $points = $this->accountingService->calcBalancePoints($accounting, $period);
-
-        dd($points);
+        return $this->accountingService->calcBalancePoints($accounting, $period);
     }
 
     private function getAccounting(Parameters $parameters): Accounting
