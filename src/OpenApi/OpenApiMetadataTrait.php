@@ -3,45 +3,70 @@
 namespace App\OpenApi;
 
 use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\PathItem;
 
 trait OpenApiMetadataTrait
 {
-    private function updateOperationMetadata(Operation $operation): Operation
+    private function getOperationType(Operation $operation): string
     {
         $idParts = explode('_', $operation->getOperationId());
-        $idResource = $operation->getTags()[0];
-        $idOperation = array_slice($idParts, -1)[0];
 
+        return array_slice($idParts, -1)[0];
+    }
+
+    private function updateOperationMetadata(Operation $operation): Operation
+    {
+        $resource = $operation->getTags()[0];
+
+        $operationType = $this->getOperationType($operation);
         $operationDescription = $operation->getDescription();
 
-        switch ($idOperation) {
+        switch ($operationType) {
             case 'collection':
-                $operationId = sprintf('List all %ss', $idResource);
+                $operationSummary = sprintf('List all %ss', $resource);
                 break;
             case 'post':
-                $operationId = sprintf('Create one %s', $idResource);
-                $operationDescription = sprintf('Creates a new %s resource.', $idResource);
+                $operationSummary = sprintf('Create one %s', $resource);
+                $operationDescription = sprintf('Creates a new %s resource.', $resource);
                 break;
             case 'get':
-                $operationId = sprintf('Retrieve one %s', $idResource);
-                $operationDescription = sprintf('Retrieves one %s resource.', $idResource);
+                $operationSummary = sprintf('Retrieve one %s', $resource);
+                $operationDescription = sprintf('Retrieves one %s resource.', $resource);
                 break;
             case 'put':
-                $operationId = sprintf('Update one %s', $idResource);
+                $operationSummary = sprintf('Update one %s', $resource);
                 break;
             case 'delete':
-                $operationId = sprintf('Delete one %s', $idResource);
+                $operationSummary = sprintf('Delete one %s', $resource);
                 break;
             case 'patch':
-                $operationId = sprintf('Patch one %s', $idResource);
+                $operationSummary = sprintf('Patch one %s', $resource);
                 break;
-            default:
-                $operationId = $operation->getOperationId();
         }
 
         return $operation
-            ->withSummary($operationId)
-            ->withOperationId($operationId)
+            ->withSummary($operationSummary)
             ->withDescription($operationDescription);
+    }
+
+    private function updatePathItemOperation(PathItem $pathItem)
+    {
+        $operation = [...\array_filter([
+            $pathItem->getGet(),
+            $pathItem->getPost(),
+            $pathItem->getPut(),
+            $pathItem->getPatch(),
+            $pathItem->getDelete()
+        ])][0];
+
+        $operationType = $this->getOperationType($operation);
+
+        if ($operationType === 'collection') {
+            $operationType = 'get';
+        }
+
+        $withOperation = \sprintf('with%s', \ucfirst($operationType));
+
+        return $pathItem->$withOperation($this->updateOperationMetadata($operation));
     }
 }

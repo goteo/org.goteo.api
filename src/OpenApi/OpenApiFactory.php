@@ -4,7 +4,6 @@ namespace App\OpenApi;
 
 use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
 use ApiPlatform\OpenApi\Model\Info;
-use ApiPlatform\OpenApi\Model\PathItem;
 use ApiPlatform\OpenApi\Model\Paths;
 use ApiPlatform\OpenApi\Model\SecurityScheme;
 use ApiPlatform\OpenApi\OpenApi;
@@ -59,39 +58,17 @@ class OpenApiFactory implements OpenApiFactoryInterface
         return $tags;
     }
 
-    private function updatePathItemOperations(PathItem $pathItem): PathItem
+    private function getUpdatedPaths(OpenApi $openApi): Paths
     {
-        if ($pathItem->getGet()) {
-            $pathItem = $pathItem->withGet(
-                $this->updateOperationMetadata($pathItem->getGet())
-            );
+        $paths = new Paths();
+
+        foreach ($openApi->getPaths()->getPaths() as $path => $pathItem) {
+            $pathItem = $this->updatePathItemOperation($pathItem);
+
+            $paths->addPath($path, $pathItem);
         }
 
-        if ($pathItem->getPost()) {
-            $pathItem = $pathItem->withPost(
-                $this->updateOperationMetadata($pathItem->getPost())
-            );
-        }
-
-        if ($pathItem->getPut()) {
-            $pathItem = $pathItem->withPut(
-                $this->updateOperationMetadata($pathItem->getPut())
-            );
-        }
-
-        if ($pathItem->getDelete()) {
-            $pathItem = $pathItem->withDelete(
-                $this->updateOperationMetadata($pathItem->getDelete())
-            );
-        }
-
-        if ($pathItem->getPatch()) {
-            $pathItem = $pathItem->withPatch(
-                $this->updateOperationMetadata($pathItem->getPatch())
-            );
-        }
-
-        return $pathItem;
+        return $paths;
     }
 
     public function __invoke(array $context = []): OpenApi
@@ -99,15 +76,7 @@ class OpenApiFactory implements OpenApiFactoryInterface
         $openApi = $this->decorated->__invoke($context);
         $openApi = $openApi->withInfo($this->getInfoWithDescription($openApi));
         $openApi = $openApi->withTags($this->getComponentsSchemasTags($openApi));
-
-        $paths = new Paths();
-        foreach ($openApi->getPaths()->getPaths() as $path => $pathItem) {
-            $pathItem = $this->updatePathItemOperations($pathItem);
-
-            $paths->addPath($path, $pathItem);
-        }
-
-        $openApi = $openApi->withPaths($paths);
+        $openApi = $openApi->withPaths($this->getUpdatedPaths($openApi));
 
         $securitySchemes = $openApi->getComponents()->getSecuritySchemes() ?: new \ArrayObject();
         $securitySchemes['access_token'] = new SecurityScheme(
