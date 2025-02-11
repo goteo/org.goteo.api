@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service;
 
+use App\ApiResource\Accounting\AccountingBalancePoint;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Tipjar;
@@ -59,26 +60,38 @@ class AccountingServiceTest extends KernelTestCase
         }, $tipjars);
     }
 
-    public function testBalanceSerieAggregatesData()
+    public function provideDateIntervals(): array
+    {
+        return [
+            [new \DateInterval('PT1H'), new \DateInterval('PT10M'), 6],
+            [new \DateInterval('PT1H'), new \DateInterval('PT23M'), 3],
+            [new \DateInterval('PT2M'), new \DateInterval('PT37S'), 4],
+        ];
+    }
+
+    /**
+     * @dataProvider provideDateIntervals
+     */
+    public function testBalancePointsLengthIsOfPeriod(\DateInterval $started, \DateInterval $interval, int $count)
     {
         $accountings = $this->getBalancedAccountings();
 
-        $period = new \DatePeriod(
-            (new \DateTime('now'))->sub(new \DateInterval('PT1H')),
-            new \DateInterval('PT10M'),
-            new \DateTime('now')
-        );
+        $now = new \DateTimeImmutable('now');
+        $period = new \DatePeriod($now->sub($started), $interval, $now);
 
         foreach ($accountings as $accounting) {
-            $series = $this->accountingService->calcBalanceSeries($accounting, $period);
+            $points = $this->accountingService->calcBalancePoints($accounting, $period);
 
-            $this->assertCount(6, $series);
+            $this->assertCount($count, $points);
 
-            foreach ($series as $point) {
-                $this->assertInstanceOf(Money::class, $point);
+            foreach ($points as $point) {
+                $this->assertInstanceOf(AccountingBalancePoint::class, $point);
             }
 
-            $this->assertNotEquals(0, end($series)->amount);
+            $end = $points[\array_key_last($points)];
+
+            $this->assertNotEquals(0, $end->length);
+            $this->assertNotEquals(0, $end->balance->amount);
         }
     }
 }
