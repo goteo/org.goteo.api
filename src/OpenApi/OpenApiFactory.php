@@ -41,12 +41,12 @@ class OpenApiFactory implements OpenApiFactoryInterface
                 continue;
             }
 
-            if (empty($schema['description'])) {
+            if (\preg_match('/.*Dto/', $name)) {
                 continue;
             }
 
-            if (\preg_match('/.*Dto/', $name)) {
-                $name = preg_replace('/\..*Dto/', '', $name);
+            if (empty($schema['description'])) {
+                continue;
             }
 
             $tags[] = [
