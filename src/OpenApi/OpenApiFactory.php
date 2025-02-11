@@ -3,7 +3,7 @@
 namespace App\OpenApi;
 
 use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
-use ApiPlatform\OpenApi\Model;
+use ApiPlatform\OpenApi\Model\Info;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\PathItem;
 use ApiPlatform\OpenApi\Model\Paths;
@@ -13,6 +13,20 @@ use ApiPlatform\OpenApi\OpenApi;
 class OpenApiFactory implements OpenApiFactoryInterface
 {
     public function __construct(private OpenApiFactoryInterface $decorated) {}
+
+    private function getInfoWithDescription(OpenApi $openApi): Info
+    {
+        $description = \file_get_contents(sprintf(
+            '%s%s%s',
+            __DIR__,
+            DIRECTORY_SEPARATOR,
+            'OpenApiDescription.md'
+        ));
+
+        return $openApi
+            ->getInfo()
+            ->withDescription($description);
+    }
 
     private function updateOperation(Operation $operation): Operation
     {
@@ -92,18 +106,7 @@ class OpenApiFactory implements OpenApiFactoryInterface
     {
         $openApi = $this->decorated->__invoke($context);
 
-        $openApi = $openApi->withInfo(
-            $openApi
-                ->getInfo()
-                ->withDescription(
-                    \file_get_contents(sprintf(
-                        '%s%s%s',
-                        __DIR__,
-                        DIRECTORY_SEPARATOR,
-                        'OpenApiDescription.md'
-                    ))
-                )
-        );
+        $openApi = $openApi->withInfo($this->getInfoWithDescription($openApi));
 
         $tags = [];
         foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
