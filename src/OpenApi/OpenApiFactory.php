@@ -28,6 +28,36 @@ class OpenApiFactory implements OpenApiFactoryInterface
             ->withDescription($description);
     }
 
+    private function getComponentsSchemasTags(OpenApi $openApi): array
+    {
+        $tags = [];
+
+        foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
+            if (\preg_match('/.*\.patch/', $name)) {
+                continue;
+            }
+
+            if (\preg_match('/.*\.jsonld/', $name)) {
+                continue;
+            }
+
+            if (empty($schema['description'])) {
+                continue;
+            }
+
+            if (\preg_match('/.*Dto/', $name)) {
+                $name = preg_replace('/\..*Dto/', '', $name);
+            }
+
+            $tags[] = [
+                'name' => $name,
+                'description' => $schema['description'],
+            ];
+        }
+
+        return $tags;
+    }
+
     private function updateOperation(Operation $operation): Operation
     {
         $idParts = explode('_', $operation->getOperationId());
@@ -105,34 +135,8 @@ class OpenApiFactory implements OpenApiFactoryInterface
     public function __invoke(array $context = []): OpenApi
     {
         $openApi = $this->decorated->__invoke($context);
-
         $openApi = $openApi->withInfo($this->getInfoWithDescription($openApi));
-
-        $tags = [];
-        foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
-            if (\preg_match('/.*\.patch/', $name)) {
-                continue;
-            }
-
-            if (\preg_match('/.*\.jsonld/', $name)) {
-                continue;
-            }
-
-            if (empty($schema['description'])) {
-                continue;
-            }
-
-            if (\preg_match('/.*Dto/', $name)) {
-                $name = preg_replace('/\..*Dto/', '', $name);
-            }
-
-            $tags[] = [
-                'name' => $name,
-                'description' => $schema['description'],
-            ];
-        }
-
-        $openApi = $openApi->withTags($tags);
+        $openApi = $openApi->withTags($this->getComponentsSchemasTags($openApi));
 
         $paths = new Paths();
         foreach ($openApi->getPaths()->getPaths() as $path => $pathItem) {
