@@ -92,10 +92,6 @@ class OpenApiFactory implements OpenApiFactoryInterface
     {
         $openApi = $this->decorated->__invoke($context);
 
-        $openApi = $openApi->withServers([
-            new Model\Server(sprintf('%s://%s', $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST'])),
-        ]);
-
         $openApi = $openApi->withInfo(
             $openApi
                 ->getInfo()
