@@ -4,7 +4,6 @@ namespace App\OpenApi;
 
 use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
 use ApiPlatform\OpenApi\Model\Info;
-use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\PathItem;
 use ApiPlatform\OpenApi\Model\Paths;
 use ApiPlatform\OpenApi\Model\SecurityScheme;
@@ -12,6 +11,8 @@ use ApiPlatform\OpenApi\OpenApi;
 
 class OpenApiFactory implements OpenApiFactoryInterface
 {
+    use OpenApiMetadataTrait;
+
     public function __construct(private OpenApiFactoryInterface $decorated) {}
 
     private function getInfoWithDescription(OpenApi $openApi): Info
@@ -58,74 +59,35 @@ class OpenApiFactory implements OpenApiFactoryInterface
         return $tags;
     }
 
-    private function updateOperation(Operation $operation): Operation
-    {
-        $idParts = explode('_', $operation->getOperationId());
-        $idResource = $operation->getTags()[0];
-        $idOperation = array_slice($idParts, -1)[0];
-
-        $operationDescription = $operation->getDescription();
-
-        switch ($idOperation) {
-            case 'collection':
-                $operationId = sprintf('List all %ss', $idResource);
-                break;
-            case 'post':
-                $operationId = sprintf('Create one %s', $idResource);
-                $operationDescription = sprintf('Creates a new %s resource.', $idResource);
-                break;
-            case 'get':
-                $operationId = sprintf('Retrieve one %s', $idResource);
-                $operationDescription = sprintf('Retrieves one %s resource.', $idResource);
-                break;
-            case 'put':
-                $operationId = sprintf('Update one %s', $idResource);
-                break;
-            case 'delete':
-                $operationId = sprintf('Delete one %s', $idResource);
-                break;
-            case 'patch':
-                $operationId = sprintf('Patch one %s', $idResource);
-                break;
-            default:
-                $operationId = $operation->getOperationId();
-        }
-
-        return $operation
-            ->withSummary($operationId)
-            ->withOperationId($operationId)
-            ->withDescription($operationDescription);
-    }
-
     private function updatePathItemOperations(PathItem $pathItem): PathItem
     {
         if ($pathItem->getGet()) {
             $pathItem = $pathItem->withGet(
-                $this->updateOperation($pathItem->getGet())
+                $this->updateOperationMetadata($pathItem->getGet())
             );
         }
 
         if ($pathItem->getPost()) {
             $pathItem = $pathItem->withPost(
-                $this->updateOperation($pathItem->getPost())
+                $this->updateOperationMetadata($pathItem->getPost())
             );
         }
 
         if ($pathItem->getPut()) {
             $pathItem = $pathItem->withPut(
-                $this->updateOperation($pathItem->getPut())
+                $this->updateOperationMetadata($pathItem->getPut())
             );
         }
 
         if ($pathItem->getDelete()) {
             $pathItem = $pathItem->withDelete(
-                $this->updateOperation($pathItem->getDelete())
+                $this->updateOperationMetadata($pathItem->getDelete())
             );
         }
 
         if ($pathItem->getPatch()) {
             $pathItem = $pathItem->withPatch(
-                $this->updateOperation($pathItem->getPatch())
+                $this->updateOperationMetadata($pathItem->getPatch())
             );
         }
 
