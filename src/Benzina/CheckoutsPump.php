@@ -21,7 +21,6 @@ use App\Repository\Project\ProjectRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Gateway\CheckoutService;
-use Doctrine\ORM\EntityManagerInterface;
 use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -49,7 +48,6 @@ class CheckoutsPump extends AbstractPump
         private UserRepository $userRepository,
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
-        private EntityManagerInterface $entityManager,
         private CheckoutService $checkoutService,
     ) {}
 

@@ -3,7 +3,6 @@
 namespace App\Benzina;
 
 use App\Entity\User\User;
-use Doctrine\ORM\EntityManagerInterface;
 use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -13,10 +12,6 @@ class UsersPump extends AbstractPump
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
     use UsersPumpTrait;
-
-    public function __construct(
-        private EntityManagerInterface $entityManager,
-    ) {}
 
     public function supports(mixed $sample): bool
     {
