@@ -46,6 +46,11 @@ class UsersPump extends AbstractPump
 
     private function normalizeUsername(string $username): ?string
     {
+        // If email remove provider
+        if (\str_contains($username, '@') && \preg_match('/^[\w]+[^@]/', $username, $matches)) {
+            $username = $matches[0];
+        }
+
         // Only lowercase a-z, numbers and underscore in usernames
         $username = \preg_replace('/[^a-z0-9_]/', '_', \strtolower($username));
 
@@ -67,7 +72,7 @@ class UsersPump extends AbstractPump
         $username = $this->normalizeUsername($record['id']);
 
         if ($username === null) {
-            $username = $this->normalizeUsername($record['email']);
+            return $this->normalizeUsername($record['email']);
         }
 
         return $username;
