@@ -3,7 +3,6 @@
 namespace App\Benzina;
 
 use App\Entity\User\User;
-use Doctrine\ORM\EntityManagerInterface;
 use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -13,10 +12,6 @@ class UsersPump extends AbstractPump
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
     use UsersPumpTrait;
-
-    public function __construct(
-        private EntityManagerInterface $entityManager,
-    ) {}
 
     public function supports(mixed $sample): bool
     {
@@ -46,6 +41,11 @@ class UsersPump extends AbstractPump
 
     private function normalizeUsername(string $username): ?string
     {
+        // If email remove provider
+        if (\str_contains($username, '@') && \preg_match('/^[\w]+[^@]/', $username, $matches)) {
+            $username = $matches[0];
+        }
+
         // Only lowercase a-z, numbers and underscore in usernames
         $username = \preg_replace('/[^a-z0-9_]/', '_', \strtolower($username));
 
@@ -67,7 +67,7 @@ class UsersPump extends AbstractPump
         $username = $this->normalizeUsername($record['id']);
 
         if ($username === null) {
-            $username = $this->normalizeUsername($record['email']);
+            return $this->normalizeUsername($record['email']);
         }
 
         return $username;
