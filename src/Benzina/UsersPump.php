@@ -13,6 +13,8 @@ class UsersPump extends AbstractPump
     use DoctrinePumpTrait;
     use UsersPumpTrait;
 
+    private int $userCount = 0;
+
     public function supports(mixed $sample): bool
     {
         if (\is_array($sample) && $this->hasAllKeys($sample, self::USER_KEYS)) {
@@ -37,6 +39,7 @@ class UsersPump extends AbstractPump
         $user->setDateUpdated(new \DateTime());
 
         $this->persist($user);
+        ++$this->userCount;
     }
 
     private function normalizeUsername(string $username): ?string
@@ -67,10 +70,12 @@ class UsersPump extends AbstractPump
         $username = $this->normalizeUsername($record['id']);
 
         if ($username === null) {
-            return $this->normalizeUsername($record['email']);
+            $username = $this->normalizeUsername($record['email']);
         }
 
-        return $username;
+        $sequenceNumber = \substr($this->userCount, -2, 2);
+
+        return \sprintf('%s_%s', $username, $sequenceNumber);
     }
 
     private function getDateCreated(array $record): \DateTime
