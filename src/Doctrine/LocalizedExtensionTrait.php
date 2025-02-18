@@ -7,6 +7,7 @@ use App\Entity\Interface\LocalizedEntityInterface;
 use App\Service\LocalizationService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Gedmo\Translatable\Query\TreeWalker\TranslationWalker;
 use Gedmo\Translatable\TranslatableListener;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -40,10 +41,7 @@ trait LocalizedExtensionTrait
     {
         $query = $queryBuilder->getQuery();
 
-        $query->setHint(
-            Query::HINT_CUSTOM_OUTPUT_WALKER,
-            'Gedmo\\Translatable\\Query\\TreeWalker\\TranslationWalker'
-        );
+        $query->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, TranslationWalker::class);
 
         \array_reverse($locales);
         foreach ($locales as $locale) {
