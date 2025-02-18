@@ -60,6 +60,10 @@ class LocalizationService
         $tags = $this->parseLanguageTags($tags);
 
         foreach ($tags as $key => $tag) {
+            if ($tag === '*') {
+                continue;
+            }
+
             $tags[$key] = $this->getPrimaryLanguage($tag);
         }
 
@@ -68,7 +72,12 @@ class LocalizationService
 
     private function getPrimaryLanguage(string $tag): string
     {
+        if ($tag === '*') {
+            return $tag;
+        }
+
         $language = \Locale::getPrimaryLanguage($tag);
+
         if ($language === null) {
             throw new \Exception(\sprintf(self::ERROR_TAG_INVALID_LANG, $tag));
         }
