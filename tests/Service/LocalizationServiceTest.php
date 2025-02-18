@@ -22,14 +22,14 @@ class LocalizationServiceTest extends KernelTestCase
     {
         $this->expectException(\Exception::class);
 
-        $this->localizationService->getLanguage('*;q=0.5');
+        $this->localizationService->getLanguage('nq;q=0.5');
     }
 
     public function testThrowsUnknownLanguageExceptionInTagList()
     {
         $this->expectException(\Exception::class);
 
-        $this->localizationService->getLanguages('fr-FR, *;q=0.5');
+        $this->localizationService->getLanguages('fr-FR, nq;q=0.5');
     }
 
     public function testGetsFirstLanguageFromTags()
