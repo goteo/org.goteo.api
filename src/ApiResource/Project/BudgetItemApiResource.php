@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Money;
@@ -27,6 +28,7 @@ class BudgetItemApiResource
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ProjectApiResource $project;
 
     /**
