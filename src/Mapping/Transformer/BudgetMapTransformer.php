@@ -54,7 +54,7 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         foreach ($items as $item) {
             $itemMinimum = $item->getMinimum();
 
-            if ($itemMinimum === null || $itemMinimum->currency === '') {
+            if ($itemMinimum === null || !isset($itemMinimum->amount)) {
                 $itemMinimum = new Money(0, $currency);
             }
 
@@ -62,7 +62,7 @@ class BudgetMapTransformer implements PropertyTransformerInterface
 
             $itemOptimum = $item->getOptimum();
 
-            if ($itemOptimum === null || $itemOptimum->currency === '') {
+            if ($itemOptimum === null || !isset($itemOptimum->amount)) {
                 $itemOptimum = new Money(0, $currency);
             }
 
