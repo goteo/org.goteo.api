@@ -5,8 +5,10 @@ namespace App\Benzina;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
+use App\Entity\Project\ProjectVideo;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
+use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
 use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
@@ -21,6 +23,7 @@ class ProjectsPump extends AbstractPump
     public function __construct(
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
+        private EmbedService $embedService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -54,6 +57,7 @@ class ProjectsPump extends AbstractPump
         $project->setSubtitle($record['subtitle']);
         $project->setTerritory($this->getProjectTerritory($record));
         $project->setDescription($record['description']);
+        $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
         $project->setStatus($status);
         $project->setMigrated(true);
@@ -98,5 +102,16 @@ class ProjectsPump extends AbstractPump
         }
 
         return $this->territoryService->search($cleanAddress);
+    }
+
+    private function getProjectVideo(array $record): ?ProjectVideo
+    {
+        if ($record['video'] === null) {
+            return null;
+        }
+
+        $video = $this->embedService->getVideo($record['video']);
+
+        return new ProjectVideo($video->src, $video->thumbnail);
     }
 }
