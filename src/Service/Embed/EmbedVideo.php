@@ -13,6 +13,6 @@ class EmbedVideo
         /**
          * A URL path to the embedded video element thumbnail.
          */
-        public readonly string $thumbnail,
+        public readonly ?string $thumbnail = null,
     ) {}
 }

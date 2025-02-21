@@ -110,8 +110,22 @@ class ProjectsPump extends AbstractPump
             return null;
         }
 
-        $video = $this->embedService->getVideo($record['video']);
+        $url = \trim($record['video']);
 
-        return new ProjectVideo($video->src, $video->thumbnail);
+        if ($url === '') {
+            return null;
+        }
+
+        if (!\str_contains($url, '.')) {
+            return null;
+        }
+
+        try {
+            $video = $this->embedService->getVideo($url);
+
+            return new ProjectVideo($video->src, $video->thumbnail);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }
