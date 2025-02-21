@@ -47,6 +47,6 @@ final class ProjectVoter extends Voter
             return true;
         }
 
-        return $this->isOwnerOf($project, $user);        
+        return $this->isOwnerOf($project, $user);
     }
 }
