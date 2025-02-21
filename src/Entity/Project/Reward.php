@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
  */
 #[MapProvider(EntityMapProvider::class)]
+#[ORM\Table(name: 'project_reward')]
 #[ORM\Entity(repositoryClass: RewardRepository::class)]
 class Reward
 {

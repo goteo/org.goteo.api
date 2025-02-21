@@ -4,7 +4,9 @@ namespace App\Entity\Accounting;
 
 use App\Entity\Money;
 use App\Entity\Trait\TimestampedCreationEntity;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\TransactionRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -16,6 +18,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * \
  * AccountingTransactions are generated for each GatewayCharge in a GatewayCheckout once it becomes successful.
  */
+#[MapProvider(EntityMapProvider::class)]
+#[ORM\Table(name: 'accounting_transaction')]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
