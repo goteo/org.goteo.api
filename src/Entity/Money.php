@@ -18,17 +18,17 @@ class Money
      * Expressed as the minor unit, e.g: cents, pennies, etc.
      */
     #[ORM\Column(type: 'integer', nullable: true)]
-    public readonly int $amount;
+    public readonly ?int $amount;
 
     /**
      * 3-letter ISO 4217 currency code.
      */
     #[ORM\Column(type: 'string', nullable: true)]
-    public readonly string $currency;
+    public readonly ?string $currency;
 
     public function __construct(
-        int $amount,
-        string $currency,
+        ?int $amount = null,
+        ?string $currency = null,
     ) {
         $this->amount = $amount;
         $this->currency = $currency;
