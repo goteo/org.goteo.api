@@ -11,6 +11,10 @@ class YoutubeEmbedFilter implements EmbedFilterInterface
 
     public static function filter(array $data): array
     {
+        if (!\array_key_exists('thumbnail_url', $data)) {
+            return $data;
+        }
+
         $data['thumbnail_url'] = \preg_replace('/\w+.jpg$/', 'maxresdefault.jpg', $data['thumbnail_url']);
 
         return $data;

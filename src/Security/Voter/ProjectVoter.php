@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\ApiResource\Project\ProjectApiResource;
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -28,11 +29,24 @@ final class ProjectVoter extends Voter
 
         switch ($attribute) {
             case self::EDIT:
-                return $this->isOwnerOf($subject, $user);
+                return $this->canEdit($subject, $user);
             case self::VIEW:
                 return true;
         }
 
         return false;
+    }
+
+    private function canEdit(ProjectApiResource $project, User $user): bool
+    {
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        if ($user->hasRoles(['ROLE_ADMIN'])) {
+            return true;
+        }
+
+        return $this->isOwnerOf($project, $user);
     }
 }

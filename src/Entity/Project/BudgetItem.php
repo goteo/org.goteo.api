@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[MapProvider(EntityMapProvider::class)]
+#[ORM\Table(name: 'project_budget_item')]
 #[ORM\Entity(repositoryClass: BudgetItemRepository::class)]
 class BudgetItem implements LocalizedEntityInterface
 {

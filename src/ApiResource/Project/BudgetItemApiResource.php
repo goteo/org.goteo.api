@@ -5,7 +5,7 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\Entity\Money;
+use App\ApiResource\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\State\ApiResourceStateProcessor;
@@ -61,11 +61,13 @@ class BudgetItemApiResource
      * How much money it's needed for this item to be succesfully satisfied.
      */
     #[Assert\Valid()]
-    public Money $minimum;
+    #[Assert\When('this.optimum == null', constraints: [new Assert\NotBlank()])]
+    public ?Money $minimum = null;
 
     /**
      * How much money would be ideal for this item to be fully satisfied.
      */
     #[Assert\Valid()]
-    public Money $optimum;
+    #[Assert\When('this.minimum == null', constraints: [new Assert\NotBlank()])]
+    public ?Money $optimum = null;
 }

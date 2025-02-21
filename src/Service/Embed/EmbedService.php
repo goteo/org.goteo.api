@@ -107,7 +107,7 @@ class EmbedService
 
         return new EmbedVideo(
             $this->getIframeSrc($data['html']),
-            \trim($data['thumbnail_url']),
+            \array_key_exists('thumbnail_url', $data) ? \trim($data['thumbnail_url']) : null
         );
     }
 

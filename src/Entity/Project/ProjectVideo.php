@@ -13,6 +13,6 @@ class ProjectVideo extends EmbedVideo
         #[ORM\Column(type: Types::STRING, nullable: true)]
         public readonly string $src = '',
         #[ORM\Column(type: Types::STRING, nullable: true)]
-        public readonly string $thumbnail = '',
+        public readonly ?string $thumbnail = null,
     ) {}
 }
