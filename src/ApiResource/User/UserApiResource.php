@@ -49,13 +49,7 @@ class UserApiResource
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
-    public string $username;
-
-    /**
-     * Display name chosen by the User.
-     */
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
-    public string $name;
+    public string $handle;
 
     /**
      * A list of the roles assigned to this User. Admin scopped property.

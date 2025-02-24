@@ -30,7 +30,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
 #[UniqueEntity('email', message: 'This email address is already registered.')]
-#[UniqueEntity('username', message: 'This usernames already exists.')]
+#[UniqueEntity('handle', message: 'This handle is already in use.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
@@ -57,7 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      */
     #[Gedmo\Versioned]
     #[ORM\Column(length: 255, unique: true)]
-    private ?string $username = null;
+    private ?string $handle = null;
 
     /**
      * @var list<string> The user roles. Admin only property.
@@ -130,7 +130,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->username;
+        return (string) $this->handle;
     }
 
     public function getEmail(): ?string
@@ -157,14 +157,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    public function getUsername(): ?string
+    public function getHandle(): ?string
     {
-        return $this->username;
+        return $this->handle;
     }
 
-    public function setUsername(?string $username): static
+    public function setHandle(?string $handle): static
     {
-        $this->username = strtolower($username);
+        $this->handle = strtolower($handle);
 
         return $this;
     }

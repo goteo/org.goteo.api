@@ -27,7 +27,7 @@ class UsersPump extends AbstractPump
     public function pump(mixed $record): void
     {
         $user = new User();
-        $user->setUsername($this->getUsername($record));
+        $user->setHandle($this->buildHandle($record));
         $user->setPassword($record['password'] ?? '');
         $user->setEmail($record['email']);
         $user->setEmailConfirmed(false);
@@ -42,40 +42,40 @@ class UsersPump extends AbstractPump
         ++$this->userCount;
     }
 
-    private function normalizeUsername(string $username): ?string
+    private function normalizeStringForHandle(string $value): ?string
     {
         // If email remove provider
-        if (\str_contains($username, '@') && \preg_match('/^[\w]+[^@]/', $username, $matches)) {
-            $username = $matches[0];
+        if (\str_contains($value, '@') && \preg_match('/^[\w]+[^@]/', $value, $matches)) {
+            $value = $matches[0];
         }
 
-        // Only lowercase a-z, numbers and underscore in usernames
-        $username = \preg_replace('/[^a-z0-9_]/', '_', \strtolower($username));
+        // Only lowercase a-z, numbers and underscore in user handles
+        $value = \preg_replace('/[^a-z0-9_]/', '_', \strtolower($value));
 
         // Min length 4
-        $username = \str_pad($username, 4, '_');
+        $value = \str_pad($value, 4, '_');
 
         // Max length 30
-        $username = \substr($username, 0, 30);
+        $value = \substr($value, 0, 30);
 
-        if (strlen(str_replace('_', '', $username)) < 1) {
+        if (strlen(str_replace('_', '', $value)) < 1) {
             return null;
         }
 
-        return $username;
+        return $value;
     }
 
-    private function getUsername(array $record): string
+    private function buildHandle(array $record): string
     {
-        $username = $this->normalizeUsername($record['id']);
+        $handle = $this->normalizeStringForHandle($record['id']);
 
-        if ($username === null) {
-            $username = $this->normalizeUsername($record['email']);
+        if ($handle === null) {
+            $handle = $this->normalizeStringForHandle($record['email']);
         }
 
         $sequenceNumber = \substr($this->userCount, -2, 2);
 
-        return \sprintf('%s_%s', $username, $sequenceNumber);
+        return \sprintf('%s_%s', $handle, $sequenceNumber);
     }
 
     private function getDateCreated(array $record): \DateTime
