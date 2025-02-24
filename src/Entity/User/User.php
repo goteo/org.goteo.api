@@ -75,6 +75,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
     private Collection $tokens;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Person $personalData = null;
+
     /**
      * @var list<string> The user roles. Admin only property.
      */
@@ -93,9 +96,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\Column]
     private ?bool $active = null;
 
-    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    private ?UserPersonal $personalData = null;
-
     /**
      * Is this user for an individual acting on their own or a larger group of individuals?
      */
@@ -112,8 +112,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     {
         $this->accounting = Accounting::of($this);
 
-        $this->tokens = new ArrayCollection();
         $this->projects = new ArrayCollection();
+        $this->tokens = new ArrayCollection();
+        $this->personalData = Person::for($this);
 
         $this->emailConfirmed = false;
         $this->active = false;
@@ -250,6 +251,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
+    public function getPersonalData(): ?Person
+    {
+        return $this->personalData;
+    }
+
+    public function setPersonalData(Person $personalData): static
+    {
+        // set the owning side of the relation if necessary
+        if ($personalData->getUser() !== $this) {
+            $personalData->setUser($this);
+        }
+
+        $this->personalData = $personalData;
+
+        return $this;
+    }
+
     /**
      * @see UserInterface
      *
@@ -299,23 +317,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setActive(bool $active): static
     {
         $this->active = $active;
-
-        return $this;
-    }
-
-    public function getPersonalData(): ?UserPersonal
-    {
-        return $this->personalData;
-    }
-
-    public function setPersonalData(UserPersonal $personalData): static
-    {
-        // set the owning side of the relation if necessary
-        if ($personalData->getUser() !== $this) {
-            $personalData->setUser($this);
-        }
-
-        $this->personalData = $personalData;
 
         return $this;
     }
