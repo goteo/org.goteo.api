@@ -13,6 +13,7 @@ use App\Repository\User\UserRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -94,6 +95,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserPersonal $personalData = null;
+
+    /**
+     * Is this user for an individual acting on their own or a larger group of individuals?
+     */
+    #[ORM\Column(enumType: UserType::class)]
+    private ?UserType $type = null;
+
+    /**
+     * URL to the avatar image of this User.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $avatar = null;
 
     public function __construct()
     {
@@ -303,6 +316,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         }
 
         $this->personalData = $personalData;
+
+        return $this;
+    }
+
+    public function getType(): ?UserType
+    {
+        return $this->type;
+    }
+
+    public function setType(UserType $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): static
+    {
+        $this->avatar = $avatar;
 
         return $this;
     }

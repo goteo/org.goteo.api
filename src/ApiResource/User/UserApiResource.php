@@ -7,6 +7,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\UserSignupDto;
 use App\Entity\User\User;
+use App\Entity\User\UserType;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\State\ApiResourceStateProcessor;
@@ -48,6 +49,29 @@ class UserApiResource
     public string $handle;
 
     /**
+     * URL to the avatar image of this User.
+     */
+    #[Assert\Url()]
+    public string $avatar;
+
+    /**
+     * Is this User for an individual acting on their own or a group of individuals?
+     */
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("USER_EDIT")')]
+    public UserType $type;
+
+    /**
+     * A list of the roles assigned to this User. Admin scoped property.
+     *
+     * @var array<int, string>
+     */
+    #[API\ApiProperty(
+        security: 'is_granted("ROLE_ADMIN")',
+        securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
+    )]
+    public array $roles;
+
+    /**
      * The Accounting for this User monetary movements.
      */
     #[API\ApiProperty(writable: false)]
@@ -62,17 +86,6 @@ class UserApiResource
     public array $projects;
 
     /**
-     * A list of the roles assigned to this User. Admin scoped property.
-     *
-     * @var array<int, string>
-     */
-    #[API\ApiProperty(
-        security: 'is_granted("ROLE_ADMIN")',
-        securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
-    )]
-    public array $roles;
-
-    /**
      * Has this User confirmed their email address?
      */
     #[API\ApiProperty(writable: false)]
@@ -81,5 +94,6 @@ class UserApiResource
     /**
      * A flag determined by the platform for Users who are known to be active.
      */
+    #[API\ApiProperty(writable: false)]
     public bool $active;
 }
