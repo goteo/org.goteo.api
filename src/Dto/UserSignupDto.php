@@ -6,24 +6,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserSignupDto
 {
+    /**
+     * A valid e-mail address for the new User.
+     */
     #[Assert\NotBlank()]
     #[Assert\Email()]
     public string $email;
 
+    /**
+     * The auth password for the new User. Plaintext string,
+     * will be hashed by the API.
+     */
     #[Assert\NotBlank()]
     #[Assert\Length(min: 8)]
     public string $password;
-
-    /**
-     * A unique, non white space, byte-safe string identifier for this User.
-     */
-    #[Assert\NotBlank()]
-    #[Assert\Length(min: 4, max: 30)]
-    #[Assert\Regex('/^[a-z0-9_]+$/')]
-    public string $username;
-
-    /**
-     * Display name chosen by the User.
-     */
-    public string $name;
 }

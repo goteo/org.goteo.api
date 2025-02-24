@@ -2,7 +2,6 @@
 
 namespace App\ApiResource\User;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -39,9 +38,6 @@ class UserApiResource
     #[Assert\Email()]
     public string $email;
 
-    #[API\ApiProperty(writable: false)]
-    public bool $emailConfirmed;
-
     /**
      * A unique, non white space, byte-safe string identifier for this User.
      */
@@ -50,14 +46,6 @@ class UserApiResource
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
     public string $handle;
-
-    /**
-     * A list of the roles assigned to this User. Admin scopped property.
-     *
-     * @var array<int, string>
-     */
-    #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
-    public array $roles;
 
     /**
      * The Accounting for this User monetary movements.
@@ -72,4 +60,26 @@ class UserApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $projects;
+
+    /**
+     * A list of the roles assigned to this User. Admin scoped property.
+     *
+     * @var array<int, string>
+     */
+    #[API\ApiProperty(
+        security: 'is_granted("ROLE_ADMIN")',
+        securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
+    )]
+    public array $roles;
+
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[API\ApiProperty(writable: false)]
+    public bool $emailConfirmed;
+
+    /**
+     * A flag determined by the platform for Users who are known to be active.
+     */
+    public bool $active;
 }

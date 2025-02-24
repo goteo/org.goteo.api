@@ -47,10 +47,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private ?string $email = null;
 
     /**
-     * Has this User confirmed their email address?
+     * @var string The user password
      */
     #[ORM\Column]
-    private ?bool $emailConfirmed = null;
+    private ?string $password = null;
 
     /**
      * Human readable, non white space, unique string.
@@ -58,12 +58,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[Gedmo\Versioned]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $handle = null;
-
-    /**
-     * @var list<string> The user roles. Admin only property.
-     */
-    #[ORM\Column]
-    private array $roles = [];
 
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist'])]
     private ?Accounting $accounting = null;
@@ -81,41 +75,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private Collection $tokens;
 
     /**
+     * @var list<string> The user roles. Admin only property.
+     */
+    #[ORM\Column]
+    private array $roles = [];
+
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[ORM\Column]
+    private ?bool $emailConfirmed = null;
+
+    /**
      * A flag determined by the platform for Users who are known to be active.
      */
     #[ORM\Column]
     private ?bool $active = null;
 
-    /**
-     * Path to the Users's avatar image.
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatar = null;
-
-    /**
-     * Conventional name of the person owning this User.
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $name = null;
-
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserPersonal $personalData = null;
-
-    /**
-     * @var string The user password
-     */
-    #[ORM\Column]
-    private ?string $password = null;
 
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
 
-        $this->emailConfirmed = false;
-        $this->active = false;
-
         $this->tokens = new ArrayCollection();
         $this->projects = new ArrayCollection();
+
+        $this->emailConfirmed = false;
+        $this->active = false;
     }
 
     public function getId(): ?int
@@ -145,16 +133,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    public function isEmailConfirmed(): ?bool
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
     {
-        return $this->emailConfirmed;
+        return $this->password;
     }
 
-    public function setEmailConfirmed(bool $emailConfirmed): static
+    public function setPassword(string $password): static
     {
-        $this->emailConfirmed = $emailConfirmed;
+        $this->password = $password;
 
         return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
     }
 
     public function getHandle(): ?string
@@ -167,35 +163,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->handle = strtolower($handle);
 
         return $this;
-    }
-
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    public function hasRoles(array $roles): bool
-    {
-        return count(array_intersect($this->getRoles(), $roles)) > 0;
     }
 
     public function getAccounting(): ?Accounting
@@ -270,6 +237,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
+    /**
+     * @see UserInterface
+     *
+     * @return list<string>
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function hasRoles(array $roles): bool
+    {
+        return count(array_intersect($this->getRoles(), $roles)) > 0;
+    }
+
+    public function isEmailConfirmed(): ?bool
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setEmailConfirmed(bool $emailConfirmed): static
+    {
+        $this->emailConfirmed = $emailConfirmed;
+
+        return $this;
+    }
+
     public function isActive(): ?bool
     {
         return $this->active;
@@ -278,30 +286,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setActive(bool $active): static
     {
         $this->active = $active;
-
-        return $this;
-    }
-
-    public function getAvatar(): ?string
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar(?string $avatar): static
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): static
-    {
-        $this->name = $name;
 
         return $this;
     }
@@ -321,25 +305,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->personalData = $personalData;
 
         return $this;
-    }
-
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
     }
 }
