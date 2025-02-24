@@ -2,6 +2,7 @@
 
 namespace App\Dto;
 
+use App\Entity\User\UserType;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserSignupDto
@@ -20,4 +21,10 @@ final class UserSignupDto
     #[Assert\NotBlank()]
     #[Assert\Length(min: 8)]
     public string $password;
+
+    /**
+     * Is this User for an individual acting on their own or a group of individuals?
+     */
+    #[Assert\NotBlank()]
+    public UserType $type = UserType::Individual;
 }
