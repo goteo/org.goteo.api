@@ -72,6 +72,13 @@ class UserApiResource
     public array $roles;
 
     /**
+     * For `individual` User types: personal data about the User themselves,
+     * for `organization` User types: personal data for the organization representative.
+     */
+    #[API\ApiProperty(writable: false)]
+    public ?PersonApiResource $personal = null;
+
+    /**
      * The Accounting for this User monetary movements.
      */
     #[API\ApiProperty(writable: false)]

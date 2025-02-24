@@ -3,7 +3,9 @@
 namespace App\Entity\User;
 
 use Ambta\DoctrineEncryptBundle\Configuration\Encrypted;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\PersonRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * \
  * Sensitive personal data is encrypted before being stored on the database.
  */
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
 class Person
 {
