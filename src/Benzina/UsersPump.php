@@ -44,9 +44,9 @@ class UsersPump extends AbstractPump
 
     private function buildHandle(array $record): string
     {
-        $handle = UserService::asHandle($record['id']);
-
-        if ($handle === null) {
+        try {
+            $handle = UserService::asHandle($record['id']);
+        } catch (\Exception $e) {
             $handle = UserService::asHandle($record['email']);
         }
 
