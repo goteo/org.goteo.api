@@ -346,6 +346,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this->type;
     }
 
+    public function isType(UserType $type): bool
+    {
+        return $type === $this->getType();
+    }
+
     public function setType(UserType $type): static
     {
         $this->type = $type;
