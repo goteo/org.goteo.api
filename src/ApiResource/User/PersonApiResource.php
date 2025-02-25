@@ -40,7 +40,7 @@ class PersonApiResource
     public UserApiResource $user;
 
     /**
-     * Personal ID for tax purposes. e.g: NIF, Steuernummer, SSN, etc.
+     * Personal ID for tax purposes. e.g: NIF, Steuer-ID, SSN, ITIN, etc.
      */
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
