@@ -78,11 +78,17 @@ class UserApiResource
     public string $displayName;
 
     /**
-     * For `individual` User types: personal data about the User themselves,
-     * for `organization` User types: personal data for the organization representative.
+     * For `individual` User types: personal data about the User themselves.\
+     * For `organization` User types: data for the organization representative or person managing the User.
      */
     #[API\ApiProperty(writable: false)]
-    public ?PersonApiResource $person = null;
+    public PersonApiResource $person;
+
+    /**
+     * For `organization` User types only. Legal entity data.
+     */
+    #[API\ApiProperty(writable: false)]
+    public ?OrganizationApiResource $organization = null;
 
     /**
      * The Accounting for this User monetary movements.

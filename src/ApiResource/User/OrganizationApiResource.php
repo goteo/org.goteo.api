@@ -2,7 +2,9 @@
 
 namespace App\ApiResource\User;
 
+use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\Entity\User\Organization;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -18,13 +20,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\ApiResource(
     shortName: 'Organization',
     security: 'is_granted("ORGANIZATION_VIEW", object)',
+    stateOptions: new Options(entityClass: Organization::class),
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
     uriTemplate: '/users/{id}/organization',
     uriVariables: [
         'id' => new API\Link(
             fromClass: UserApiResource::class,
-            fromProperty: 'Organization'
+            fromProperty: 'organization'
         ),
     ]
 )]

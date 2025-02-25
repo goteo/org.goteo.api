@@ -78,6 +78,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Person $person = null;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Organization $organization = null;
+
     /**
      * @var list<string> The user roles. Admin only property.
      */
@@ -264,6 +267,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         }
 
         $this->person = $person;
+
+        return $this;
+    }
+
+    public function getOrganization(): ?Organization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(Organization $organization): static
+    {
+        // set the owning side of the relation if necessary
+        if ($organization->getUser() !== $this) {
+            $organization->setUser($this);
+        }
+
+        $this->organization = $organization;
 
         return $this;
     }
