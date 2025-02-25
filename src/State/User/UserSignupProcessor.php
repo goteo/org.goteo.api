@@ -6,7 +6,9 @@ use ApiPlatform\Metadata as API;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\UserSignupDto;
+use App\Entity\User\Organization;
 use App\Entity\User\User;
+use App\Entity\User\UserType;
 use App\Mapping\AutoMapper;
 use App\Repository\User\UserRepository;
 use App\Service\UserService;
@@ -34,6 +36,10 @@ final class UserSignupProcessor implements ProcessorInterface
 
         $user->setHandle($this->buildHandle($data));
         $user->setPassword($this->userPasswordHasher->hashPassword($user, $data->password));
+
+        if ($user->isType(UserType::Organization)) {
+            $user->setOrganization(Organization::for($user));
+        }
 
         $user = $this->entityStateProcessor->process($user, $operation, $uriVariables, $context);
 

@@ -3,9 +3,12 @@
 namespace App\Entity\User;
 
 use Ambta\DoctrineEncryptBundle\Configuration\Encrypted;
+use App\Mapping\Provider\OrganizationMapProvider;
 use App\Repository\User\OrganizationRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(OrganizationMapProvider::class)]
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
@@ -17,7 +20,7 @@ class Organization
     /**
      * ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
      */
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Encrypted()]
     private ?string $taxId = null;
 
@@ -25,7 +28,7 @@ class Organization
      * Organization legal name before government,
      * as it appears on legal documents issued by or for this organization.
      */
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $legalName = null;
 
     /**
@@ -33,6 +36,14 @@ class Organization
      */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $businessName = null;
+
+    public static function for(User $user): Organization
+    {
+        $org = new Organization();
+        $org->setUser($user);
+
+        return $org;
+    }
 
     public function getUser(): ?User
     {

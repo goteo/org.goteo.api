@@ -52,7 +52,7 @@ class OrganizationApiResource
     /**
      * Organization legal name before government,
      * as it appears on legal documents issued by or for this organization.\
-     * Will be used as last option for the display name of the User. 
+     * Will be used as last option for the display name of the User.
      */
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
