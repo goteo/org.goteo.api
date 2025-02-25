@@ -11,9 +11,9 @@ use App\Entity\User\UserType;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Mapping\Transformer\UserDisplayNameMapTransformer;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use App\State\User\UserSignupProcessor;
+use App\State\User\UserStateProcessor;
 use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'User',
     stateOptions: new Options(entityClass: User::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class,
+    processor: UserStateProcessor::class,
 )]
 #[API\GetCollection()]
 #[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
