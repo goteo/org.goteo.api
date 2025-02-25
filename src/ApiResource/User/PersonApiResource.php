@@ -26,7 +26,8 @@ use App\State\ApiResourceStateProvider;
     uriVariables: [
         'id' => new API\Link(
             fromClass: UserApiResource::class,
-            fromProperty: 'person'
+            fromProperty: 'person',
+            description: 'User identifier'
         ),
     ]
 )]

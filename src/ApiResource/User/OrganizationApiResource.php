@@ -27,7 +27,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     uriVariables: [
         'id' => new API\Link(
             fromClass: UserApiResource::class,
-            fromProperty: 'organization'
+            fromProperty: 'organization',
+            description: 'User identifier'
         ),
     ]
 )]
