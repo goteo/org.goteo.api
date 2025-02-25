@@ -23,7 +23,7 @@ curl -X 'GET' \
 
 UserTokens exist under an User's scope, when you obtain a token this will only grant you as much permissions as the User under which it was created.
 
-To obtain a UserToken you must send a POST request to [/v4/user_tokens](/v4/user_tokens) with the User login credentials (username and password) in the payload. If the credentials are correct a UserToken will be created, the `token` property value of which you must include in future requests.
+To obtain a UserToken you must send a POST request to [/v4/user_tokens](/v4/user_tokens) with the User login credentials (identifier and password) in the payload. If the credentials are correct a UserToken will be created, the `token` property value of which you must include in future requests.
 
 Users can delete UserTokens owned by them at any moment, revoking your application's access to the v4 API on their behalf. When a UserToken fails to authenticate a request you will receive a 401 Unauthorized response from the API, at which point your application must look to get a new UserToken from the User.
 

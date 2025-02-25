@@ -54,7 +54,7 @@ class AuthService
         }
 
         return $this->userRepository->findOneBy(
-            ['username' => $loggedInUser->getUserIdentifier()]
+            ['handle' => $loggedInUser->getUserIdentifier()]
         );
     }
 }

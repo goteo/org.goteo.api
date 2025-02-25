@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class UserTokenLoginDto
 {
     /**
-     * The identifier (email, username) of the User to be authenticated.
+     * The identifier (email, handle) of the User to be authenticated.
      */
     #[Assert\NotBlank()]
     public readonly string $identifier;
