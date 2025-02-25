@@ -76,7 +76,7 @@ class UserApiResource
      * for `organization` User types: personal data for the organization representative.
      */
     #[API\ApiProperty(writable: false)]
-    public ?PersonApiResource $personal = null;
+    public ?PersonApiResource $person = null;
 
     /**
      * The Accounting for this User monetary movements.

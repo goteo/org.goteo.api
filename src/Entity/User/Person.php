@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Person
 {
     #[ORM\Id]
-    #[ORM\OneToOne(inversedBy: 'personalData', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'person', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 

@@ -18,11 +18,18 @@ use App\State\ApiResourceStateProvider;
  */
 #[API\ApiResource(
     shortName: 'Person',
-    stateOptions: new Options(entityClass: Person::class),
     security: 'is_granted("PERSON_VIEW", object)',
     securityPostDenormalize: 'is_granted("PERSON_EDIT", object)',
+    stateOptions: new Options(entityClass: Person::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class
+    processor: ApiResourceStateProcessor::class,
+    uriTemplate: '/users/{id}/person',
+    uriVariables: [
+        'id' => new API\Link(
+            fromClass: UserApiResource::class,
+            fromProperty: 'person'
+        )
+    ]
 )]
 #[API\Get()]
 #[API\Patch()]

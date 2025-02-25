@@ -76,7 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private Collection $tokens;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    private ?Person $personalData = null;
+    private ?Person $person = null;
 
     /**
      * @var list<string> The user roles. Admin only property.
@@ -114,7 +114,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
 
         $this->projects = new ArrayCollection();
         $this->tokens = new ArrayCollection();
-        $this->personalData = Person::for($this);
+        $this->person = Person::for($this);
 
         $this->emailConfirmed = false;
         $this->active = false;
@@ -251,19 +251,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    public function getPersonalData(): ?Person
+    public function getPerson(): ?Person
     {
-        return $this->personalData;
+        return $this->person;
     }
 
-    public function setPersonalData(Person $personalData): static
+    public function setPerson(Person $person): static
     {
         // set the owning side of the relation if necessary
-        if ($personalData->getUser() !== $this) {
-            $personalData->setUser($this);
+        if ($person->getUser() !== $this) {
+            $person->setUser($this);
         }
 
-        $this->personalData = $personalData;
+        $this->person = $person;
 
         return $this;
     }
