@@ -21,7 +21,7 @@ trait RedocExtensionsTrait
         $groups = [
             [
                 'name' => 'Users',
-                'tags' => ['User', 'UserToken', 'Person'],
+                'tags' => ['User', 'UserToken', 'Person', 'Organization'],
             ],
             [
                 'name' => 'Projects',
