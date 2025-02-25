@@ -35,7 +35,7 @@ class ProjectApiTest extends ApiTestCase
         $this->assertJsonContains(['member' => []]);
 
         $owner = new User();
-        $owner->setUsername('test_user');
+        $owner->setHandle('test_user');
         $owner->setEmail('testuser@example.com');
         $owner->setPassword('projectapitestuserpassword');
 

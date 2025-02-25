@@ -100,7 +100,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      * Is this user for an individual acting on their own or a larger group of individuals?
      */
     #[ORM\Column(enumType: UserType::class)]
-    private ?UserType $type = null;
+    private UserType $type = UserType::Individual;
 
     /**
      * URL to the avatar image of this User.
@@ -321,7 +321,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    public function getType(): ?UserType
+    public function getType(): UserType
     {
         return $this->type;
     }

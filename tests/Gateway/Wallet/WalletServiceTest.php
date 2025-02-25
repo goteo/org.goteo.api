@@ -30,7 +30,7 @@ class WalletServiceTest extends KernelTestCase
     private function getUser(): User
     {
         $user = new User();
-        $user->setUsername('wallettestuser');
+        $user->setHandle('wallettestuser');
         $user->setEmail('testuser@wallet.com');
         $user->setPassword('wallettestpassword');
 
