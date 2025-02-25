@@ -19,7 +19,6 @@ use App\State\ApiResourceStateProvider;
 #[API\ApiResource(
     shortName: 'Person',
     security: 'is_granted("PERSON_VIEW", object)',
-    securityPostDenormalize: 'is_granted("PERSON_EDIT", object)',
     stateOptions: new Options(entityClass: Person::class),
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
@@ -32,7 +31,9 @@ use App\State\ApiResourceStateProvider;
     ]
 )]
 #[API\Get()]
-#[API\Patch()]
+#[API\Patch(
+    securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
+)]
 class PersonApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
@@ -42,8 +43,7 @@ class PersonApiResource
      * Personal ID for tax purposes. e.g: NIF, Steuernummer, SSN, etc.
      */
     #[API\ApiProperty(
-        security: 'is_granted("PERSON_VIEW", object)',
-        securityPostDenormalize: 'is_granted("PERSON_EDIT", object)',
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
     public string $taxId;
 
@@ -52,8 +52,7 @@ class PersonApiResource
      * in most western conventions this is the given name(s). e.g: John, Juan, etc.
      */
     #[API\ApiProperty(
-        security: 'is_granted("PERSON_VIEW", object)',
-        securityPostDenormalize: 'is_granted("PERSON_EDIT", object)',
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
     public string $firstName;
 
@@ -62,8 +61,7 @@ class PersonApiResource
      * in most western conventions this is the family name(s). e.g: Smith, Herrera García, etc.
      */
     #[API\ApiProperty(
-        security: 'is_granted("PERSON_VIEW", object)',
-        securityPostDenormalize: 'is_granted("PERSON_EDIT", object)',
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
     public string $lastName;
 }
