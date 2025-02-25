@@ -16,6 +16,8 @@ class UserDisplayNameMapTransformer implements PropertyTransformerInterface
         switch ($source->getType()) {
             case UserType::Individual:
                 return $this->individualDisplayName($source);
+            case UserType::Organization:
+                return $this->organizationDisplayName($source);
         }
     }
 
@@ -30,5 +32,18 @@ class UserDisplayNameMapTransformer implements PropertyTransformerInterface
         );
 
         return \trim($name);
+    }
+
+    private function organizationDisplayName(User $user): string
+    {
+        $org = $user->getOrganization();
+
+        $name = $org->getBusinessName();
+
+        if (empty($name)) {
+            $name = $org->getBusinessName();
+        }
+
+        return $name ?? '';
     }
 }
