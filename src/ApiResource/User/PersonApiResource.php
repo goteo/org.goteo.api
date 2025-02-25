@@ -27,7 +27,7 @@ use App\State\ApiResourceStateProvider;
         'id' => new API\Link(
             fromClass: UserApiResource::class,
             fromProperty: 'person'
-        )
+        ),
     ]
 )]
 #[API\Get()]

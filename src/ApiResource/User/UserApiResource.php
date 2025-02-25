@@ -10,9 +10,11 @@ use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
+use App\Mapping\Transformer\UserDisplayNameMapTransformer;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use App\State\User\UserSignupProcessor;
+use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -70,6 +72,10 @@ class UserApiResource
         securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
     )]
     public array $roles;
+
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(User::class, transformer: UserDisplayNameMapTransformer::class)]
+    public string $displayName;
 
     /**
      * For `individual` User types: personal data about the User themselves,

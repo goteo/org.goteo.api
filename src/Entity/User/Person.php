@@ -32,13 +32,13 @@ class Person
     private ?string $taxId = null;
 
     /**
-     * First-part of the name of the person, usually the given name(s). e.g: John, Juan
+     * First-part of the name of the person, usually the given name(s). e.g: John, Juan.
      */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $firstName = null;
 
     /**
-     * Last-part of the name of the person, usually the family name(s). e.g: Smith, Herrera García
+     * Last-part of the name of the person, usually the family name(s). e.g: Smith, Herrera García.
      */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lastName = null;

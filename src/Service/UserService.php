@@ -6,8 +6,9 @@ class UserService
 {
     /**
      * Normalizes a string into a handle-valid string.
-     * 
+     *
      * @return string A handle-valid string
+     *
      * @throws \Exception If the given value could not be normalized into a compliant handle string
      */
     public static function asHandle(string $value): string
