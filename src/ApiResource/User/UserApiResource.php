@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection()]
 #[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
 #[API\Get()]
-#[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", object)')]
-#[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", object)')]
+#[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+#[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 #[API\ApiFilter(filterClass: UserQueryFilter::class, properties: ['query'])]
 class UserApiResource
 {
@@ -59,7 +59,7 @@ class UserApiResource
     /**
      * Is this User for an individual acting on their own or a group of individuals?
      */
-    #[API\ApiProperty(securityPostDenormalize: 'is_granted("USER_EDIT")')]
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
     public UserType $type;
 
     /**
