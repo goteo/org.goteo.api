@@ -3,7 +3,6 @@
 namespace App\Benzina;
 
 use App\Entity\Money;
-use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\Reward;
