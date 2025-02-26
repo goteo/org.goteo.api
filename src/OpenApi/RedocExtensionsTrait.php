@@ -21,19 +21,38 @@ trait RedocExtensionsTrait
         $groups = [
             [
                 'name' => 'Users',
-                'tags' => ['User', 'UserToken', 'Person', 'Organization'],
+                'tags' => [
+                    'User',
+                    'UserToken',
+                    'Person',
+                    'Organization',
+                ],
             ],
             [
                 'name' => 'Projects',
-                'tags' => ['Project', 'ProjectReward', 'ProjectRewardClaim', 'ProjectBudgetItem'],
+                'tags' => [
+                    'Project',
+                    'ProjectReward',
+                    'ProjectRewardClaim',
+                    'ProjectBudgetItem',
+                    'ProjectUpdate',
+                ],
             ],
             [
                 'name' => 'Gateways',
-                'tags' => ['Gateway', 'GatewayCharge', 'GatewayCheckout'],
+                'tags' => [
+                    'Gateway',
+                    'GatewayCharge',
+                    'GatewayCheckout',
+                ],
             ],
             [
                 'name' => 'Accounting',
-                'tags' => ['Accounting', 'AccountingBalancePoint', 'AccountingTransaction'],
+                'tags' => [
+                    'Accounting',
+                    'AccountingBalancePoint',
+                    'AccountingTransaction',
+                ],
             ],
         ];
 

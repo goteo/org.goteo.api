@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
@@ -34,6 +35,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Delete(security: 'is_granted("PROJECT_EDIT", object)')]
 class ProjectApiResource
 {
+    use LocalizedApiResourceTrait;
+
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
@@ -48,14 +51,6 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     public UserApiResource $owner;
-
-    /**
-     * List of the available content locales.
-     *
-     * @var array<string>
-     */
-    #[API\ApiProperty(writable: false)]
-    public array $locales;
 
     /**
      * Main headline for the Project.
@@ -129,4 +124,12 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $budgetItems;
+
+    /**
+     * A list of the ProjectUpdates this Project has.
+     *
+     * @var array<int, UpdateApiResource>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $updates;
 }
