@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -19,6 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'ProjectUpdate',
+    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
     stateOptions: new Options(entityClass: Update::class),
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
@@ -61,6 +63,7 @@ class UpdateApiResource
      */
     #[Assert\DateTime()]
     #[API\ApiProperty(default: 'now')]
+    #[API\ApiFilter(OrderFilter::class)]
     public \DateTimeInterface $date;
 
     /**
