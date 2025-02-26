@@ -5,6 +5,7 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
@@ -25,6 +26,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 class BudgetItemApiResource
 {
+    use LocalizedApiResourceTrait;
+
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
@@ -36,14 +39,6 @@ class BudgetItemApiResource
      */
     #[Assert\NotBlank()]
     public BudgetItemType $type;
-
-    /**
-     * List of the available content locales.
-     *
-     * @var array<string>
-     */
-    #[API\ApiProperty(writable: false)]
-    public array $locales;
 
     /**
      * A short, descriptive string for the item.
