@@ -124,4 +124,12 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $budgetItems;
+
+    /**
+     * A list of the ProjectUpdates this Project has.
+     *
+     * @var array<int, UpdateApiResource>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $updates;
 }
