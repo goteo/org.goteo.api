@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "691ee3045dfdd2f57a44e9626f01252b",
+    "content-hash": "c8621da40a3e5b0e4a811cf38a0c9cf6",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -3003,16 +3003,16 @@
         },
         {
             "name": "goteo/benzina",
-            "version": "0.3.1",
+            "version": "0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goteo/benzina.git",
-                "reference": "c19f8671285f1050a11582f8dd17f87888cb727c"
+                "reference": "ebb3ee783e3a4195f61d648cb5937e8dd9eab6ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goteo/benzina/zipball/c19f8671285f1050a11582f8dd17f87888cb727c",
-                "reference": "c19f8671285f1050a11582f8dd17f87888cb727c",
+                "url": "https://api.github.com/repos/goteo/benzina/zipball/ebb3ee783e3a4195f61d648cb5937e8dd9eab6ae",
+                "reference": "ebb3ee783e3a4195f61d648cb5937e8dd9eab6ae",
                 "shasum": ""
             },
             "require": {
@@ -3032,6 +3032,7 @@
                 "symfony/symfony": "*"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.70",
                 "phpunit/phpunit": "^9.5",
                 "symfony/browser-kit": "6.4.*",
                 "symfony/css-selector": "6.4.*",
@@ -3056,9 +3057,9 @@
             "description": "Migration tool to pump v3 data into a v4 schema",
             "support": {
                 "issues": "https://github.com/goteo/benzina/issues",
-                "source": "https://github.com/goteo/benzina/tree/0.3.1"
+                "source": "https://github.com/goteo/benzina/tree/0.4"
             },
-            "time": "2025-02-21T15:13:32+00:00"
+            "time": "2025-02-27T11:20:31+00:00"
         },
         {
             "name": "jolicode/automapper",
