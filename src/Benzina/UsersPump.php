@@ -4,11 +4,11 @@ namespace App\Benzina;
 
 use App\Entity\User\User;
 use App\Service\UserService;
-use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
+use Goteo\Benzina\Pump\PumpInterface;
 
-class UsersPump extends AbstractPump
+class UsersPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
@@ -18,14 +18,14 @@ class UsersPump extends AbstractPump
 
     public function supports(mixed $sample): bool
     {
-        if (\is_array($sample) && $this->hasAllKeys($sample, self::USER_KEYS)) {
+        if ($this->hasAllKeys($sample, self::USER_KEYS)) {
             return true;
         }
 
         return false;
     }
 
-    public function pump(mixed $record): void
+    public function pump(mixed $record, array $context): void
     {
         $user = new User();
         $user->setHandle($this->buildHandle($record));
@@ -38,7 +38,7 @@ class UsersPump extends AbstractPump
         $user->setDateCreated($this->getDateCreated($record));
         $user->setDateUpdated(new \DateTime());
 
-        $this->persist($user);
+        $this->persist($user, $context);
         ++$this->userCount;
     }
 

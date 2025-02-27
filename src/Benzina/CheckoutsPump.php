@@ -21,11 +21,11 @@ use App\Repository\Project\ProjectRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Gateway\CheckoutService;
-use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
+use Goteo\Benzina\Pump\PumpInterface;
 
-class CheckoutsPump extends AbstractPump
+class CheckoutsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
@@ -53,14 +53,14 @@ class CheckoutsPump extends AbstractPump
 
     public function supports(mixed $sample): bool
     {
-        if (\is_array($sample) && $this->hasAllKeys($sample, self::INVEST_KEYS)) {
+        if ($this->hasAllKeys($sample, self::INVEST_KEYS)) {
             return true;
         }
 
         return false;
     }
 
-    public function pump(mixed $record): void
+    public function pump(mixed $record, array $context): void
     {
         if (!$record['user'] || empty($record['user'])) {
             return;
@@ -125,7 +125,7 @@ class CheckoutsPump extends AbstractPump
             $checkout = $this->checkoutService->chargeCheckout($checkout);
         }
 
-        $this->persist($checkout);
+        $this->persist($checkout, $context);
     }
 
     private function getUser(array $record): ?User

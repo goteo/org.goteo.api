@@ -7,11 +7,11 @@ use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Repository\Project\ProjectRepository;
-use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
+use Goteo\Benzina\Pump\PumpInterface;
 
-class ProjectsBudgetPump extends AbstractPump
+class ProjectsBudgetPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
@@ -35,14 +35,14 @@ class ProjectsBudgetPump extends AbstractPump
 
     public function supports(mixed $sample): bool
     {
-        if (\is_array($sample) && $this->hasAllKeys($sample, self::COST_KEYS)) {
+        if ($this->hasAllKeys($sample, self::COST_KEYS)) {
             return true;
         }
 
         return false;
     }
 
-    public function pump(mixed $record): void
+    public function pump(mixed $record, array $context): void
     {
         if (empty($record['cost']) || empty($record['amount'])) {
             return;
@@ -68,7 +68,7 @@ class ProjectsBudgetPump extends AbstractPump
             $budgetItem->setMinimum($money);
         }
 
-        $this->persist($budgetItem);
+        $this->persist($budgetItem, $context);
     }
 
     private function getBudgetProject(array $record): ?Project
