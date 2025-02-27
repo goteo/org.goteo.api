@@ -10,11 +10,11 @@ use App\Entity\User\User;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
-use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
+use Goteo\Benzina\Pump\PumpInterface;
 
-class ProjectsPump extends AbstractPump
+class ProjectsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
@@ -28,14 +28,14 @@ class ProjectsPump extends AbstractPump
 
     public function supports(mixed $sample): bool
     {
-        if (\is_array($sample) && $this->hasAllKeys($sample, self::PROJECT_KEYS)) {
+        if ($this->hasAllKeys($sample, self::PROJECT_KEYS)) {
             return true;
         }
 
         return false;
     }
 
-    public function pump(mixed $record): void
+    public function pump(mixed $record, array $context): void
     {
         if (empty($record['name'])) {
             return;
@@ -65,7 +65,7 @@ class ProjectsPump extends AbstractPump
         $project->setDateCreated(new \DateTime($record['created']));
         $project->setDateUpdated(new \DateTime());
 
-        $this->persist($project);
+        $this->persist($project, $context);
     }
 
     private function getProjectOwner(array $record): ?User

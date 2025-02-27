@@ -7,11 +7,11 @@ use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\Reward;
 use App\Repository\Project\ProjectRepository;
-use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
+use Goteo\Benzina\Pump\PumpInterface;
 
-class ProjectsRewardsPump extends AbstractPump
+class ProjectsRewardsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
@@ -42,14 +42,14 @@ class ProjectsRewardsPump extends AbstractPump
 
     public function supports(mixed $sample): bool
     {
-        if (\is_array($sample) && $this->hasAllKeys($sample, self::REWARD_KEYS)) {
+        if ($this->hasAllKeys($sample, self::REWARD_KEYS)) {
             return true;
         }
 
         return false;
     }
 
-    public function pump(mixed $record): void
+    public function pump(mixed $record, array $context): void
     {
         if (empty($record['reward']) || empty($record['amount'])) {
             return;
@@ -73,7 +73,7 @@ class ProjectsRewardsPump extends AbstractPump
         $reward->setUnitsTotal($record['units'] ?? 0);
         $reward->setUnitsAvailable($record['units'] ?? 0);
 
-        $this->persist($reward);
+        $this->persist($reward, $context);
     }
 
     private function getBudgetProject(array $record): ?Project
