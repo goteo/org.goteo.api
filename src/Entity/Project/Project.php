@@ -92,7 +92,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * @var Collection<int, Reward>
      */
-    #[ORM\OneToMany(mappedBy: 'project', targetEntity: Reward::class)]
+    #[ORM\OneToMany(targetEntity: Reward::class, mappedBy: 'project')]
     private Collection $rewards;
 
     /**
@@ -104,7 +104,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * @var Collection<int, Update>
      */
-    #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project')]
+    #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project', cascade: ['persist'])]
     private Collection $updates;
 
     public function __construct()
