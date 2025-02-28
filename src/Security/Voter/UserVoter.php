@@ -25,6 +25,10 @@ class UserVoter extends Voter
     {
         $user = $token->getUser();
 
+        if (!$user instanceof User) {
+            return false;
+        }
+
         switch ($attribute) {
             case self::EDIT:
                 return $this->canEdit($subject, $user);
@@ -37,10 +41,6 @@ class UserVoter extends Voter
 
     private function canEdit(UserApiResource $subject, ?User $user): bool
     {
-        if (!$user instanceof User) {
-            return false;
-        }
-
         if ($user->hasRoles(['ROLE_ADMIN'])) {
             return true;
         }
