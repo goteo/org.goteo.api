@@ -47,6 +47,7 @@ class AccountingApiResource
      * The money currently held by the Accounting.
      */
     #[MapFrom(Accounting::class, transformer: AccountingBalanceMapTransformer::class)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("ACCOUNTING_VIEW", object)')]
     public Money $balance;
 
     #[API\ApiProperty(readable: false, writable: false)]
@@ -57,7 +58,7 @@ class AccountingApiResource
      *
      * @return UserApiResource|ProjectApiResource|Tipjar
      */
-    public function getOwner(): object
+    public function getOwner(): ?object
     {
         switch ($this->ownerClass) {
             case User::class:
@@ -67,6 +68,8 @@ class AccountingApiResource
             case Tipjar::class:
                 return $this->tipjar;
         }
+
+        return null;
     }
 
     #[API\ApiProperty(readable: false, writable: false)]
