@@ -39,6 +39,7 @@ class UserApiResource
 
     #[Assert\NotBlank()]
     #[Assert\Email()]
+    #[API\ApiProperty(security: 'is_granted("USER_EDIT", user)')]
     public string $email;
 
     /**
@@ -107,7 +108,7 @@ class UserApiResource
     /**
      * Has this User confirmed their email address?
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_VIEW", object)')]
     public bool $emailConfirmed;
 
     /**
