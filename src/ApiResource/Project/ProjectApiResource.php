@@ -71,6 +71,7 @@ class ProjectApiResource
      * One of the available categories.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public Category $category;
 
     /**
