@@ -8,6 +8,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\User\UserApiResource;
+use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
@@ -31,8 +32,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_USER")')]
 #[API\Get()]
-#[API\Patch(security: 'is_granted("PROJECT_EDIT", object)')]
-#[API\Delete(security: 'is_granted("PROJECT_EDIT", object)')]
+#[API\Patch(security: 'is_granted("PROJECT_EDIT", previous_object)')]
+#[API\Delete(security: 'is_granted("PROJECT_EDIT", previous_object)')]
 class ProjectApiResource
 {
     use LocalizedApiResourceTrait;
@@ -67,6 +68,12 @@ class ProjectApiResource
     public string $subtitle;
 
     /**
+     * One of the available categories.
+     */
+    #[Assert\NotBlank()]
+    public Category $category;
+
+    /**
      * ISO 3166 data about the Project's territory of interest.
      */
     #[Assert\NotBlank()]
@@ -99,7 +106,7 @@ class ProjectApiResource
      * The status of a Project represents how far it is in it's life-cycle.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    #[API\ApiProperty(securityPostDenormalize: 'is_granted("PROJECT_EDIT")')]
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("PROJECT_EDIT", previous_object)')]
     public ProjectStatus $status = ProjectStatus::InEditing;
 
     /**
