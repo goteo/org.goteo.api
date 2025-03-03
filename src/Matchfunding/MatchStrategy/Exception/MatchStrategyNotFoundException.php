@@ -9,7 +9,7 @@ class MatchStrategyNotFoundException extends \Exception
     public function __construct(
         string $name,
         string $message = self::MISSING_NAME,
-        ...$params
+        ...$params,
     ) {
         parent::__construct(\sprintf(
             $message,

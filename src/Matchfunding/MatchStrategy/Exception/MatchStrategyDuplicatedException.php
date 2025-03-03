@@ -10,9 +10,8 @@ class MatchStrategyDuplicatedException extends \Exception
         string $duplicatedName,
         string $duplicatedClass,
         string $strategyClass,
-        string $message = self::DUPLICATED_NAME
+        string $message = self::DUPLICATED_NAME,
     ) {
-
         parent::__construct(\sprintf(
             $message,
             $duplicatedName,
