@@ -3,6 +3,7 @@
 namespace App\Tests\Entity;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
@@ -42,6 +43,7 @@ class ProjectApiTest extends ApiTestCase
         $project = new Project();
         $project->setTitle('Test Project');
         $project->setSubtitle('Test Project Subtitle');
+        $project->setCategory(Category::LibreSoftware);
         $project->setDescription('Test Project Description');
         $project->setTerritory(new ProjectTerritory('ES'));
         $project->setOwner($owner);
