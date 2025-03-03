@@ -50,6 +50,9 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[Gedmo\Translatable()]
     private ?string $subtitle = null;
 
+    #[ORM\Column(enumType: Category::class)]
+    private ?Category $category = null;
+
     /**
      * Project's territory of interest.
      */
@@ -147,6 +150,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setSubtitle(string $subtitle): static
     {
         $this->subtitle = $subtitle;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }
