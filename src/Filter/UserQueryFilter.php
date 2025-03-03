@@ -42,8 +42,7 @@ final class UserQueryFilter extends AbstractFilter
 
         $queryBuilder
             ->andWhere(sprintf('%s.email LIKE :%s', $rootAlias, $parameterName))
-            ->orWhere(sprintf('%s.name LIKE :%s', $rootAlias, $parameterName))
-            ->orWhere(sprintf('%s.username LIKE :%s', $rootAlias, $parameterName))
+            ->orWhere(sprintf('%s.handle LIKE :%s', $rootAlias, $parameterName))
             ->setParameter($parameterName, $value);
     }
 
@@ -55,7 +54,7 @@ final class UserQueryFilter extends AbstractFilter
                 'property' => $property,
                 'type' => Type::BUILTIN_TYPE_STRING,
                 'required' => false,
-                'description' => 'Query Users by email, name or username. Fuzzy.',
+                'description' => 'Query Users by email or handle. Fuzzy.',
             ];
         }
 

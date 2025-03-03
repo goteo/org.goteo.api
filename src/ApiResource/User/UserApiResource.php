@@ -5,10 +5,16 @@ namespace App\ApiResource\User;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\UserSignupDto;
 use App\Entity\User\User;
+use App\Entity\User\UserType;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
+use App\Mapping\Transformer\UserDisplayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
+use App\State\User\UserSignupProcessor;
+use App\State\User\UserStateProcessor;
+use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -17,13 +23,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\ApiResource(
     shortName: 'User',
     stateOptions: new Options(entityClass: User::class),
-    provider: ApiResourceStateProvider::class
+    provider: ApiResourceStateProvider::class,
+    processor: UserStateProcessor::class,
 )]
 #[API\GetCollection()]
-#[API\Post()]
+#[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
 #[API\Get()]
-#[API\Patch(security: 'is_granted("USER_EDIT", object)')]
-#[API\Delete(security: 'is_granted("USER_EDIT", object)')]
+#[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+#[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 #[API\ApiFilter(filterClass: UserQueryFilter::class, properties: ['query'])]
 class UserApiResource
 {
@@ -32,27 +39,57 @@ class UserApiResource
 
     #[Assert\NotBlank()]
     #[Assert\Email()]
+    #[API\ApiProperty(security: 'is_granted("USER_EDIT", user)')]
     public string $email;
 
-    #[API\ApiProperty(writable: false)]
-    public bool $emailConfirmed;
-
     /**
-     * A unique byte-safe string, non white space, identifier for this User.
+     * A unique, non white space, byte-safe string identifier for this User.
      */
     #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
-    public string $username;
+    public string $handle;
 
     /**
-     * A list of the roles assigned to this User. Admin scopped property.
+     * URL to the avatar image of this User.
+     */
+    #[Assert\Url()]
+    public string $avatar;
+
+    /**
+     * Is this User for an individual acting on their own or a group of individuals?
+     */
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+    public UserType $type;
+
+    /**
+     * A list of the roles assigned to this User. Admin scoped property.
      *
      * @var array<int, string>
      */
-    #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
+    #[API\ApiProperty(
+        security: 'is_granted("ROLE_ADMIN")',
+        securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
+    )]
     public array $roles;
+
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(User::class, transformer: UserDisplayNameMapTransformer::class)]
+    public string $displayName;
+
+    /**
+     * For `individual` User types: personal data about the User themselves.\
+     * For `organization` User types: data for the organization representative or person managing the User.
+     */
+    #[API\ApiProperty(writable: false)]
+    public PersonApiResource $person;
+
+    /**
+     * For `organization` User types only. Legal entity data.
+     */
+    #[API\ApiProperty(writable: false)]
+    public ?OrganizationApiResource $organization = null;
 
     /**
      * The Accounting for this User monetary movements.
@@ -67,4 +104,16 @@ class UserApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $projects;
+
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_VIEW", object)')]
+    public bool $emailConfirmed;
+
+    /**
+     * A flag determined by the platform for Users who are known to be active.
+     */
+    #[API\ApiProperty(writable: false)]
+    public bool $active;
 }

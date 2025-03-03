@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Money;
@@ -29,6 +30,7 @@ class RewardApiResource
      * The project which gives this reward.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ProjectApiResource $project;
 
     /**
@@ -38,8 +40,9 @@ class RewardApiResource
     public string $title;
 
     /**
-     * Detailed information about this reward.
+     * Information about this reward. More detailed than the title.
      */
+    #[Assert\NotBlank()]
     #[MapTo(if: 'source.description != null')]
     public ?string $description = null;
 
@@ -57,7 +60,8 @@ class RewardApiResource
     public bool $hasUnits;
 
     /**
-     * For finite rewards, the total amount of existing unitsTotal.
+     * For finite rewards, the total amount of existing unitsTotal.\
+     * Required if `hasUnits`.
      */
     #[Assert\When(
         'this.hasUnits == true',

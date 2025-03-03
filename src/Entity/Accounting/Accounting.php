@@ -7,13 +7,16 @@ use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\AccountingRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Accountings are the receivers and the issuers of Transactions.
  */
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: AccountingRepository::class)]
 class Accounting
 {

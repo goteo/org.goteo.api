@@ -3,6 +3,7 @@
 namespace App\Entity\Project;
 
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Trait\UserOwnedTrait;
 use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\RewardClaimRepository;
@@ -10,9 +11,12 @@ use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
+#[ORM\Table(name: 'project_reward_claim')]
 #[ORM\Entity(repositoryClass: RewardClaimRepository::class)]
 class RewardClaim implements UserOwnedInterface
 {
+    use UserOwnedTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -39,23 +43,6 @@ class RewardClaim implements UserOwnedInterface
     public function setReward(?Reward $reward): static
     {
         $this->reward = $reward;
-
-        return $this;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function isOwnedBy(User $user): bool
-    {
-        return $this->owner->getId() === $user->getId();
-    }
-
-    public function setOwner(?User $owner): static
-    {
-        $this->owner = $owner;
 
         return $this;
     }

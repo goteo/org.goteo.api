@@ -13,6 +13,7 @@ use App\Repository\User\UserRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -29,8 +30,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
-#[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
-#[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
+#[UniqueEntity('email', message: 'This email address is already registered.')]
+#[UniqueEntity('handle', message: 'This handle is already in use.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
@@ -43,27 +44,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private ?int $id = null;
 
     #[Gedmo\Versioned]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
     /**
-     * Has this User confirmed their email address?
+     * @var string The user password
      */
     #[ORM\Column]
-    private ?bool $emailConfirmed = null;
+    private ?string $password = null;
 
     /**
      * Human readable, non white space, unique string.
      */
     #[Gedmo\Versioned]
-    #[ORM\Column(length: 255)]
-    private ?string $username = null;
-
-    /**
-     * @var list<string> The user roles. Admin only property.
-     */
-    #[ORM\Column]
-    private array $roles = [];
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $handle = null;
 
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist'])]
     private ?Accounting $accounting = null;
@@ -80,6 +75,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
     private Collection $tokens;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Person $person = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Organization $organization = null;
+
+    /**
+     * @var list<string> The user roles. Admin only property.
+     */
+    #[ORM\Column]
+    private array $roles = [];
+
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[ORM\Column]
+    private ?bool $emailConfirmed = null;
+
     /**
      * A flag determined by the platform for Users who are known to be active.
      */
@@ -87,35 +100,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private ?bool $active = null;
 
     /**
-     * Path to the Users's avatar image.
+     * Is this user for an individual acting on their own or a larger group of individuals?
      */
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(enumType: UserType::class)]
+    private UserType $type = UserType::Individual;
+
+    /**
+     * URL to the avatar image of this User.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $avatar = null;
-
-    /**
-     * Conventional name of the person owning this User.
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $name = null;
-
-    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    private ?UserPersonal $personalData = null;
-
-    /**
-     * @var string The user password
-     */
-    #[ORM\Column]
-    private ?string $password = null;
 
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
 
+        $this->projects = new ArrayCollection();
+        $this->tokens = new ArrayCollection();
+        $this->person = Person::for($this);
+
         $this->emailConfirmed = false;
         $this->active = false;
-
-        $this->tokens = new ArrayCollection();
-        $this->projects = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -130,7 +135,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->username;
+        return (string) $this->handle;
     }
 
     public function getEmail(): ?string
@@ -145,57 +150,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    public function isEmailConfirmed(): ?bool
-    {
-        return $this->emailConfirmed;
-    }
-
-    public function setEmailConfirmed(bool $emailConfirmed): static
-    {
-        $this->emailConfirmed = $emailConfirmed;
-
-        return $this;
-    }
-
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
-
-    public function setUsername(?string $username): static
-    {
-        $this->username = strtolower($username);
-
-        return $this;
-    }
-
     /**
-     * @see UserInterface
-     *
-     * @return list<string>
+     * @see PasswordAuthenticatedUserInterface
      */
-    public function getRoles(): array
+    public function getPassword(): string
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return $this->password;
     }
 
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
+    public function setPassword(string $password): static
     {
-        $this->roles = $roles;
+        $this->password = $password;
 
         return $this;
     }
 
-    public function hasRoles(array $roles): bool
+    public function eraseCredentials(): void
     {
-        return count(array_intersect($this->getRoles(), $roles)) > 0;
+        // If you store any temporary, sensitive data on the user, clear it here
+    }
+
+    public function getHandle(): ?string
+    {
+        return $this->handle;
+    }
+
+    public function setHandle(?string $handle): static
+    {
+        $this->handle = strtolower($handle);
+
+        return $this;
     }
 
     public function getAccounting(): ?Accounting
@@ -270,6 +254,81 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
+    public function getPerson(): ?Person
+    {
+        return $this->person;
+    }
+
+    public function setPerson(Person $person): static
+    {
+        // set the owning side of the relation if necessary
+        if ($person->getUser() !== $this) {
+            $person->setUser($this);
+        }
+
+        $this->person = $person;
+
+        return $this;
+    }
+
+    public function getOrganization(): ?Organization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(Organization $organization): static
+    {
+        // set the owning side of the relation if necessary
+        if ($organization->getUser() !== $this) {
+            $organization->setUser($this);
+        }
+
+        $this->organization = $organization;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     *
+     * @return list<string>
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function hasRoles(array $roles): bool
+    {
+        return count(array_intersect($this->getRoles(), $roles)) > 0;
+    }
+
+    public function isEmailConfirmed(): ?bool
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setEmailConfirmed(bool $emailConfirmed): static
+    {
+        $this->emailConfirmed = $emailConfirmed;
+
+        return $this;
+    }
+
     public function isActive(): ?bool
     {
         return $this->active;
@@ -278,6 +337,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setActive(bool $active): static
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function getType(): UserType
+    {
+        return $this->type;
+    }
+
+    public function isType(UserType $type): bool
+    {
+        return $type === $this->getType();
+    }
+
+    public function setType(UserType $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
@@ -292,54 +368,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->avatar = $avatar;
 
         return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): static
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getPersonalData(): ?UserPersonal
-    {
-        return $this->personalData;
-    }
-
-    public function setPersonalData(UserPersonal $personalData): static
-    {
-        // set the owning side of the relation if necessary
-        if ($personalData->getUser() !== $this) {
-            $personalData->setUser($this);
-        }
-
-        $this->personalData = $personalData;
-
-        return $this;
-    }
-
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
     }
 }

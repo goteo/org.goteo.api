@@ -4,30 +4,33 @@ namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Interface\LocalizedContentInterface;
+use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Matchfunding\MatchCallSubmission;
-use App\Entity\Trait\LocalizedContent;
+use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Entity\Trait\UserOwnedTrait;
 use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\ProjectRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedContentInterface
+class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedEntityInterface
 {
-    use LocalizedContent;
+    use LocalizedEntityTrait;
     use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
+    use UserOwnedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -40,6 +43,34 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Column(length: 255)]
     #[Gedmo\Translatable()]
     private ?string $title = null;
+
+    /**
+     * Secondary head-line for the project.
+     */
+    #[ORM\Column(length: 255)]
+    #[Gedmo\Translatable()]
+    private ?string $subtitle = null;
+
+    #[ORM\Column(enumType: Category::class)]
+    private ?Category $category = null;
+
+    /**
+     * Project's territory of interest.
+     */
+    #[ORM\Embedded(class: ProjectTerritory::class)]
+    private ?ProjectTerritory $territory;
+
+    /**
+     * The description body for the Project.
+     */
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $description = null;
+
+    /**
+     * A video showcasing the Project.
+     */
+    #[ORM\Embedded(class: ProjectVideo::class)]
+    private ?ProjectVideo $video = null;
 
     /**
      * Since Projects can be recipients of funding, they are assigned an Accounting when created.
@@ -65,7 +96,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * @var Collection<int, Reward>
      */
-    #[ORM\OneToMany(mappedBy: 'project', targetEntity: Reward::class)]
+    #[ORM\OneToMany(targetEntity: Reward::class, mappedBy: 'project')]
     private Collection $rewards;
 
     /**
@@ -74,11 +105,25 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: MatchCallSubmission::class)]
     private Collection $matchCallSubmissions;
 
+    /**
+     * @var Collection<int, BudgetItem>
+     */
+    #[ORM\OneToMany(targetEntity: BudgetItem::class, mappedBy: 'project')]
+    private Collection $budgetItems;
+
+    /**
+     * @var Collection<int, Update>
+     */
+    #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project', cascade: ['persist'])]
+    private Collection $updates;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
         $this->matchCallSubmissions = new ArrayCollection();
+        $this->budgetItems = new ArrayCollection();
+        $this->updates = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -105,6 +150,66 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
+    public function getSubtitle(): ?string
+    {
+        return $this->subtitle;
+    }
+
+    public function setSubtitle(string $subtitle): static
+    {
+        $this->subtitle = $subtitle;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(Category $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function getTerritory(): ?ProjectTerritory
+    {
+        return $this->territory;
+    }
+
+    public function setTerritory(ProjectTerritory $territory): static
+    {
+        $this->territory = $territory;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getVideo(): ?ProjectVideo
+    {
+        return $this->video;
+    }
+
+    public function setVideo(?ProjectVideo $video): static
+    {
+        $this->video = $video;
+
+        return $this;
+    }
+
     public function getAccounting(): ?Accounting
     {
         return $this->accounting;
@@ -113,23 +218,6 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
-
-        return $this;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function isOwnedBy(User $user): bool
-    {
-        return $user->getId() === $this->owner->getId();
-    }
-
-    public function setOwner(?User $owner): static
-    {
-        $this->owner = $owner;
 
         return $this;
     }
@@ -200,6 +288,66 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($MatchCallSubmission->getProject() === $this) {
                 $MatchCallSubmission->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BudgetItem>
+     */
+    public function getBudgetItems(): Collection
+    {
+        return $this->budgetItems;
+    }
+
+    public function addBudgetItem(BudgetItem $budgetItem): static
+    {
+        if (!$this->budgetItems->contains($budgetItem)) {
+            $this->budgetItems->add($budgetItem);
+            $budgetItem->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBudgetItem(BudgetItem $budgetItem): static
+    {
+        if ($this->budgetItems->removeElement($budgetItem)) {
+            // set the owning side to null (unless already changed)
+            if ($budgetItem->getProject() === $this) {
+                $budgetItem->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Update>
+     */
+    public function getUpdates(): Collection
+    {
+        return $this->updates;
+    }
+
+    public function addUpdate(Update $update): static
+    {
+        if (!$this->updates->contains($update)) {
+            $this->updates->add($update);
+            $update->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUpdate(Update $update): static
+    {
+        if ($this->updates->removeElement($update)) {
+            // set the owning side to null (unless already changed)
+            if ($update->getProject() === $this) {
+                $update->setProject(null);
             }
         }
 

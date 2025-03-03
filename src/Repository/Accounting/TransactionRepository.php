@@ -23,18 +23,39 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param \DateTimeInterface|null $dateStart a date to act as lower bound of the selection
+     * @param \DateTimeInterface|null $dateEnd   A date to act as upper bound of the selection. Current date will be used if null.
+     *
      * @return Transaction[] Transactions originated from or targeting the Accounting
      */
-    public function findByAccounting(Accounting $accounting): array
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.origin = :val')
-            ->orWhere('t.target = :val')
-            ->setParameter('val', $accounting)
-            ->orderBy('t.id', 'ASC')
-            ->getQuery()
-            ->getResult()
-        ;
+    public function findByAccounting(
+        Accounting $accounting,
+        ?\DateTimeInterface $dateStart = null,
+        ?\DateTimeInterface $dateEnd = null,
+    ): array {
+        $queryBuilder = $this->createQueryBuilder('t');
+        $accountingExpr = $queryBuilder->expr();
+
+        if ($dateEnd === null) {
+            $dateEnd = new \DateTime();
+        }
+
+        $query = $queryBuilder
+            ->andWhere($accountingExpr->orX(
+                $accountingExpr->eq('t.origin', $accounting->getId()),
+                $accountingExpr->eq('t.target', $accounting->getId()),
+            ))
+            ->andWhere('t.dateCreated <= :dateEnd')
+            ->setParameter('dateEnd', $dateEnd);
+
+        if ($dateStart !== null) {
+            $query->andWhere('t.dateCreated >= :dateStart')
+                ->setParameter('dateStart', $dateStart);
+        }
+
+        $query->orderBy('t.id', 'ASC');
+
+        return $query->getQuery()->getResult();
     }
 
     /**

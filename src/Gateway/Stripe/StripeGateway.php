@@ -2,18 +2,17 @@
 
 namespace App\Gateway\Stripe;
 
-use ApiPlatform\Metadata\IriConverterInterface;
+use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Entity\Project\Project;
 use App\Entity\User\User;
+use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\GatewayInterface;
 use App\Gateway\Link;
 use App\Gateway\LinkType;
 use App\Gateway\Tracking;
-use App\Repository\Gateway\CheckoutRepository;
 use App\Service\Gateway\CheckoutService;
-use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
 use Stripe\Webhook as StripeWebhook;
@@ -22,7 +21,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class StripeGateway implements GatewayInterface
+class StripeGateway extends AbstractGateway
 {
     public const TRACKING_TITLE_CHECKOUT = 'Stripe Checkout Session ID';
 
@@ -31,10 +30,6 @@ class StripeGateway implements GatewayInterface
     public function __construct(
         private string $stripeApiKey,
         private string $stripeWebhookSecret,
-        private CheckoutService $checkoutService,
-        private CheckoutRepository $checkoutRepository,
-        private EntityManagerInterface $entityManager,
-        private IriConverterInterface $iriConverter,
     ) {
         $this->stripe = new StripeClient($stripeApiKey);
     }
@@ -62,7 +57,10 @@ class StripeGateway implements GatewayInterface
             // is not properly sent to Stripe and the redirection fails,
             // that's why we add the session_id template variable like this.
             // https://docs.stripe.com/payments/checkout/custom-success-page?lang=php#modify-the-success-url
-            'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $this->checkoutService->generateRedirectUrl($checkout)),
+            'success_url' => \sprintf(
+                '%s&session_id={CHECKOUT_SESSION_ID}',
+                $this->checkoutService->generateRedirectUrl($checkout, CheckoutService::RESPONSE_TYPE_SUCCESS)
+            ),
         ]);
 
         $link = new Link();
@@ -85,25 +83,20 @@ class StripeGateway implements GatewayInterface
 
     public function handleRedirect(Request $request): RedirectResponse
     {
-        $sessionId = $request->query->get('session_id');
+        // TO-DO: handle non-success type redirect
 
-        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
-        $checkout = $this->checkoutRepository->find($request->query->get('checkoutId'));
-
-        if ($checkout === null) {
-            throw new \Exception(sprintf("Stripe checkout '%s' exists but no Checkout with that reference was found.", $sessionId));
-        }
+        $checkout = $this->getAfterRedirectCheckout($request);
+        $redirection = $this->getRedirectResponse($checkout);
 
         if ($checkout->getStatus() === CheckoutStatus::Charged) {
-            return $checkout;
+            return $redirection;
         }
 
-        if ($request->query->get('type') !== CheckoutService::RESPONSE_TYPE_SUCCESS) {
-            return $checkout;
-        }
+        $sessionId = $request->query->get('session_id');
+        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
 
         if ($session->payment_status !== StripeSession::PAYMENT_STATUS_PAID) {
-            return $checkout;
+            return $redirection;
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
@@ -111,8 +104,7 @@ class StripeGateway implements GatewayInterface
         $this->entityManager->persist($checkout);
         $this->entityManager->flush();
 
-        // TO-DO: This should redirect the user to a GUI
-        return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+        return $redirection;
     }
 
     public function handleWebhook(Request $request): Response
@@ -164,10 +156,8 @@ class StripeGateway implements GatewayInterface
             $price = [
                 'currency' => $charge->getMoney()->currency,
                 'unit_amount' => $charge->getMoney()->amount,
-                'product_data' => \array_filter([
-                    'name' => $charge->getTitle(),
-                    'statement_descriptor' => $charge->getDescription(),
-                ], fn($v) => $v !== null),
+                'product' => $this->getStripeProduct($charge),
+                'nickname' => $charge->getTitle(),
             ];
 
             if ($charge->getType() === ChargeType::Recurring) {
@@ -181,5 +171,38 @@ class StripeGateway implements GatewayInterface
         }
 
         return $items;
+    }
+
+    private function getStripeProduct(Charge $charge)
+    {
+        $target = $charge->getTarget()->getOwner();
+
+        if (!$target instanceof Project) {
+            throw new \Exception(\sprintf(
+                "Charges with Stripe must be to Projects, instance of '%s' supplied",
+                $target::class
+            ));
+        }
+
+        $id = \sprintf('P%d', $target->getId());
+
+        try {
+            $product = $this->stripe->products->retrieve($id);
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
+            if (!$e->getStripeCode() === 'resource_missing') {
+                throw $e;
+            }
+
+            $name = $target->getTitle();
+            $description = $target->getSubtitle();
+
+            $product = $this->stripe->products->create([
+                'id' => $id,
+                'name' => $name,
+                'description' => $description,
+            ]);
+        }
+
+        return $product;
     }
 }

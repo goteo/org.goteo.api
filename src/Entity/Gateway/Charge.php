@@ -6,7 +6,9 @@ use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Gateway\ChargeType;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\ChargeRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -16,6 +18,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * A GatewayCharge represents a monetary payment that can be done by an issuer at checkout with the Gateway.
  */
+#[MapProvider(EntityMapProvider::class)]
+#[ORM\Table(name: 'checkout_charge')]
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
 {
@@ -65,6 +69,7 @@ class Charge
     /**
      * @var Collection<int, Transaction>
      */
+    #[ORM\JoinTable(name: 'checkout_charge_transaction')]
     #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
 
