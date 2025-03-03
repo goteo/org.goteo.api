@@ -2,6 +2,7 @@
 
 namespace App\Benzina;
 
+use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
@@ -57,6 +58,7 @@ class ProjectsPump implements PumpInterface
         $project->setTranslatableLocale($record['lang']);
         $project->setTitle($record['name']);
         $project->setSubtitle($record['subtitle']);
+        $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
         $project->setDescription($record['description']);
         $project->setVideo($this->getProjectVideo($record));
@@ -87,8 +89,6 @@ class ProjectsPump implements PumpInterface
                 return ProjectStatus::InEditing;
             case 2:
                 return ProjectStatus::InReview;
-            case 0:
-                return ProjectStatus::Rejected;
             case 3:
                 return ProjectStatus::InCampaign;
             case 6:
@@ -97,6 +97,41 @@ class ProjectsPump implements PumpInterface
                 return ProjectStatus::InFunding;
             case 5:
                 return ProjectStatus::Fulfilled;
+            case 0:
+            default:
+                return ProjectStatus::Rejected;
+        }
+    }
+
+    private function getProjectCategory(array $record): Category
+    {
+        switch ($record['social_commitment']) {
+            case 1:
+                return Category::Solidary;
+            case 2:
+                return Category::LibreSoftware;
+            case 3:
+            case 16:
+                return Category::Employment;
+            case 5:
+                return Category::Journalism;
+            case 6:
+                return Category::Education;
+            case 7:
+                return Category::Culture;
+            case 8:
+            case 15:
+                return Category::Ecology;
+            case 11:
+            case 12:
+                return Category::Democracy;
+            case 13:
+                return Category::Equity;
+            case 14:
+                return Category::HealthCares;
+            case 10:
+            default:
+                return Category::OpenData;
         }
     }
 
