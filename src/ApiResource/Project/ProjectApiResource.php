@@ -8,16 +8,15 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\User\UserApiResource;
+use App\Dto\ProjectEditDto;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
 use App\Mapping\Transformer\BudgetMapTransformer;
-use App\Mapping\Transformer\ProjectVideoMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
 use AutoMapper\Attribute\MapFrom;
-use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -27,10 +26,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'Project',
     stateOptions: new Options(entityClass: Project::class),
     provider: ApiResourceStateProvider::class,
-    processor: ProjectStateProcessor::class
 )]
 #[API\GetCollection()]
-#[API\Post(security: 'is_granted("ROLE_USER")')]
+#[API\Post(
+    security: 'is_granted("ROLE_USER")',
+    input: ProjectEditDto::class,
+    processor: ProjectStateProcessor::class
+)]
 #[API\Get()]
 #[API\Patch(security: 'is_granted("PROJECT_EDIT", previous_object)')]
 #[API\Delete(security: 'is_granted("PROJECT_EDIT", previous_object)')]
@@ -89,19 +91,11 @@ class ProjectApiResource
     public string $description;
 
     /**
-     * A URL to a video showcasing the Project.
-     */
-    #[Assert\Url()]
-    #[API\ApiProperty(readable: false)]
-    #[MapTo(target: Project::class, transformer: ProjectVideoMapTransformer::class)]
-    public string $video;
-
-    /**
      * Extracted embedding data from the Project's video.
      */
     #[API\ApiProperty(writable: false)]
     #[MapFrom(source: Project::class, property: 'video')]
-    public ProjectVideo $videoEmbed;
+    public ProjectVideo $video;
 
     /**
      * The status of a Project represents how far it is in it's life-cycle.

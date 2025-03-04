@@ -5,6 +5,7 @@ namespace App\State\Project;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\ProjectApiResource;
+use App\Dto\ProjectEditDto;
 use App\Entity\Project\Project;
 use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
@@ -20,7 +21,7 @@ class ProjectStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param ProjectApiResource $data
+     * @param ProjectEditDto $data
      *
      * @return ProjectApiResource|null
      */
@@ -45,6 +46,6 @@ class ProjectStateProcessor implements ProcessorInterface
             return null;
         }
 
-        return $this->autoMapper->map($project, $data);
+        return $this->autoMapper->map($project, ProjectApiResource::class);
     }
 }
