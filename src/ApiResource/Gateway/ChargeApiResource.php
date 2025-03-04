@@ -2,8 +2,10 @@
 
 namespace App\ApiResource\Gateway;
 
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use ApiPlatform\Metadata\ApiFilter;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Entity\Gateway\Charge;
 use App\Entity\Money;
@@ -20,6 +22,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class
 )]
 #[API\Get()]
+#[API\GetCollection()]
+#[ApiFilter(RangeFilter::class, properties: ['money.amount'])]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
