@@ -5,7 +5,7 @@ namespace App\State\Project;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\ProjectApiResource;
-use App\Dto\ProjectEditDto;
+use App\Dto\ProjectCreateDto;
 use App\Entity\Project\Project;
 use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
@@ -21,7 +21,7 @@ class ProjectStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param ProjectEditDto $data
+     * @param ProjectCreateDto $data
      *
      * @return ProjectApiResource|null
      */
