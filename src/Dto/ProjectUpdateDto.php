@@ -48,7 +48,7 @@ class ProjectUpdateDto
      * On `optimum`, Project will campaing until the minimum deadline,
      * and then until the optimum deadline if it did raise the minimum.
      */
-    public ProjectDeadline $deadline = ProjectDeadline::Minimum;
+    public ProjectDeadline $deadline;
 
     /**
      * A URL to a video showcasing the Project.
@@ -60,5 +60,5 @@ class ProjectUpdateDto
     /**
      * The status of a Project represents how far it is in it's life-cycle.
      */
-    public ProjectStatus $status = ProjectStatus::InEditing;
+    public ProjectStatus $status;
 }
