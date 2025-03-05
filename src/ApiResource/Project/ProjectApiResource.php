@@ -9,6 +9,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\ProjectCreateDto;
+use App\Dto\ProjectUpdateDto;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
@@ -31,12 +32,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\GetCollection()]
 #[API\Post(
-    security: 'is_granted("ROLE_USER")',
     input: ProjectCreateDto::class,
-    processor: ProjectStateProcessor::class
+    processor: ProjectStateProcessor::class,
+    security: 'is_granted("ROLE_USER")',
 )]
 #[API\Get()]
-#[API\Patch(security: 'is_granted("PROJECT_EDIT", previous_object)')]
+#[API\Patch(
+    input: ProjectUpdateDto::class,
+    processor: ProjectStateProcessor::class,
+    security: 'is_granted("PROJECT_EDIT", previous_object)',
+)]
 #[API\Delete(security: 'is_granted("PROJECT_EDIT", previous_object)')]
 class ProjectApiResource
 {

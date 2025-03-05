@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\ProjectApiResource;
 use App\Dto\ProjectCreateDto;
+use App\Dto\ProjectUpdateDto;
 use App\Entity\Project\Project;
 use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
@@ -21,16 +22,17 @@ class ProjectStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param ProjectCreateDto $data
+     * @param ProjectCreateDto|ProjectUpdateDto $data
+     * @param array{id: int} $uriVariables
      *
      * @return ProjectApiResource|null
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        /** @var Project */
-        $project = $this->autoMapper->map($data, Project::class);
+        if ($data instanceof ProjectCreateDto) {
+            /** @var Project */
+            $project = $this->autoMapper->map($data, Project::class);
 
-        if (!$project->getId()) {
             $owner = $this->authService->getUser();
 
             if (!$owner) {
@@ -38,6 +40,13 @@ class ProjectStateProcessor implements ProcessorInterface
             }
 
             $project->setOwner($owner);
+        }
+
+        if ($data instanceof ProjectUpdateDto) {
+            $data = $this->autoMapper->map($uriVariables, $data);
+
+            /** @var Project */
+            $project = $this->autoMapper->map($data, Project::class);
         }
 
         $project = $this->entityStateProcessor->process($project, $operation, $uriVariables, $context);
