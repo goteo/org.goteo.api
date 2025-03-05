@@ -2,7 +2,6 @@
 
 namespace App\Dto;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Project\ProjectTerritoryApiResource;
 use App\Entity\Project\Category;
@@ -20,14 +19,12 @@ class ProjectEditDto
     /**
      * Main headline for the Project.
      */
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $title;
 
     /**
      * Secondary headline for the Project.
      */
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $subtitle;
 
@@ -35,7 +32,6 @@ class ProjectEditDto
      * One of the available categories.
      */
     #[Assert\NotBlank()]
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public Category $category;
 
     /**
@@ -48,7 +44,6 @@ class ProjectEditDto
     /**
      * Free-form rich text description for the Project.
      */
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $description;
 
@@ -69,7 +64,5 @@ class ProjectEditDto
     /**
      * The status of a Project represents how far it is in it's life-cycle.
      */
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    #[API\ApiProperty(securityPostDenormalize: 'is_granted("PROJECT_EDIT", previous_object)')]
     public ProjectStatus $status = ProjectStatus::InEditing;
 }
