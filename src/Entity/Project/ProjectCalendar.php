@@ -11,8 +11,8 @@ class ProjectCalendar
     /**
      * The date at which the Project started campaigning.
      */
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    public ?\DateTimeInterface $release = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    public ?\DateTimeImmutable $release = null;
 
     /**
      * 40 days after the date of release.\
@@ -20,8 +20,8 @@ class ProjectCalendar
      * The minimum budget must be raised by the end of this date.\
      * Failure to do so will move the Project out of status `in_campaign` into status `unfunded`.
      */
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    public ?\DateTimeInterface $minimum = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    public ?\DateTimeImmutable $minimum = null;
 
     /**
      * 40 days after the minimum deadline. Optional.\
@@ -29,6 +29,6 @@ class ProjectCalendar
      * If the Project achieved their minimum budget by the minimum deadline,
      * and this deadline is defined, it may still remain in campaign to raise the optimum.
      */
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    public ?\DateTimeInterface $optimum = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    public ?\DateTimeImmutable $optimum = null;
 }
