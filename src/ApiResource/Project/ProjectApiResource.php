@@ -11,6 +11,7 @@ use App\ApiResource\User\UserApiResource;
 use App\Dto\ProjectEditDto;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
 use App\Mapping\Transformer\BudgetMapTransformer;
@@ -68,6 +69,12 @@ class ProjectApiResource
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $subtitle;
+
+    /**
+     * Deadlines and important Project dates.
+     */
+    #[API\ApiProperty(writable: false)]
+    public ProjectCalendar $calendar;
 
     /**
      * One of the available categories.

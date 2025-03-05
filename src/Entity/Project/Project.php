@@ -50,6 +50,9 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[Gedmo\Translatable()]
     private ?string $subtitle = null;
 
+    #[ORM\Embedded(class: ProjectTerritory::class)]
+    private ?ProjectCalendar $calendar = null;
+
     #[ORM\Column(enumType: Category::class)]
     private ?Category $category = null;
 
@@ -150,6 +153,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setSubtitle(string $subtitle): static
     {
         $this->subtitle = $subtitle;
+
+        return $this;
+    }
+
+    public function getCalendar(): ?ProjectCalendar
+    {
+        return $this->calendar;
+    }
+
+    public function setCalendar(ProjectCalendar $calendar): static
+    {
+        $this->calendar = $calendar;
 
         return $this;
     }
