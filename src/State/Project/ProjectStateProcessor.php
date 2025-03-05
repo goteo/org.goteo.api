@@ -23,7 +23,7 @@ class ProjectStateProcessor implements ProcessorInterface
 
     /**
      * @param ProjectCreateDto|ProjectUpdateDto $data
-     * @param array{id: int} $uriVariables
+     * @param array{id: int}                    $uriVariables
      *
      * @return ProjectApiResource|null
      */
