@@ -53,6 +53,13 @@ class ProjectEditDto
     public string $description;
 
     /**
+     * Every campaign must raise the minimum before the minimum deadline.\
+     * Optionally, a Project can choose to remain in campaign for a second deadline
+     * if it did reach the minimum in the first place.
+     */
+    public ProjectDeadline $deadlines = ProjectDeadline::Minimum;
+
+    /**
      * A URL to a video showcasing the Project.
      */
     #[Assert\Url()]
