@@ -6,6 +6,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Project\ProjectTerritoryApiResource;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Mapping\Transformer\ProjectVideoMapTransformer;
 use AutoMapper\Attribute\MapTo;
@@ -48,11 +49,11 @@ class ProjectEditDto
     public string $description;
 
     /**
-     * Every campaign must raise the minimum before the minimum deadline.\
-     * Optionally, a Project can choose to remain in campaign for a second deadline
-     * if it did reach the minimum in the first place.
+     * On `minimum`, Project will campaign until the minimum deadline.\
+     * On `optimum`, Project will campaing until the minimum deadline,
+     * and then until the optimum deadline if it did raise the minimum.
      */
-    public ProjectDeadline $deadlines = ProjectDeadline::Minimum;
+    public ProjectDeadline $deadline = ProjectDeadline::Minimum;
 
     /**
      * A URL to a video showcasing the Project.

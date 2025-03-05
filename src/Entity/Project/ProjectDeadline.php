@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto;
+namespace App\Entity\Project;
 
 enum ProjectDeadline: string
 {
