@@ -12,6 +12,7 @@ use App\Dto\ProjectEditDto;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
+use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
 use App\Mapping\Transformer\BudgetMapTransformer;
@@ -69,6 +70,14 @@ class ProjectApiResource
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $subtitle;
+
+    /**
+     * On `minimum`, Project will campaign until the minimum deadline.\
+     * On `optimum`, Project will campaing until the minimum deadline,
+     * and then until the optimum deadline if it did raise the minimum.
+     */
+    #[API\ApiProperty(writable: false)]
+    public ProjectDeadline $deadline;
 
     /**
      * Deadlines and important Project dates.
