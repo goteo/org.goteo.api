@@ -53,7 +53,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Column(enumType: ProjectDeadline::class)]
     private ?ProjectDeadline $deadline = null;
 
-    #[ORM\Embedded(class: ProjectTerritory::class)]
+    #[ORM\Embedded(class: ProjectCalendar::class)]
     private ?ProjectCalendar $calendar = null;
 
     #[ORM\Column(enumType: Category::class)]
