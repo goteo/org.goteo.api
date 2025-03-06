@@ -29,7 +29,7 @@ final class ProjectsListener
         }
 
         if ($project->getStatus() === ProjectStatus::InCampaign) {
-            $calendar = $this->calendarService->makeCalendar($project);
+            $calendar = $this->calendarService->makeCalendar($project->getDeadline());
 
             $project->setCalendar($calendar);
         }
