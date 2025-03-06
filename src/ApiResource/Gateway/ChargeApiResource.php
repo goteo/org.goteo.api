@@ -3,6 +3,7 @@
 namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\ApiFilter;
@@ -24,6 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Get()]
 #[API\GetCollection()]
 #[ApiFilter(RangeFilter::class, properties: ['money.amount'])]
+#[ApiFilter(SearchFilter::class, properties: ['money.amount' => 'exact'])]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
