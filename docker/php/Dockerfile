@@ -54,4 +54,9 @@ RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 
 EXPOSE 9000
 
+COPY entrypoint.sh /usr/bin
+RUN chmod +x /usr/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
+
 CMD ["php-fpm"]
