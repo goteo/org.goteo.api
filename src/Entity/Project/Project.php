@@ -50,6 +50,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[Gedmo\Translatable()]
     private ?string $subtitle = null;
 
+    #[ORM\Column(enumType: ProjectDeadline::class)]
+    private ?ProjectDeadline $deadline = null;
+
+    #[ORM\Embedded(class: ProjectCalendar::class)]
+    private ?ProjectCalendar $calendar = null;
+
     #[ORM\Column(enumType: Category::class)]
     private ?Category $category = null;
 
@@ -90,7 +96,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
      */
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
-    private ProjectStatus $status;
+    private ProjectStatus $status = ProjectStatus::InEditing;
 
     /**
      * @var Collection<int, Reward>
@@ -150,6 +156,30 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setSubtitle(string $subtitle): static
     {
         $this->subtitle = $subtitle;
+
+        return $this;
+    }
+
+    public function getDeadline(): ?ProjectDeadline
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(ProjectDeadline $deadline): static
+    {
+        $this->deadline = $deadline;
+
+        return $this;
+    }
+
+    public function getCalendar(): ?ProjectCalendar
+    {
+        return $this->calendar;
+    }
+
+    public function setCalendar(ProjectCalendar $calendar): static
+    {
+        $this->calendar = $calendar;
 
         return $this;
     }
