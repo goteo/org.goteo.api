@@ -47,11 +47,16 @@ FROM base AS prod
 COPY . /app
 RUN chown -R www-data:www-data /app
 
+COPY /docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 USER www-data
 WORKDIR /app
 
 RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 
 EXPOSE 9000
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 CMD ["php-fpm"]
