@@ -3,6 +3,7 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
@@ -45,6 +46,9 @@ class Accounting
 
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
     private ?Tipjar $tipjar = null;
+
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
+    private ?MatchCall $matchCall = null;
 
     /**
      * Create a new Accounting entity instance for the given owner.
@@ -104,6 +108,8 @@ class Accounting
                 return $this->getProject();
             case Tipjar::class:
                 return $this->getTipjar();
+            case MatchCall::class:
+                return $this->getMatchCall();
         }
 
         return null;
@@ -124,6 +130,8 @@ class Accounting
                 return $this->setProject($owner);
             case Tipjar::class:
                 return $this->setTipjar($owner);
+            case MatchCall::class:
+                return $this->setMatchCall($owner);
         }
 
         return $this;
@@ -191,6 +199,23 @@ class Accounting
         }
 
         $this->tipjar = $tipjar;
+
+        return $this;
+    }
+
+    public function getMatchCall(): ?MatchCall
+    {
+        return $this->matchCall;
+    }
+
+    public function setMatchCall(MatchCall $matchCall): static
+    {
+        // set the owning side of the relation if necessary
+        if ($matchCall->getAccounting() !== $this) {
+            $matchCall->setAccounting($this);
+        }
+
+        $this->matchCall = $matchCall;
 
         return $this;
     }

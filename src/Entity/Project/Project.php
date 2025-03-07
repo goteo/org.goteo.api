@@ -6,6 +6,7 @@ use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
@@ -105,6 +106,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private Collection $rewards;
 
     /**
+     * @var Collection<int, MatchCallSubmission>
+     */
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: MatchCallSubmission::class)]
+    private Collection $matchCallSubmissions;
+
+    /**
      * @var Collection<int, BudgetItem>
      */
     #[ORM\OneToMany(targetEntity: BudgetItem::class, mappedBy: 'project')]
@@ -120,6 +127,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     {
         $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
+        $this->matchCallSubmissions = new ArrayCollection();
         $this->budgetItems = new ArrayCollection();
         $this->updates = new ArrayCollection();
     }
@@ -280,6 +288,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($reward->getProject() === $this) {
                 $reward->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MatchCallSubmission>
+     */
+    public function getMatchCallSubmissions(): Collection
+    {
+        return $this->matchCallSubmissions;
+    }
+
+    public function addMatchCallSubmission(MatchCallSubmission $MatchCallSubmission): static
+    {
+        if (!$this->matchCallSubmissions->contains($MatchCallSubmission)) {
+            $this->matchCallSubmissions->add($MatchCallSubmission);
+            $MatchCallSubmission->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMatchCallSubmission(MatchCallSubmission $MatchCallSubmission): static
+    {
+        if ($this->matchCallSubmissions->removeElement($MatchCallSubmission)) {
+            // set the owning side to null (unless already changed)
+            if ($MatchCallSubmission->getProject() === $this) {
+                $MatchCallSubmission->setProject(null);
             }
         }
 
