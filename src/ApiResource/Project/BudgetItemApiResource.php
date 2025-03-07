@@ -67,7 +67,7 @@ class BudgetItemApiResource
      */
     #[Assert\Type(
         type: ProjectDeadline::class,
-        message: \sprintf("The category must be one of these values: %s.", \join(", ", array_map(fn($case) => $case->name, ProjectDeadline::cases())))
-        )]
+        message: "The category must be one of the available values."
+    )]
     private ?ProjectDeadline $category = null;
 }
