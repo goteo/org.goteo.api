@@ -2,7 +2,7 @@
 
 namespace App\ApiResource\Gateway;
 
-use ApiPlatform\Doctrine\Orm\Filter as Filter;
+use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
