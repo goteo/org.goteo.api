@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Gateway;
 
+use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class
 )]
 #[API\Get()]
+#[API\GetCollection()]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
@@ -59,5 +61,7 @@ class ChargeApiResource
      * It is money before fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.amount' => 'exact'])]
     public Money $money;
 }
