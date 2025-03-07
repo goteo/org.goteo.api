@@ -62,12 +62,9 @@ class BudgetItemApiResource
 
     /**
      * Defines the budget category for this item within the project.
-     * 
+     *
      * This field specifies whether the budget item belongs to the minimum or optimum budget:
      */
-    #[Assert\Type(
-        type: ProjectDeadline::class,
-        message: "The category must be one of the available values."
-    )]
-    private ?ProjectDeadline $category = null;
+    #[Assert\Type(type: ProjectDeadline::class)]
+    private ?ProjectDeadline $deadline = null;
 }

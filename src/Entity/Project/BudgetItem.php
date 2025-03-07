@@ -98,8 +98,11 @@ class BudgetItem implements LocalizedEntityInterface
         return $this;
     }
 
-    private function getMoneyByCategory(string $category): ?Money{
+    // Quitar
+    private function getMoneyByCategory(string $category): ?Money
+    {
         $nullValue = 0;
+
         return $this->category->value == $category ? $this->money : $nullValue;
     }
 
@@ -107,7 +110,7 @@ class BudgetItem implements LocalizedEntityInterface
     {
         return $this->getMoneyByCategory(ProjectDeadline::Minimum->value);
     }
-    
+
     public function getOptimum(): ?Money
     {
         return $this->getMoneyByCategory(ProjectDeadline::Optimum->value);
