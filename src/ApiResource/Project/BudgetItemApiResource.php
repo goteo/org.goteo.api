@@ -9,6 +9,7 @@ use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
+use App\Entity\Project\ProjectDeadline;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -53,16 +54,20 @@ class BudgetItemApiResource
     public string $description;
 
     /**
-     * How much money it's needed for this item to be succesfully satisfied.
+     * The amount of money required for this item.
      */
+    #[Assert\NotBlank()]
     #[Assert\Valid()]
-    #[Assert\When('this.optimum == null', constraints: [new Assert\NotBlank()])]
-    public ?Money $minimum = null;
+    public Money $money;
 
     /**
-     * How much money would be ideal for this item to be fully satisfied.
+     * Defines the budget category for this item within the project.
+     * 
+     * This field specifies whether the budget item belongs to the minimum or optimum budget:
      */
-    #[Assert\Valid()]
-    #[Assert\When('this.minimum == null', constraints: [new Assert\NotBlank()])]
-    public ?Money $optimum = null;
+    #[Assert\Type(
+        type: ProjectDeadline::class,
+        message: \sprintf("The category must be one of these values: %s.", \join(", ", array_map(fn($case) => $case->name, ProjectDeadline::cases())))
+        )]
+    private ?ProjectDeadline $category = null;
 }
