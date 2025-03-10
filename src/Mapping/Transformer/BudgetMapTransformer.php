@@ -8,12 +8,15 @@ use App\Entity\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectDeadline;
 use App\Library\Economy\MoneyService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class BudgetMapTransformer implements PropertyTransformerInterface
 {
-    public const VALID_SUMMARY_TYPES = ['minimum', 'optimum'];
+    public const MINIMUM = ProjectDeadline::Minimum->value;
+    public const OPTIMUM = ProjectDeadline::Optimum->value;
+    public const VALID_SUMMARY_TYPES = [self::MINIMUM, self::OPTIMUM];
 
     public function __construct(
         private MoneyService $moneyService,
@@ -28,8 +31,8 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         $currency = $source->getAccounting()->getCurrency();
 
         $budget = new Budget();
-        $budget->minimum = $this->getItemsSummary($items, $currency, 'minimum');
-        $budget->optimum = $this->getItemsSummary($items, $currency, 'optimum');
+        $budget->minimum = $this->getItemsSummary($items, $currency, self::MINIMUM);
+        $budget->optimum = $this->getItemsSummary($items, $currency, self::OPTIMUM);
 
         return $budget;
     }
@@ -48,30 +51,23 @@ class BudgetMapTransformer implements PropertyTransformerInterface
      */
     private function calcItemsTotal(array $items, string $currency): array
     {
-        $totalMinimum = new Money(0, $currency);
-        $totalOptimum = new Money(0, $currency);
+        $totals = [
+            self::MINIMUM => new Money(0, $currency),
+            self::OPTIMUM => new Money(0, $currency),
+        ];
 
         foreach ($items as $item) {
-            $itemMinimum = $item->getMinimum();
+            $itemMoney = $item->getMoney();
+            $itemDeadlineValue = $item->getDeadline()->value;
 
-            if ($itemMinimum === null || !isset($itemMinimum->amount)) {
-                $itemMinimum = new Money(0, $currency);
+            if (isset($totals[$itemDeadlineValue])) {
+                $totals[$itemDeadlineValue] = $this->moneyService->add($itemMoney, $totals[$itemDeadlineValue]);
             }
-
-            $totalMinimum = $this->moneyService->add($itemMinimum, $totalMinimum);
-
-            $itemOptimum = $item->getOptimum();
-
-            if ($itemOptimum === null || !isset($itemOptimum->amount)) {
-                $itemOptimum = new Money(0, $currency);
-            }
-
-            $itemOptimum = $this->moneyService->add($itemMinimum, $itemOptimum);
-            $totalOptimum = $this->moneyService->add($itemOptimum, $totalOptimum);
         }
 
-        return ['minimum' => $totalMinimum, 'optimum' => $totalOptimum];
+        return $totals;
     }
+
 
     private function getItemsSummary(array $items, string $currency, string $type)
     {

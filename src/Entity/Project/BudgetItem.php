@@ -43,7 +43,7 @@ class BudgetItem implements LocalizedEntityInterface
     private ?Money $money = null;
 
     #[ORM\Column(enumType: ProjectDeadline::class)]
-    private ?ProjectDeadline $category = null;
+    private ?ProjectDeadline $deadline = null;
 
     public function getId(): ?int
     {
@@ -98,27 +98,24 @@ class BudgetItem implements LocalizedEntityInterface
         return $this;
     }
 
-    // Quitar
-    private function getMoneyByCategory(string $category): ?Money
-    {
-        $nullValue = 0;
-
-        return $this->category->value == $category ? $this->money : $nullValue;
-    }
-
-    public function getMinimum(): ?Money
-    {
-        return $this->getMoneyByCategory(ProjectDeadline::Minimum->value);
-    }
-
-    public function getOptimum(): ?Money
-    {
-        return $this->getMoneyByCategory(ProjectDeadline::Optimum->value);
+    public function getMoney(): ?Money{
+        return $this->money;
     }
 
     public function setMoney(Money $money): static
     {
         $this->money = $money;
+
+        return $this;
+    }
+
+    public function getDeadline(): ?ProjectDeadline{
+        return $this->deadline;
+    }
+
+    public function setDeadline(ProjectDeadline $deadline): static
+    {
+        $this->deadline = $deadline;
 
         return $this;
     }
