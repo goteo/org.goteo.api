@@ -98,7 +98,8 @@ class BudgetItem implements LocalizedEntityInterface
         return $this;
     }
 
-    public function getMoney(): ?Money{
+    public function getMoney(): ?Money
+    {
         return $this->money;
     }
 
@@ -109,7 +110,8 @@ class BudgetItem implements LocalizedEntityInterface
         return $this;
     }
 
-    public function getDeadline(): ?ProjectDeadline{
+    public function getDeadline(): ?ProjectDeadline
+    {
         return $this->deadline;
     }
 

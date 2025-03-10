@@ -68,7 +68,6 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         return $totals;
     }
 
-
     private function getItemsSummary(array $items, string $currency, string $type)
     {
         if (!\in_array($type, self::VALID_SUMMARY_TYPES)) {
