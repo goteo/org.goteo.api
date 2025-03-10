@@ -65,6 +65,6 @@ class BudgetItemApiResource
      *
      * This field specifies whether the budget item belongs to the minimum or optimum budget:
      */
-    #[Assert\Type(type: ProjectDeadline::class)]
-    private ?ProjectDeadline $deadline = null;
+    #[Assert\NotBlank()]
+    public ProjectDeadline $deadline;
 }
