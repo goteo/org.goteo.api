@@ -11,12 +11,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 final class GatewayChargeExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
-    private Security $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
+    public function __construct(private Security $security) {}
 
     /**
      *  Method that applies the filter.
@@ -29,12 +24,12 @@ final class GatewayChargeExtension implements QueryCollectionExtensionInterface,
 
         $user = $this->security->getUser();
 
-        if (!$user || !$user instanceof \App\Entity\User\User) {
-            return; // If the user is not authenticated or not an instance of User, we do not apply the filter
+        if (!$user instanceof \App\Entity\User\User) {
+            return; // If the user is not an instance of User, we do not apply the filter
         }
 
         // If the user has ROLE_ADMIN, we dont filter the results
-        if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+        if ($user->hasRoles(['ROLE_ADMIN'])) {
             return;
         }
 
@@ -42,20 +37,31 @@ final class GatewayChargeExtension implements QueryCollectionExtensionInterface,
 
         // Filter by the owner user
         $queryBuilder
-        ->leftJoin("$rootAlias.checkout", 'c') // Relationship with Gatewaycheckout
-        ->leftJoin('c.origin', 'co') // Relationship with Accounting
+            ->leftJoin("$rootAlias.checkout", 'c') // Relationship with Gatewaycheckout
+            ->leftJoin('c.origin', 'co') // Relationship with Accounting
             ->leftJoin('co.user', 'u') // Relationship with User
             ->andWhere('u.id = :userId') // Filter by the user in the Origin entity (accounting)
-            ->setParameter('userId', $user->getId()); // Establishes the authenticated user parameter
+            ->setParameter('userId', $user->getId());
     }
 
-    public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?\ApiPlatform\Metadata\Operation $operation = null, array $context = []): void
-    {
+    public function applyToCollection(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?\ApiPlatform\Metadata\Operation $operation = null,
+        array $context = [],
+    ): void {
         $this->addFilter($queryBuilder, $resourceClass);
     }
 
-    public function applyToItem(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, array $identifiers, ?\ApiPlatform\Metadata\Operation $operation = null, array $context = []): void
-    {
+    public function applyToItem(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        array $identifiers,
+        ?\ApiPlatform\Metadata\Operation $operation = null,
+        array $context = [],
+    ): void {
         $this->addFilter($queryBuilder, $resourceClass);
     }
 }
