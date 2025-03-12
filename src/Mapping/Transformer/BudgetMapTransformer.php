@@ -58,11 +58,13 @@ class BudgetMapTransformer implements PropertyTransformerInterface
                 $totalMinimum = $this->moneyService->add($itemMoney, $totalMinimum);
             }
 
-            // Either minimal or optimum is also added to the totalOptimum
             $totalOptimum = $this->moneyService->add($itemMoney, $totalOptimum);
         }
 
-        return [ProjectDeadline::Minimum->value => $totalMinimum, ProjectDeadline::Optimum->value => $totalOptimum];
+        return [
+            ProjectDeadline::Minimum->value => $totalMinimum,
+            ProjectDeadline::Optimum->value => $totalOptimum,
+        ];
     }
 
     private function getItemsSummary(array $items, string $currency, ProjectDeadline $deadline)
@@ -70,10 +72,32 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         $deadlineValue = $deadline->value;
 
         $summary = new BudgetSummary();
+
         $summary->money = $this->calcItemsTotal($items, $currency)[$deadlineValue];
-        $summary->task = $this->calcItemsTotal($this->filterItemsByType($items, BudgetItemType::Task), $currency)[$deadlineValue];
-        $summary->material = $this->calcItemsTotal($this->filterItemsByType($items, BudgetItemType::Material), $currency)[$deadlineValue];
-        $summary->infra = $this->calcItemsTotal($this->filterItemsByType($items, BudgetItemType::Infrastructure), $currency)[$deadlineValue];
+
+        $summary->task = $this->calcItemsTotal(
+            $this->filterItemsByType(
+                $items,
+                BudgetItemType::Task
+            ),
+            $currency
+        )[$deadlineValue];
+
+        $summary->material = $this->calcItemsTotal(
+            $this->filterItemsByType(
+                $items,
+                BudgetItemType::Material
+            ),
+            $currency
+        )[$deadlineValue];
+
+        $summary->infra = $this->calcItemsTotal(
+            $this->filterItemsByType(
+                $items,
+                BudgetItemType::Infrastructure
+            ),
+            $currency
+        )[$deadlineValue];
 
         return $summary;
     }
