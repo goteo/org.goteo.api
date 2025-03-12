@@ -26,7 +26,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: CheckoutStateProcessor::class,
 )]
-#[API\GetCollection()]
+#[API\GetCollection(
+    security: "is_granted('IS_AUTHENTICATED_FULLY')"
+)]
 #[API\Post()]
 #[API\Get()]
 class CheckoutApiResource
