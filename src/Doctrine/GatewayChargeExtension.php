@@ -42,8 +42,8 @@ final class GatewayChargeExtension implements QueryCollectionExtensionInterface,
 
         // Filter by the owner user
         $queryBuilder
-            ->leftJoin("$rootAlias.checkout", 'c') // Relationship with Gatewaycheckout
-            ->leftJoin('c.origin', 'co') // Relationship with Accounting
+        ->leftJoin("$rootAlias.checkout", 'c') // Relationship with Gatewaycheckout
+        ->leftJoin('c.origin', 'co') // Relationship with Accounting
             ->leftJoin('co.user', 'u') // Relationship with User
             ->andWhere('u.id = :userId') // Filter by the user in the Origin entity (accounting)
             ->setParameter('userId', $user->getId()); // Establishes the authenticated user parameter
