@@ -8,13 +8,12 @@ use App\Entity\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectDeadline;
 use App\Library\Economy\MoneyService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class BudgetMapTransformer implements PropertyTransformerInterface
 {
-    public const VALID_SUMMARY_TYPES = ['minimum', 'optimum'];
-
     public function __construct(
         private MoneyService $moneyService,
     ) {}
@@ -28,8 +27,8 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         $currency = $source->getAccounting()->getCurrency();
 
         $budget = new Budget();
-        $budget->minimum = $this->getItemsSummary($items, $currency, 'minimum');
-        $budget->optimum = $this->getItemsSummary($items, $currency, 'optimum');
+        $budget->minimum = $this->getItemsSummary($items, $currency, ProjectDeadline::Minimum);
+        $budget->optimum = $this->getItemsSummary($items, $currency, ProjectDeadline::Optimum);
 
         return $budget;
     }
@@ -52,38 +51,53 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         $totalOptimum = new Money(0, $currency);
 
         foreach ($items as $item) {
-            $itemMinimum = $item->getMinimum();
+            $itemMoney = $item->getMoney();
+            $itemDeadline = $item->getDeadline();
 
-            if ($itemMinimum === null || !isset($itemMinimum->amount)) {
-                $itemMinimum = new Money(0, $currency);
+            if ($itemDeadline == ProjectDeadline::Minimum) {
+                $totalMinimum = $this->moneyService->add($itemMoney, $totalMinimum);
             }
 
-            $totalMinimum = $this->moneyService->add($itemMinimum, $totalMinimum);
-
-            $itemOptimum = $item->getOptimum();
-
-            if ($itemOptimum === null || !isset($itemOptimum->amount)) {
-                $itemOptimum = new Money(0, $currency);
-            }
-
-            $itemOptimum = $this->moneyService->add($itemMinimum, $itemOptimum);
-            $totalOptimum = $this->moneyService->add($itemOptimum, $totalOptimum);
+            $totalOptimum = $this->moneyService->add($itemMoney, $totalOptimum);
         }
 
-        return ['minimum' => $totalMinimum, 'optimum' => $totalOptimum];
+        return [
+            ProjectDeadline::Minimum->value => $totalMinimum,
+            ProjectDeadline::Optimum->value => $totalOptimum,
+        ];
     }
 
-    private function getItemsSummary(array $items, string $currency, string $type)
+    private function getItemsSummary(array $items, string $currency, ProjectDeadline $deadline)
     {
-        if (!\in_array($type, self::VALID_SUMMARY_TYPES)) {
-            throw new \Exception(\sprintf('BudgetSummary must be of \'%s\' type.', \join(', ', self::VALID_SUMMARY_TYPES)));
-        }
+        $deadlineValue = $deadline->value;
 
         $summary = new BudgetSummary();
-        $summary->money = $this->calcItemsTotal($items, $currency)[$type];
-        $summary->task = $this->calcItemsTotal($this->filterItemsByType($items, BudgetItemType::Task), $currency)[$type];
-        $summary->material = $this->calcItemsTotal($this->filterItemsByType($items, BudgetItemType::Material), $currency)[$type];
-        $summary->infra = $this->calcItemsTotal($this->filterItemsByType($items, BudgetItemType::Infrastructure), $currency)[$type];
+
+        $summary->money = $this->calcItemsTotal($items, $currency)[$deadlineValue];
+
+        $summary->task = $this->calcItemsTotal(
+            $this->filterItemsByType(
+                $items,
+                BudgetItemType::Task
+            ),
+            $currency
+        )[$deadlineValue];
+
+        $summary->material = $this->calcItemsTotal(
+            $this->filterItemsByType(
+                $items,
+                BudgetItemType::Material
+            ),
+            $currency
+        )[$deadlineValue];
+
+        $summary->infra = $this->calcItemsTotal(
+            $this->filterItemsByType(
+                $items,
+                BudgetItemType::Infrastructure
+            ),
+            $currency
+        )[$deadlineValue];
 
         return $summary;
     }
