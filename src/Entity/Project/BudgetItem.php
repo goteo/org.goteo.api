@@ -40,10 +40,10 @@ class BudgetItem implements LocalizedEntityInterface
     private ?string $description = null;
 
     #[ORM\Embedded(class: Money::class)]
-    private ?Money $minimum = null;
+    private ?Money $money = null;
 
-    #[ORM\Embedded(class: Money::class)]
-    private ?Money $optimum = null;
+    #[ORM\Column(enumType: ProjectDeadline::class)]
+    private ?ProjectDeadline $deadline = null;
 
     public function getId(): ?int
     {
@@ -98,26 +98,26 @@ class BudgetItem implements LocalizedEntityInterface
         return $this;
     }
 
-    public function getMinimum(): ?Money
+    public function getMoney(): ?Money
     {
-        return $this->minimum;
+        return $this->money;
     }
 
-    public function setMinimum(Money $minimum): static
+    public function setMoney(Money $money): static
     {
-        $this->minimum = $minimum;
+        $this->money = $money;
 
         return $this;
     }
 
-    public function getOptimum(): ?Money
+    public function getDeadline(): ?ProjectDeadline
     {
-        return $this->optimum;
+        return $this->deadline;
     }
 
-    public function setOptimum(Money $optimum): static
+    public function setDeadline(ProjectDeadline $deadline): static
     {
-        $this->optimum = $optimum;
+        $this->deadline = $deadline;
 
         return $this;
     }
