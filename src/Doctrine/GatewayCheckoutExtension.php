@@ -2,65 +2,23 @@
 
 namespace App\Doctrine;
 
-use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
-use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Entity\Gateway\Checkout;
+use App\Entity\User\User;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\SecurityBundle\Security;
 
-final class GatewayCheckoutExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
+final class GatewayCheckoutExtension extends AbstractGatewayExtension
 {
-    public function __construct(private Security $security) {}
-
-    /**
-     *  Method that applies the filter.
-     */
-    public function addFilter(QueryBuilder $queryBuilder, string $resourceClass)
+    protected function getEntityClass(): string
     {
-        if ($resourceClass !== Checkout::class) {
-            return; // Just apply the filter to GatewayCharge
-        }
+        return Checkout::class;
+    }
 
-        $user = $this->security->getUser();
-
-        if (!$user instanceof \App\Entity\User\User) {
-            return; // If the user is not an instance of User, we do not apply the filter
-        }
-
-        // If the user has ROLE_ADMIN, we dont filter the results
-        if ($user->hasRoles(['ROLE_ADMIN'])) {
-            return;
-        }
-
-        $rootAlias = $queryBuilder->getRootAliases()[0];
-
-        // Filter by the owner user
+    protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias, User $user): void
+    {
         $queryBuilder
-            ->leftJoin("$rootAlias.origin", 'co') // Relationship with Accounting
-            ->leftJoin('co.user', 'u') // Relationship with User
-            ->andWhere('u.id = :userId') // Filter by the user in the Origin entity (accounting)
+            ->leftJoin("$rootAlias.origin", 'co') // Relación con Accounting
+            ->leftJoin('co.user', 'u') // Relación con User
+            ->andWhere('u.id = :userId') // Filtrar por el usuario en Origin (Accounting)
             ->setParameter('userId', $user->getId());
-    }
-
-    public function applyToCollection(
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        ?\ApiPlatform\Metadata\Operation $operation = null,
-        array $context = [],
-    ): void {
-        $this->addFilter($queryBuilder, $resourceClass);
-    }
-
-    public function applyToItem(
-        QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        array $identifiers,
-        ?\ApiPlatform\Metadata\Operation $operation = null,
-        array $context = [],
-    ): void {
-        $this->addFilter($queryBuilder, $resourceClass);
     }
 }
