@@ -35,7 +35,7 @@ class Support
     private ?string $message = null;
 
     #[ORM\Column]
-    private ?bool $anonymours = null;
+    private ?bool $anonymous = null;
 
     public function __construct()
     {
@@ -113,14 +113,14 @@ class Support
         return $this;
     }
 
-    public function isAnonymours(): ?bool
+    public function isAnonymous(): ?bool
     {
-        return $this->anonymours;
+        return $this->anonymous;
     }
 
-    public function setAnonymours(bool $anonymours): static
+    public function setAnonymous(bool $anonymous): static
     {
-        $this->anonymours = $anonymours;
+        $this->anonymous = $anonymous;
 
         return $this;
     }
