@@ -20,6 +20,6 @@ trait UserOwnedTrait
 
     public function isOwnedBy(User $user): bool
     {
-        return $this->owner->getId() === $user->getId();
+        return $this->getOwner()->getId() === $user->getId();
     }
 }
