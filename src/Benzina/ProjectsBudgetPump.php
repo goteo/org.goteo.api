@@ -6,6 +6,7 @@ use App\Entity\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectDeadline;
 use App\Repository\Project\ProjectRepository;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -59,14 +60,8 @@ class ProjectsBudgetPump implements PumpInterface
         $budgetItem->setType($this->getCostType($record));
         $budgetItem->setTitle($record['cost']);
         $budgetItem->setDescription($record['description'] ?? $record['cost']);
-
-        $money = new Money($record['amount'] * 100, 'EUR');
-
-        if ($record['required'] > 0) {
-            $budgetItem->setOptimum($money);
-        } else {
-            $budgetItem->setMinimum($money);
-        }
+        $budgetItem->setMoney(new Money($record['amount'] * 100, 'EUR'));
+        $budgetItem->setDeadline($this->getDeadline($record));
 
         $this->persist($budgetItem, $context);
     }
@@ -86,5 +81,14 @@ class ProjectsBudgetPump implements PumpInterface
             default:
                 return BudgetItemType::Infrastructure;
         }
+    }
+
+    private function getDeadline(array $record): ProjectDeadline
+    {
+        if ($record['required'] > 0) {
+            return ProjectDeadline::Minimum;
+        }
+
+        return ProjectDeadline::Optimum;
     }
 }
