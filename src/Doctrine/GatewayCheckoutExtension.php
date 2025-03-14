@@ -16,9 +16,9 @@ final class GatewayCheckoutExtension extends AbstractGatewayExtension
     protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias, User $user): void
     {
         $queryBuilder
-            ->leftJoin("$rootAlias.origin", 'co') // Relación con Accounting
-            ->leftJoin('co.user', 'u') // Relación con User
-            ->andWhere('u.id = :userId') // Filtrar por el usuario en Origin (Accounting)
+            ->leftJoin("$rootAlias.origin", 'co')
+            ->leftJoin('co.user', 'u')
+            ->andWhere('u.id = :userId')
             ->setParameter('userId', $user->getId());
     }
 }
