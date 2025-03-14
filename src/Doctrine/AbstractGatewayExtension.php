@@ -5,15 +5,16 @@ namespace App\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use App\Entity\User\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
-use App\Entity\User\User;
 
 abstract class AbstractGatewayExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
     public function __construct(protected Security $security) {}
 
     abstract protected function getEntityClass(): string;
+
     abstract protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias, User $user): void;
 
     private function addFilter(QueryBuilder $queryBuilder, string $resourceClass): void
