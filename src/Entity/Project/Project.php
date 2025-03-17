@@ -116,12 +116,19 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project', cascade: ['persist'])]
     private Collection $updates;
 
+    /**
+     * @var Collection<int, Support>
+     */
+    #[ORM\OneToMany(targetEntity: Support::class, mappedBy: 'project')]
+    private Collection $supports;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
         $this->budgetItems = new ArrayCollection();
         $this->updates = new ArrayCollection();
+        $this->supports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -340,6 +347,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($update->getProject() === $this) {
                 $update->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Support>
+     */
+    public function getSupports(): Collection
+    {
+        return $this->supports;
+    }
+
+    public function addSupport(Support $support): static
+    {
+        if (!$this->supports->contains($support)) {
+            $this->supports->add($support);
+            $support->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupport(Support $support): static
+    {
+        if ($this->supports->removeElement($support)) {
+            // set the owning side to null (unless already changed)
+            if ($support->getProject() === $this) {
+                $support->setProject(null);
             }
         }
 
