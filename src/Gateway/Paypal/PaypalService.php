@@ -161,7 +161,7 @@ class PaypalService
         $isSignatureValid = \openssl_verify(
             implode('|', [
                 $headers->get('paypal-transmission-id'),
-                $headers->get('paypal-transmission-type'),
+                $headers->get('paypal-transmission-time'),
                 $this->paypalWebhookId,
                 \crc32($request->getContent()),
             ]),
