@@ -20,16 +20,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\GetCollection()]
 #[API\Get()]
-#[API\Post(security: 'is_granted("ROLE_USER")')]
 #[API\Patch(security: 'is_granted("SUPPORT_EDIT", previous_object)')]
-#[API\Delete(security: 'is_granted("SUPPORT_EDIT", previous_object)')]
 class SupportApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
     /**
-     * The User who created the ProjectSupport record.
+     * The User who created the ProjectSupport record.\
+     * \
+     * When `anonymous` is *false* it will only be public to admins and the User.
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
@@ -43,22 +43,21 @@ class SupportApiResource
     public ProjectApiResource $project;
 
     /**
-     * The Charges that were paid by the User,
-     * all charges must go to the same Project and
-     * can't be on an existing ProjectSupport record.
-     * 
+     * The Charges that were paid by the User.
+     *
      * @var array<int, ChargeApiResource>
      */
-    #[Assert\NotBlank()]
+    #[API\ApiProperty(writable: false)]
     public array $charges;
+
+    /**
+     * User's will to have their support to the Project be shown publicly.
+     */
+    #[Assert\NotBlank()]
+    public bool $anonymous = true;
 
     /**
      * A message of support from the User to the Project.
      */
     public ?string $message = null;
-
-    /**
-     * User's will to have their support to the Project be shown publicly.
-     */
-    public bool $anonymous = true;
 }

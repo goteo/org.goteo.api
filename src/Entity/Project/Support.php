@@ -31,11 +31,11 @@ class Support
     #[ORM\OneToMany(targetEntity: Charge::class, mappedBy: 'support')]
     private Collection $charges;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $message = null;
-
     #[ORM\Column]
     private ?bool $anonymous = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $message = null;
 
     public function __construct()
     {
@@ -101,18 +101,6 @@ class Support
         return $this;
     }
 
-    public function getMessage(): ?string
-    {
-        return $this->message;
-    }
-
-    public function setMessage(?string $message): static
-    {
-        $this->message = $message;
-
-        return $this;
-    }
-
     public function isAnonymous(): ?bool
     {
         return $this->anonymous;
@@ -121,6 +109,18 @@ class Support
     public function setAnonymous(bool $anonymous): static
     {
         $this->anonymous = $anonymous;
+
+        return $this;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(?string $message): static
+    {
+        $this->message = $message;
 
         return $this;
     }
