@@ -21,7 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class
 )]
 #[API\Get()]
-#[API\GetCollection()]
+#[API\GetCollection(
+    security: "is_granted('IS_AUTHENTICATED_FULLY')"
+)]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
