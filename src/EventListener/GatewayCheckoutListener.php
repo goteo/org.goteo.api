@@ -2,6 +2,7 @@
 
 namespace App\EventListener;
 
+use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
@@ -13,11 +14,22 @@ use Doctrine\ORM\Events;
 #[AsEntityListener(event: Events::postPersist, method: 'postPersist', entity: Checkout::class)]
 class GatewayCheckoutListener
 {
-    private function createSupport(Project $project, User $owner): Support
+    /**
+     * Summary of createSupport
+     * @param \App\Entity\Project\Project $project
+     * @param \App\Entity\User\User $owner
+     * @param Charge[] $charges
+     * @return Support
+     */
+    private function createSupport(Project $project, User $owner, array $charges): Support
     {
         $projectSupport = new Support();
         $projectSupport->setProject($project);
         $projectSupport->setOwner($owner);
+
+        foreach($charges as $charge){
+            $projectSupport->addCharge($charge);
+        }
 
         return $projectSupport;
     }
@@ -26,20 +38,25 @@ class GatewayCheckoutListener
     {
         $objectManager = $args->getObjectManager();
 
-        $charges = $checkout->getCharges();
+        $charges = $checkout->getCharges()->toArray();
+        $owner = $checkout->getOrigin()->getUser();
 
-        $uniqueProjects = new \SplObjectStorage();
-
-        foreach ($charges as $charge) {
+        // Group charges for projects
+        $chargesByProject = [];
+        foreach($charges as $charge){
             $project = $charge->getTarget()->getProject();
+            $chargesByProject[$project->getId()][] = $charge;
+        }
 
-            if ($project !== null && !$uniqueProjects->contains($project)) {
-                $uniqueProjects->attach($project);
-
-                $support = $this->createSupport($project, $checkout->getOrigin()->getUser());
-
-                $objectManager->persist($support);
+        // Create Project Supports for each project
+        foreach($chargesByProject as $chargeByProject){
+            $project = $chargeByProject[0]->getTarget()->getProject();
+            if($project === null){
+                continue;
             }
+            
+            $support = $this->createSupport($project, $owner, $chargeByProject);
+            $objectManager->persist($support);
         }
 
         $objectManager->flush();
