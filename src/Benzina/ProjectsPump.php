@@ -238,7 +238,7 @@ class ProjectsPump implements PumpInterface
     {
         $query = $this->getDbConnection($context)->prepare(
             "SELECT * FROM `post` p
-                INNER JOIN `blog` b ON b.id = p.id
+                INNER JOIN `blog` b ON b.id = p.blog
                 WHERE b.type = 'project'
                     AND b.owner = :project
             "
