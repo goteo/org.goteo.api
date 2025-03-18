@@ -15,11 +15,9 @@ use Doctrine\ORM\Events;
 class GatewayCheckoutListener
 {
     /**
-     * Summary of createSupport
-     * @param \App\Entity\Project\Project $project
-     * @param \App\Entity\User\User $owner
+     * Summary of createSupport.
+     *
      * @param Charge[] $charges
-     * @return Support
      */
     private function createSupport(Project $project, User $owner, array $charges): Support
     {
@@ -28,7 +26,7 @@ class GatewayCheckoutListener
         $projectSupport->setOwner($owner);
         $projectSupport->setAnonymous(false);
 
-        foreach($charges as $charge){
+        foreach ($charges as $charge) {
             $projectSupport->addCharge($charge);
         }
 
@@ -44,18 +42,18 @@ class GatewayCheckoutListener
 
         // Group charges for projects
         $chargesByProject = [];
-        foreach($charges as $charge){
+        foreach ($charges as $charge) {
             $project = $charge->getTarget()->getProject();
             $chargesByProject[$project->getId()][] = $charge;
         }
 
         // Create Project Support for each project
-        foreach($chargesByProject as $chargeByProject){
+        foreach ($chargesByProject as $chargeByProject) {
             $project = $chargeByProject[0]->getTarget()->getProject();
-            if($project === null){
+            if ($project === null) {
                 continue;
             }
-            
+
             $support = $this->createSupport($project, $owner, $chargeByProject);
             $objectManager->persist($support);
         }
