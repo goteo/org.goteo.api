@@ -12,7 +12,7 @@ final class GatewayCheckoutExtension extends AbstractQueryResourceExtensionInter
 
     protected function supports(string $resourceClass): bool
     {
-        return Checkout::class === $resourceClass;
+        return $resourceClass === Checkout::class;
     }
 
     protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias): void

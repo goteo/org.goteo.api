@@ -3,7 +3,6 @@
 namespace App\Doctrine;
 
 use App\Entity\Gateway\Charge;
-use App\Entity\User\User;
 use App\Security\Trait\UserTrait;
 use Doctrine\ORM\QueryBuilder;
 
@@ -13,7 +12,7 @@ final class GatewayChargeExtension extends AbstractQueryResourceExtensionInterfa
 
     protected function supports(string $resourceClass): bool
     {
-        return Charge::class === $resourceClass;
+        return $resourceClass === Charge::class;
     }
 
     protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias): void
