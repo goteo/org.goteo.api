@@ -10,25 +10,37 @@ use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
 use App\State\EntityStateProcessor;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Doctrine\ORM\EntityManagerInterface;
 
 class SupportStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private EntityStateProcessor $entityStateProcessor,
         private AuthService $authService,
-        private AutoMapper $autoMapper
+        private AutoMapper $autoMapper,
+        private EntityManagerInterface $entityManager
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
+        // Verify if the user is authenticated
         $user = $this->authService->getUser();
-
         if (!$user) {
             throw new AuthenticationException();
         }
 
-        /** @var Support */
-        $support = $this->autoMapper->map($data, Support::class);
+        // Verify if we are trying to update an existing support
+        if (isset($uriVariables['id'])) {
+            $support = $this->entityManager->getRepository(Support::class)
+                ->find($uriVariables['id']);
+            if (!$support) {
+                throw new \Exception('Support not found');
+            }
+        } else {
+            $support = new Support();
+        }
+
+        $this->autoMapper->map($data, $support);
 
         $support = $this->entityStateProcessor->process($support, $operation, $uriVariables, $context);
 
