@@ -5,37 +5,29 @@ namespace App\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use App\Entity\User\User;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\SecurityBundle\Security;
 
-abstract class AbstractGatewayExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
+abstract class AbstractQueryResourceExtensionInterface implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
-    public function __construct(protected Security $security) {}
+    /**
+     * Determine if the extension is compatible with the given resource.
+     */
+    abstract protected function supports(string $resourceClass): bool;
 
-    abstract protected function getEntityClass(): string;
-
-    abstract protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias, User $user): void;
+    /**
+     * Apply the filters to the query builder.
+     */
+    abstract protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias): void;
 
     private function addFilter(QueryBuilder $queryBuilder, string $resourceClass): void
     {
-        if ($resourceClass !== $this->getEntityClass()) {
-            return;
-        }
-
-        $user = $this->security->getUser();
-
-        if (!$user instanceof User) {
-            return;
-        }
-
-        if ($user->hasRoles(['ROLE_ADMIN'])) {
+        if (!$this->supports($resourceClass)) {
             return;
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $this->applyFilters($queryBuilder, $rootAlias, $user);
+        $this->applyFilters($queryBuilder, $rootAlias);
     }
 
     public function applyToCollection(

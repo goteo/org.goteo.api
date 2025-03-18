@@ -4,17 +4,30 @@ namespace App\Doctrine;
 
 use App\Entity\Gateway\Charge;
 use App\Entity\User\User;
+use App\Security\Trait\UserTrait;
 use Doctrine\ORM\QueryBuilder;
 
-final class GatewayChargeExtension extends AbstractGatewayExtension
+final class GatewayChargeExtension extends AbstractQueryResourceExtensionInterface
 {
-    protected function getEntityClass(): string
+    use UserTrait;
+
+    protected function supports(string $resourceClass): bool
     {
-        return Charge::class;
+        return Charge::class === $resourceClass;
     }
 
-    protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias, User $user): void
+    protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias): void
     {
+        $user = $this->getAuthenticatedUser();
+
+        if ($user == null) {
+            return;
+        }
+
+        if ($this->isAdmin($user)) {
+            return;
+        }
+
         $queryBuilder
             ->leftJoin("$rootAlias.checkout", 'c')
             ->leftJoin('c.origin', 'co')
