@@ -26,6 +26,7 @@ class GatewayCheckoutListener
         $projectSupport = new Support();
         $projectSupport->setProject($project);
         $projectSupport->setOwner($owner);
+        $projectSupport->setAnonymous(false);
 
         foreach($charges as $charge){
             $projectSupport->addCharge($charge);
@@ -48,7 +49,7 @@ class GatewayCheckoutListener
             $chargesByProject[$project->getId()][] = $charge;
         }
 
-        // Create Project Supports for each project
+        // Create Project Support for each project
         foreach($chargesByProject as $chargeByProject){
             $project = $chargeByProject[0]->getTarget()->getProject();
             if($project === null){
