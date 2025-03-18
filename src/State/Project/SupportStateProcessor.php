@@ -7,8 +7,8 @@ use ApiPlatform\State\ProcessorInterface;
 
 class SupportStateProcessor implements ProcessorInterface
 {
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        dd($data);
+        return $data;
     }
 }
