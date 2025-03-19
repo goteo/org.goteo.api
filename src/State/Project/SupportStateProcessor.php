@@ -9,8 +9,8 @@ use App\Entity\Project\Support;
 use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
 use App\State\EntityStateProcessor;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class SupportStateProcessor implements ProcessorInterface
 {
@@ -18,7 +18,7 @@ class SupportStateProcessor implements ProcessorInterface
         private EntityStateProcessor $entityStateProcessor,
         private AuthService $authService,
         private AutoMapper $autoMapper,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
