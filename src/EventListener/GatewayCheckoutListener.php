@@ -35,26 +35,30 @@ class GatewayCheckoutListener
 
     public function postPersist(Checkout $checkout, PostPersistEventArgs $args): void
     {
+        if ($checkout === null) {
+            return;
+        }
+
         $objectManager = $args->getObjectManager();
 
         $charges = $checkout->getCharges()->toArray();
         $owner = $checkout->getOrigin()->getUser();
 
         // Group charges for projects
-        $chargesByProject = [];
+        $chargesInProjectMap = [];
         foreach ($charges as $charge) {
             $project = $charge->getTarget()->getProject();
-            $chargesByProject[$project->getId()][] = $charge;
-        }
-
-        // Create Project Support for each project
-        foreach ($chargesByProject as $chargeByProject) {
-            $project = $chargeByProject[0]->getTarget()->getProject();
             if ($project === null) {
                 continue;
             }
 
-            $support = $this->createSupport($project, $owner, $chargeByProject);
+            $chargesInProjectMap[$project->getId()][] = $charge;
+        }
+
+        // Create Project Support for each project
+        foreach ($chargesInProjectMap as $chargesInProject) {
+            $project = $chargesInProject[0]->getTarget()->getProject();
+            $support = $this->createSupport($project, $owner, $chargesInProject);
             $objectManager->persist($support);
         }
 
