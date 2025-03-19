@@ -9,9 +9,12 @@ use App\Entity\Project\Support;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\ObjectManager;
 
 #[AsEntityListener(event: Events::postPersist, method: 'postPersist', entity: Checkout::class)]
+#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Checkout::class)]
 class GatewayCheckoutListener
 {
     /**
@@ -33,13 +36,11 @@ class GatewayCheckoutListener
         return $projectSupport;
     }
 
-    public function postPersist(Checkout $checkout, PostPersistEventArgs $args): void
+    public function persistSupports(Checkout $checkout, ObjectManager $objectManager): void
     {
         if (!$checkout->isCharged()) {
             return;
         }
-
-        $objectManager = $args->getObjectManager();
 
         $charges = $checkout->getCharges()->toArray();
         $owner = $checkout->getOrigin()->getUser();
@@ -63,5 +64,19 @@ class GatewayCheckoutListener
         }
 
         $objectManager->flush();
+    }
+
+    public function postPersist(Checkout $checkout, PostPersistEventArgs $event): void
+    {
+        $this->persistSupports($checkout, $event->getObjectManager());
+    }
+
+    public function preUpdate(Checkout $checkout, PreUpdateEventArgs $event): void
+    {
+        if (!$event->hasChangedField('status')) {
+            return;
+        }
+
+        $this->persistSupports($checkout, $event->getObjectManager());
     }
 }
