@@ -35,7 +35,7 @@ class GatewayCheckoutListener
 
     public function postPersist(Checkout $checkout, PostPersistEventArgs $args): void
     {
-        if ($checkout === null) {
+        if (!$checkout->isCharged()) {
             return;
         }
 
