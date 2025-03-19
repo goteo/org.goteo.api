@@ -35,7 +35,7 @@ class SupportApiResource
      */
     #[API\ApiProperty(
         writable: false,
-        security: 'object and (object.anonymous == false or is_granted("ROLE_ADMIN") or object.owner == user)'
+        security: 'is_granted("ROLE_ADMIN") or (object and (object.owner == user or object.anonymous == false))'
     )]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public UserApiResource $owner;
