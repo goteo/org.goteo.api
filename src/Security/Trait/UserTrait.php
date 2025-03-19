@@ -18,15 +18,17 @@ trait UserTrait
     }
 
     /**
-     * The authenticated user obtains and verifies if it is an instance of User.
+     * Verify and get the authenticated user.
      *
-     * @return User|null the authenticated user or Null if it is not a valid user
+     * @return User the authenticated user
+     *
+     * @throws AuthenticationException if there is no authenticated user
      */
-    protected function getAuthenticatedUser(): ?User
+    protected function getAuthenticatedUser(): User
     {
         $user = $this->security->getUser();
 
-        if (!$user instanceof User) {
+        if (!$user instanceof User || $user == null) {
             throw new AuthenticationException();
         }
 

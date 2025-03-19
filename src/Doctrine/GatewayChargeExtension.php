@@ -19,10 +19,6 @@ final class GatewayChargeExtension extends AbstractQueryResourceExtensionInterfa
     {
         $user = $this->getAuthenticatedUser();
 
-        if ($user == null) {
-            return;
-        }
-
         if ($this->isAdmin($user)) {
             return;
         }
