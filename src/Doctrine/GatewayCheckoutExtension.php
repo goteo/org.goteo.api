@@ -2,17 +2,17 @@
 
 namespace App\Doctrine;
 
-use App\Entity\Gateway\Charge;
+use App\Entity\Gateway\Checkout;
 use App\Security\Trait\UserTrait;
 use Doctrine\ORM\QueryBuilder;
 
-final class GatewayChargeExtension extends AbstractQueryResourceExtensionInterface
+final class GatewayCheckoutExtension extends AbstractQueryResourceExtensionInterface
 {
     use UserTrait;
 
     protected function supports(string $resourceClass): bool
     {
-        return $resourceClass === Charge::class;
+        return $resourceClass === Checkout::class;
     }
 
     protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias): void
@@ -24,8 +24,7 @@ final class GatewayChargeExtension extends AbstractQueryResourceExtensionInterfa
         }
 
         $queryBuilder
-            ->leftJoin("$rootAlias.checkout", 'c')
-            ->leftJoin('c.origin', 'co')
+            ->leftJoin("$rootAlias.origin", 'co')
             ->leftJoin('co.user', 'u')
             ->andWhere('u.id = :userId')
             ->setParameter('userId', $user->getId());
