@@ -4,10 +4,18 @@ namespace App\Security\Trait;
 
 use App\Entity\User\User;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait UserTrait
 {
-    public function __construct(protected Security $security) {}
+    private Security $security;
+
+    #[Required]
+    public function setSecurity(Security $security): void
+    {
+        $this->security = $security;
+    }
 
     /**
      * The authenticated user obtains and verifies if it is an instance of User.
@@ -19,7 +27,7 @@ trait UserTrait
         $user = $this->security->getUser();
 
         if (!$user instanceof User) {
-            return null;
+            throw new AuthenticationException();
         }
 
         return $user;

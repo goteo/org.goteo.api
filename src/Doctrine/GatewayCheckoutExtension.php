@@ -19,10 +19,6 @@ final class GatewayCheckoutExtension extends AbstractQueryResourceExtensionInter
     {
         $user = $this->getAuthenticatedUser();
 
-        if ($user == null) {
-            return;
-        }
-
         if ($this->isAdmin($user)) {
             return;
         }
