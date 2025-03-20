@@ -8,14 +8,15 @@ use App\Entity\Project\Project;
 use App\Entity\Project\Support;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\ObjectManager;
 
-#[AsEntityListener(event: Events::postPersist, method: 'postPersist', entity: Checkout::class)]
+#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Checkout::class)]
 class GatewayCheckoutListener
 {
     /**
-     * Summary of createSupport.
+     * Create ProjectSupport for the given data.
      *
      * @param Charge[] $charges
      */
@@ -33,14 +34,8 @@ class GatewayCheckoutListener
         return $projectSupport;
     }
 
-    public function postPersist(Checkout $checkout, PostPersistEventArgs $args): void
+    public function makeSupports(Checkout $checkout, ObjectManager $objectManager): void
     {
-        if ($checkout === null) {
-            return;
-        }
-
-        $objectManager = $args->getObjectManager();
-
         $charges = $checkout->getCharges()->toArray();
         $owner = $checkout->getOrigin()->getUser();
 
@@ -55,13 +50,24 @@ class GatewayCheckoutListener
             $chargesInProjectMap[$project->getId()][] = $charge;
         }
 
-        // Create Project Support for each project
         foreach ($chargesInProjectMap as $chargesInProject) {
             $project = $chargesInProject[0]->getTarget()->getProject();
             $support = $this->createSupport($project, $owner, $chargesInProject);
+
             $objectManager->persist($support);
         }
 
         $objectManager->flush();
+    }
+
+    public function preUpdate(Checkout $checkout, PreUpdateEventArgs $event): void
+    {
+        if (!$event->hasChangedField('status')) {
+            return;
+        }
+
+        if ($checkout->isCharged()) {
+            $this->makeSupports($checkout, $event->getObjectManager());
+        }
     }
 }

@@ -192,6 +192,11 @@ class Checkout
         return $this;
     }
 
+    public function isCharged(): bool
+    {
+        return $this->status === CheckoutStatus::Charged;
+    }
+
     public function getStatus(): ?CheckoutStatus
     {
         return $this->status;
