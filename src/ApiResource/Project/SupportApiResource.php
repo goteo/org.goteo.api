@@ -8,14 +8,14 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Gateway\ChargeApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\Support;
+use App\State\ApiResourceStateProvider;
 use App\State\Project\SupportStateProcessor;
-use App\State\Project\SupportStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[API\ApiResource(
     shortName: 'ProjectSupport',
     stateOptions: new Options(entityClass: Support::class),
-    provider: SupportStateProvider::class,
+    provider: ApiResourceStateProvider::class,
 )]
 #[API\GetCollection()]
 #[API\Get()]
@@ -33,7 +33,10 @@ class SupportApiResource
      * \
      * When `anonymous` is *false* it will only be public to admins and the User.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(
+        writable: false,
+        security: 'is_granted("SUPPORT_VIEW", object)'
+    )]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ?UserApiResource $owner;
 

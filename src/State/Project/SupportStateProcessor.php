@@ -29,24 +29,9 @@ class SupportStateProcessor implements ProcessorInterface
             throw new AuthenticationException();
         }
 
-        // Verify if we are trying to update an existing support
-        if (isset($uriVariables['id'])) {
-            $support = $this->entityManager->getRepository(Support::class)
-                ->find($uriVariables['id']);
-            if (!$support) {
-                throw new \Exception('Support not found');
-            }
-        } else {
-            $support = new Support();
-        }
-
-        $this->autoMapper->map($data, $support);
+        $support = $this->autoMapper->map($data, Support::class);
 
         $support = $this->entityStateProcessor->process($support, $operation, $uriVariables, $context);
-
-        if ($support === null) {
-            return null;
-        }
 
         return $this->autoMapper->map($support, SupportApiResource::class);
     }

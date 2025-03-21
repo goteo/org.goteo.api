@@ -4,11 +4,14 @@ namespace App\Entity\Project;
 
 use App\Entity\Gateway\Charge;
 use App\Entity\User\User;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\SupportRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: SupportRepository::class)]
 class Support
 {
