@@ -5,7 +5,6 @@ namespace App\Tests\Entity;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
-use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
@@ -25,26 +24,41 @@ class ProjectCalendarTest extends ApiTestCase
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
     }
 
-    public function testReleaseDateUpdatesOnCampaignStart(): void
+    private function createTestUser(string $handle = 'test_user', string $email = 'testuser@example.com'): User
     {
-        $owner = new User();
-        $owner->setHandle('test_calendar_user');
-        $owner->setEmail('testcalendaruser@example.com');
-        $owner->setPassword('projectapitestcalendaruserpassword');
+        $user = new User();
+        $user->setHandle($handle);
+        $user->setEmail($email);
+        $user->setPassword('projectapitestpassword');
 
-        // Create Project
+        return $user;
+    }
+
+    private function createTestProject(
+        User $owner,
+        ProjectDeadline $deadline = ProjectDeadline::Minimum,
+        ProjectStatus $status = ProjectStatus::InReview,
+    ): Project {
         $project = new Project();
         $project->setTitle('Test Project');
         $project->setSubtitle('Test Project Subtitle');
-        $project->setDeadline(ProjectDeadline::Minimum);
+        $project->setDeadline($deadline);
         $project->setCategory(Category::LibreSoftware);
         $project->setDescription('Test Project Description');
         $project->setTerritory(new ProjectTerritory('ES'));
         $project->setOwner($owner);
-        $project->setStatus(ProjectStatus::InReview);
+        $project->setStatus($status);
 
-        $this->entityManager->persist($owner);
         $this->entityManager->persist($project);
+
+        return $project;
+    }
+
+    public function testReleaseDateUpdatesOnCampaignStart(): void
+    {
+        $owner = $this->createTestUser('test_calendar_user', 'testcalendaruser@example.com');
+        $project = $this->createTestProject($owner);
+        $this->entityManager->persist($owner);
         $this->entityManager->flush();
 
         // Change State to IN_CAMPAIGN
@@ -56,23 +70,9 @@ class ProjectCalendarTest extends ApiTestCase
 
     public function testMinimumDeadlineIsSetCorrectly(): void
     {
-        $owner = new User();
-        $owner->setHandle('test_min_deadline_user');
-        $owner->setEmail('testmindeadlineuser@example.com');
-        $owner->setPassword('projectapitestmindeadlineuserpassword');
-
-        $project = new Project();
-        $project->setTitle('Test Project');
-        $project->setSubtitle('Test Project Subtitle');
-        $project->setDeadline(ProjectDeadline::Minimum);
-        $project->setCategory(Category::LibreSoftware);
-        $project->setDescription('Test Project Description');
-        $project->setTerritory(new ProjectTerritory('ES'));
-        $project->setOwner($owner);
-        $project->setStatus(ProjectStatus::InReview);
-
+        $owner = $this->createTestUser('test_min_deadline_user', 'testmindeadlineuser@example.com');
+        $project = $this->createTestProject($owner, ProjectDeadline::Minimum);
         $this->entityManager->persist($owner);
-        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         $project->setStatus(ProjectStatus::InCampaign);
@@ -88,24 +88,9 @@ class ProjectCalendarTest extends ApiTestCase
 
     public function testOptimumDeadlineIsSetCorrectly(): void
     {
-        $owner = new User();
-        $owner->setHandle('test_optimum_deadline_user');
-        $owner->setEmail('testoptimumdeadlineuser@example.com');
-        $owner->setPassword('projectapitestoptimumdeadlineuserpassword');
-
-        $project = new Project();
-        $project->setTitle('Test Project');
-        $project->setSubtitle('Test Project Subtitle');
-        $project->setDeadline(ProjectDeadline::Optimum);
-        $project->setCategory(Category::LibreSoftware);
-        $project->setDescription('Test Project Description');
-        $project->setTerritory(new ProjectTerritory('ES'));
-        $project->setOwner($owner);
-        $project->setStatus(ProjectStatus::InReview);
-        $project->setCalendar(new ProjectCalendar());
-
+        $owner = $this->createTestUser('test_optimum_deadline_user', 'testoptimumdeadlineuser@example.com');
+        $project = $this->createTestProject($owner, ProjectDeadline::Optimum);
         $this->entityManager->persist($owner);
-        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         $project->setStatus(ProjectStatus::InCampaign);
