@@ -8,13 +8,51 @@ use App\Entity\Project\Project;
 use App\Entity\Project\Support;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\Persistence\ObjectManager;
 
-#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Checkout::class)]
-class GatewayCheckoutListener
+#[AsEntityListener(
+    event: Events::preUpdate,
+    method: 'preUpdate',
+    entity: Checkout::class
+)]
+#[AsEntityListener(
+    event: Events::postUpdate,
+    method: 'postUpdate',
+    entity: Checkout::class
+)]
+class GatewayCheckoutSupportsListener
 {
+    /** @var array<int, Support> */
+    private array $supports;
+
+    public function preUpdate(Checkout $checkout, PreUpdateEventArgs $args): void
+    {
+        if (!$args->hasChangedField('status')) {
+            return;
+        }
+
+        if ($checkout->isCharged()) {
+            $this->supports = $this->prepareSupports($checkout, $args->getObjectManager());
+        }
+    }
+
+    public function postUpdate(Checkout $checkout, PostUpdateEventArgs $args): void
+    {
+        if (empty($this->supports)) {
+            return;
+        }
+
+        foreach ($this->supports as $key => $support) {
+            $args->getObjectManager()->persist($support);
+
+            unset($this->supports[$key]);
+        }
+
+        $args->getObjectManager()->flush();
+    }
+
     /**
      * Create ProjectSupport for the given data.
      *
@@ -34,7 +72,10 @@ class GatewayCheckoutListener
         return $projectSupport;
     }
 
-    public function makeSupports(Checkout $checkout, ObjectManager $objectManager): void
+    /**
+     * @return Support[]
+     */
+    public function prepareSupports(Checkout $checkout): array
     {
         $charges = $checkout->getCharges()->toArray();
         $owner = $checkout->getOrigin()->getUser();
@@ -50,24 +91,12 @@ class GatewayCheckoutListener
             $chargesInProjectMap[$project->getId()][] = $charge;
         }
 
+        $supports = [];
         foreach ($chargesInProjectMap as $chargesInProject) {
             $project = $chargesInProject[0]->getTarget()->getProject();
-            $support = $this->createSupport($project, $owner, $chargesInProject);
-
-            $objectManager->persist($support);
+            $supports[] = $this->createSupport($project, $owner, $chargesInProject);
         }
 
-        $objectManager->flush();
-    }
-
-    public function preUpdate(Checkout $checkout, PreUpdateEventArgs $event): void
-    {
-        if (!$event->hasChangedField('status')) {
-            return;
-        }
-
-        if ($checkout->isCharged()) {
-            $this->makeSupports($checkout, $event->getObjectManager());
-        }
+        return $supports;
     }
 }
