@@ -52,4 +52,36 @@ class ProjectCalendarTest extends ApiTestCase
 
         $this->assertNotNull($project->getCalendar()->release);
     }
+
+    public function testMinimumDeadlineIsSetCorrectly(): void
+    {
+        $owner = new User();
+        $owner->setHandle('test_min_deadline_user');
+        $owner->setEmail('testmindeadlineuser@example.com');
+        $owner->setPassword('projectapitestmindeadlineuserpassword');
+
+        $project = new Project();
+        $project->setTitle('Test Project');
+        $project->setSubtitle('Test Project Subtitle');
+        $project->setDeadline(ProjectDeadline::Minimum);
+        $project->setCategory(Category::LibreSoftware);
+        $project->setDescription('Test Project Description');
+        $project->setTerritory(new ProjectTerritory('ES'));
+        $project->setOwner($owner);
+        $project->setStatus(ProjectStatus::InReview);
+
+        $this->entityManager->persist($owner);
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        $project->setStatus(ProjectStatus::InCampaign);
+        $this->entityManager->flush();
+
+        $releaseDate = $project->getCalendar()->release;
+        $minimumDeadline = $project->getCalendar()->minimum;
+
+        $this->assertNotNull($minimumDeadline);
+        $this->assertGreaterThan($releaseDate, $minimumDeadline);
+        $this->assertEquals($releaseDate->modify('+40 days'), $minimumDeadline);
+    }
 }
