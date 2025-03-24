@@ -3,6 +3,7 @@
 namespace App\Tests\Entity;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
@@ -37,32 +38,17 @@ class ProjectApiTest extends ApiTestCase
         $user = new User();
         $user->setHandle('test_user');
         $user->setEmail(self::TEST_USER_EMAIL);
-        $user->setPassword(self::TEST_USER_PASSWORD);
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        $passwordHasher = static::getContainer()->get('security.user_password_hasher');
+        $user->setPassword($passwordHasher->hashPassword($user, self::TEST_USER_PASSWORD));
 
         return $user;
     }
 
-    public function testGetCollectionWithInvalidToken()
+    private function getValidToken(Client $client): mixed
     {
-        $client = static::createClient();
+        $this->entityManager->persist($this->owner);
+        $this->entityManager->flush();
 
-        $client->request(
-            'GET',
-            '/v4/projects',
-            ['headers' => ['Authorization' => 'Bearer invalid_token']]
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
-    }
-
-    public function testGetCollectionWithValidToken()
-    {
-        $client = static::createClient();
-
-        // Get token by sending email and password
         $response = $client->request(
             'POST',
             '/v4/user_tokens',
@@ -75,7 +61,27 @@ class ProjectApiTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
         $this->assertArrayHasKey('token', $data);
-        $token = $data['token'];
+
+        return $data['token'];
+    }
+
+    // region Tests
+
+    public function testGetCollectionWithInvalidToken()
+    {
+        static::createClient()->request(
+            'GET',
+            '/v4/projects',
+            ['headers' => ['Authorization' => 'Bearer invalid_token']]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testGetCollectionWithValidToken()
+    {
+        $client = static::createClient();
+        $token = $this->getValidToken($client);
 
         // Use the token on request
         $client->request(
@@ -88,9 +94,21 @@ class ProjectApiTest extends ApiTestCase
         $this->assertJsonContains(['@type' => 'Collection']);
     }
 
-    public function testGetCollection(): void
+    public function testGetCollectionWithoutToken()
     {
         static::createClient()->request('GET', '/v4/projects');
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testGetCollection(): void
+    {
+        $client = static::createClient();
+
+        $token = $this->getValidToken($client);
+        $headers = ['headers' => ['Authorization' => 'Bearer '.$token]];
+
+        $client->request('GET', '/v4/projects', $headers);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['@id' => '/v4/projects']);
@@ -108,10 +126,11 @@ class ProjectApiTest extends ApiTestCase
         $project->setOwner($this->owner);
         $project->setStatus(ProjectStatus::InEditing);
 
+        $this->entityManager->persist($this->owner);
         $this->entityManager->persist($project);
         $this->entityManager->flush();
 
-        static::createClient()->request('GET', '/v4/projects');
+        $client->request('GET', '/v4/projects', $headers);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['totalItems' => 1]);
@@ -140,4 +159,6 @@ class ProjectApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
+
+    // #endregion
 }
