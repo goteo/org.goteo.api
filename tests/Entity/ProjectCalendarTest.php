@@ -5,6 +5,7 @@ namespace App\Tests\Entity;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Project\Category;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
@@ -83,5 +84,38 @@ class ProjectCalendarTest extends ApiTestCase
         $this->assertNotNull($minimumDeadline);
         $this->assertGreaterThan($releaseDate, $minimumDeadline);
         $this->assertEquals($releaseDate->modify('+40 days'), $minimumDeadline);
+    }
+
+    public function testOptimumDeadlineIsSetCorrectly(): void
+    {
+        $owner = new User();
+        $owner->setHandle('test_optimum_deadline_user');
+        $owner->setEmail('testoptimumdeadlineuser@example.com');
+        $owner->setPassword('projectapitestoptimumdeadlineuserpassword');
+
+        $project = new Project();
+        $project->setTitle('Test Project');
+        $project->setSubtitle('Test Project Subtitle');
+        $project->setDeadline(ProjectDeadline::Optimum);
+        $project->setCategory(Category::LibreSoftware);
+        $project->setDescription('Test Project Description');
+        $project->setTerritory(new ProjectTerritory('ES'));
+        $project->setOwner($owner);
+        $project->setStatus(ProjectStatus::InReview);
+        $project->setCalendar(new ProjectCalendar());
+
+        $this->entityManager->persist($owner);
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        $project->setStatus(ProjectStatus::InCampaign);
+        $this->entityManager->flush();
+
+        $minimumDeadline = $project->getCalendar()->minimum;
+        $optimumDeadline = $project->getCalendar()->optimum;
+
+        $this->assertNotNull($optimumDeadline);
+        $this->assertGreaterThan($minimumDeadline, $optimumDeadline);
+        $this->assertEquals($minimumDeadline->modify('+40 days'), $optimumDeadline);
     }
 }
