@@ -17,11 +17,16 @@ class ProjectCalendarTest extends ApiTestCase
     use ResetDatabase;
 
     private EntityManagerInterface $entityManager;
+    private User $owner;
 
     public function setUp(): void
     {
         self::bootKernel();
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        $this->owner = $this->createTestUser();
+        $this->entityManager->persist($this->owner);
+        $this->entityManager->flush();
     }
 
     private function createTestUser(string $handle = 'test_user', string $email = 'testuser@example.com'): User
@@ -35,7 +40,6 @@ class ProjectCalendarTest extends ApiTestCase
     }
 
     private function createTestProject(
-        User $owner,
         ProjectDeadline $deadline = ProjectDeadline::Minimum,
         ProjectStatus $status = ProjectStatus::InReview,
     ): Project {
@@ -46,20 +50,18 @@ class ProjectCalendarTest extends ApiTestCase
         $project->setCategory(Category::LibreSoftware);
         $project->setDescription('Test Project Description');
         $project->setTerritory(new ProjectTerritory('ES'));
-        $project->setOwner($owner);
+        $project->setOwner($this->owner);
         $project->setStatus($status);
 
         $this->entityManager->persist($project);
+        $this->entityManager->flush();
 
         return $project;
     }
 
     public function testReleaseDateUpdatesOnCampaignStart(): void
     {
-        $owner = $this->createTestUser('test_calendar_user', 'testcalendaruser@example.com');
-        $project = $this->createTestProject($owner);
-        $this->entityManager->persist($owner);
-        $this->entityManager->flush();
+        $project = $this->createTestProject();
 
         // Change State to IN_CAMPAIGN
         $project->setStatus(ProjectStatus::InCampaign);
@@ -70,10 +72,7 @@ class ProjectCalendarTest extends ApiTestCase
 
     public function testMinimumDeadlineIsSetCorrectly(): void
     {
-        $owner = $this->createTestUser('test_min_deadline_user', 'testmindeadlineuser@example.com');
-        $project = $this->createTestProject($owner, ProjectDeadline::Minimum);
-        $this->entityManager->persist($owner);
-        $this->entityManager->flush();
+        $project = $this->createTestProject(ProjectDeadline::Minimum);
 
         $project->setStatus(ProjectStatus::InCampaign);
         $this->entityManager->flush();
@@ -88,10 +87,7 @@ class ProjectCalendarTest extends ApiTestCase
 
     public function testOptimumDeadlineIsSetCorrectly(): void
     {
-        $owner = $this->createTestUser('test_optimum_deadline_user', 'testoptimumdeadlineuser@example.com');
-        $project = $this->createTestProject($owner, ProjectDeadline::Optimum);
-        $this->entityManager->persist($owner);
-        $this->entityManager->flush();
+        $project = $this->createTestProject(ProjectDeadline::Optimum);
 
         $project->setStatus(ProjectStatus::InCampaign);
         $this->entityManager->flush();
