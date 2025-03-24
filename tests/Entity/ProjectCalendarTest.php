@@ -39,10 +39,8 @@ class ProjectCalendarTest extends ApiTestCase
         return $user;
     }
 
-    private function createTestProject(
-        ProjectDeadline $deadline = ProjectDeadline::Minimum,
-        ProjectStatus $status = ProjectStatus::InReview,
-    ): Project {
+    private function createTestProject(ProjectDeadline $deadline = ProjectDeadline::Minimum): Project
+    {
         $project = new Project();
         $project->setTitle('Test Project');
         $project->setSubtitle('Test Project Subtitle');
@@ -51,7 +49,7 @@ class ProjectCalendarTest extends ApiTestCase
         $project->setDescription('Test Project Description');
         $project->setTerritory(new ProjectTerritory('ES'));
         $project->setOwner($this->owner);
-        $project->setStatus($status);
+        $project->setStatus(ProjectStatus::InReview);
 
         $this->entityManager->persist($project);
         $this->entityManager->flush();
@@ -59,23 +57,27 @@ class ProjectCalendarTest extends ApiTestCase
         return $project;
     }
 
+    private function createProjectAndSetToInCampaign(
+        ProjectDeadline $deadline = ProjectDeadline::Minimum,
+    ): Project {
+        $project = $this->createTestProject($deadline);
+        $project->setStatus(ProjectStatus::InCampaign);
+
+        $this->entityManager->flush();
+
+        return $project;
+    }
+
     public function testReleaseDateUpdatesOnCampaignStart(): void
     {
-        $project = $this->createTestProject();
-
-        // Change State to IN_CAMPAIGN
-        $project->setStatus(ProjectStatus::InCampaign);
-        $this->entityManager->flush();
+        $project = $this->createProjectAndSetToInCampaign();
 
         $this->assertNotNull($project->getCalendar()->release);
     }
 
     public function testMinimumDeadlineIsSetCorrectly(): void
     {
-        $project = $this->createTestProject(ProjectDeadline::Minimum);
-
-        $project->setStatus(ProjectStatus::InCampaign);
-        $this->entityManager->flush();
+        $project = $this->createProjectAndSetToInCampaign(ProjectDeadline::Minimum);
 
         $releaseDate = $project->getCalendar()->release;
         $minimumDeadline = $project->getCalendar()->minimum;
@@ -87,10 +89,7 @@ class ProjectCalendarTest extends ApiTestCase
 
     public function testOptimumDeadlineIsSetCorrectly(): void
     {
-        $project = $this->createTestProject(ProjectDeadline::Optimum);
-
-        $project->setStatus(ProjectStatus::InCampaign);
-        $this->entityManager->flush();
+        $project = $this->createProjectAndSetToInCampaign(ProjectDeadline::Optimum);
 
         $minimumDeadline = $project->getCalendar()->minimum;
         $optimumDeadline = $project->getCalendar()->optimum;
