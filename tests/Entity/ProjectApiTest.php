@@ -26,6 +26,69 @@ class ProjectApiTest extends ApiTestCase
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
     }
 
+    public function testGetCollectionWithoutToken()
+    {
+        $client = static::createClient();
+
+        $client->request('GET', '/v4/projects');
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testGetCollectionWithInvalidToken()
+    {
+        $client = static::createClient();
+
+        $client->request(
+            'GET',
+            '/v4/projects',
+            ['headers' => ['Authorization' => 'Bearer invalid_token']]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testGetCollectionWithValidToken()
+    {
+        $client = static::createClient();
+
+        // 1️⃣ Create a user in the database
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        $user = new User();
+        $user->setHandle('test_user');
+        $user->setEmail('example3@example.com');
+        $user->setPassword(password_hash('12345678', PASSWORD_BCRYPT));
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        // 2️⃣ Get token by sending email and password
+        $response = $client->request(
+            'POST',
+            '/v4/user_tokens',
+            ['json' => [
+                'identifier' => 'example3@example.com',
+                'password' => '12345678',
+            ]]
+        );
+
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+        $this->assertArrayHasKey('token', $data);
+        $token = $data['token'];
+
+        // 3️⃣ Use the token on request
+        $client->request(
+            'GET',
+            '/v4/projects',
+            ['headers' => ['Authorization' => 'Bearer '.$token]]
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['@type' => 'Collection']);
+    }
+
     public function testGetCollection(): void
     {
         static::createClient()->request('GET', '/v4/projects');
