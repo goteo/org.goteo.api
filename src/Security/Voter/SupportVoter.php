@@ -29,7 +29,7 @@ final class SupportVoter extends Voter
         $user = $token->getUser();
 
         if (!$user instanceof User) {
-            return false;
+            return $attribute === self::VIEW && !$subject->anonymous;
         }
 
         if ($user->hasRoles(['ROLE_ADMIN'])) {
