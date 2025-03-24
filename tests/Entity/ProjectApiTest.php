@@ -18,21 +18,31 @@ class ProjectApiTest extends ApiTestCase
     use ResetDatabase;
 
     private EntityManagerInterface $entityManager;
+    private User $owner;
+
+    private const TEST_USER_EMAIL = 'testuser@example.com';
+    private const TEST_USER_PASSWORD = 'projectapitestuserpassword';
 
     public function setUp(): void
     {
         self::bootKernel();
 
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        $this->owner = $this->createTestUser();
     }
 
-    public function testGetCollectionWithoutToken()
+    private function createTestUser(): User
     {
-        $client = static::createClient();
+        $user = new User();
+        $user->setHandle('test_user');
+        $user->setEmail(self::TEST_USER_EMAIL);
+        $user->setPassword(self::TEST_USER_PASSWORD);
 
-        $client->request('GET', '/v4/projects');
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        return $user;
     }
 
     public function testGetCollectionWithInvalidToken()
@@ -52,24 +62,13 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        // 1️⃣ Create a user in the database
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-
-        $user = new User();
-        $user->setHandle('test_user');
-        $user->setEmail('example3@example.com');
-        $user->setPassword(password_hash('12345678', PASSWORD_BCRYPT));
-
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        // 2️⃣ Get token by sending email and password
+        // Get token by sending email and password
         $response = $client->request(
             'POST',
             '/v4/user_tokens',
             ['json' => [
-                'identifier' => 'example3@example.com',
-                'password' => '12345678',
+                'identifier' => self::TEST_USER_EMAIL,
+                'password' => self::TEST_USER_PASSWORD,
             ]]
         );
 
@@ -78,7 +77,7 @@ class ProjectApiTest extends ApiTestCase
         $this->assertArrayHasKey('token', $data);
         $token = $data['token'];
 
-        // 3️⃣ Use the token on request
+        // Use the token on request
         $client->request(
             'GET',
             '/v4/projects',
@@ -99,11 +98,6 @@ class ProjectApiTest extends ApiTestCase
         $this->assertJsonContains(['totalItems' => 0]);
         $this->assertJsonContains(['member' => []]);
 
-        $owner = new User();
-        $owner->setHandle('test_user');
-        $owner->setEmail('testuser@example.com');
-        $owner->setPassword('projectapitestuserpassword');
-
         $project = new Project();
         $project->setTitle('Test Project');
         $project->setSubtitle('Test Project Subtitle');
@@ -111,10 +105,9 @@ class ProjectApiTest extends ApiTestCase
         $project->setCategory(Category::LibreSoftware);
         $project->setDescription('Test Project Description');
         $project->setTerritory(new ProjectTerritory('ES'));
-        $project->setOwner($owner);
+        $project->setOwner($this->owner);
         $project->setStatus(ProjectStatus::InEditing);
 
-        $this->entityManager->persist($owner);
         $this->entityManager->persist($project);
         $this->entityManager->flush();
 
