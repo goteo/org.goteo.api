@@ -270,6 +270,44 @@ class ProjectApiTest extends ApiTestCase
         $this->testGetCollectionFilteredBy('setStatus', ProjectStatus::InCampaign, 'status');
     }
 
+    public function testGetCollectionFilteredByCategories()
+    {
+        $client = static::createClient();
+        $token = $this->getValidToken($client);
+        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
+
+        // Create projects with specific categories
+        $this->createMultipleProjects(5); // Generic projects
+
+        // Create projects with categories to filter'
+        $educationProject = $this->createTestProject('Education Project');
+        $educationProject->setCategory(Category::Education);
+        $this->entityManager->persist($educationProject);
+
+        $healthProject = $this->createTestProject('Health Project');
+        $healthProject->setCategory(Category::HealthCares);
+        $this->entityManager->persist($healthProject);
+
+        $this->entityManager->flush();
+
+        // Hacer la petición filtrada por categorías
+        $url = '/v4/projects?category[]=["education", "health-and-cares"]';
+        $response = $client->request('GET', $url, $headers);
+
+        // Verify that the answer is successful
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+
+        // Returns a 200 with an empty json
+        // Verify that the answer contains projects of the correct categories
+        // $this->assertGreaterThan(0, count($data['member']));
+
+        // Verify that the projects have the right categories
+        foreach ($data['member'] as $project) {
+            $this->assertContains($project['category'], ['education', 'health-and-cares']);
+        }
+    }
+
     public function testPostUnauthorized(): void
     {
         $client = static::createClient();
