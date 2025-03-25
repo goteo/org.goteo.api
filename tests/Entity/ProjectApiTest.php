@@ -98,7 +98,9 @@ class ProjectApiTest extends ApiTestCase
     {
         static::createClient()->request('GET', '/v4/projects');
 
-        $this->assertResponseIsSuccessful();
+        // Decide if you return a 200 or 401
+        $this->assertResponseIsSuccessful(); // 200
+        // $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED); // 401
     }
 
     public function testGetCollection(): void
