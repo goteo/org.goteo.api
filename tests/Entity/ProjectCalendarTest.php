@@ -98,4 +98,14 @@ class ProjectCalendarTest extends ApiTestCase
         $this->assertGreaterThan($minimumDeadline, $optimumDeadline);
         $this->assertEquals($minimumDeadline->modify('+40 days'), $optimumDeadline);
     }
+
+    public function testProjectNotInCampaignHasNoCalendar(): void
+    {
+        $project = $this->createTestProject();
+
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        $this->assertNull($project->getCalendar());
+    }
 }
