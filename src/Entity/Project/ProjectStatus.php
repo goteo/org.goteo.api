@@ -8,14 +8,24 @@ namespace App\Entity\Project;
 enum ProjectStatus: string
 {
     /**
-     * Project is under edition by it's owner.
+     * Project has just been created.
      */
-    case InEditing = 'in_editing';
+    case InDraft = 'in_draft';
 
     /**
-     * Owner finished editing and an admin is reviewing it.
+     * Owner finished editing and Project is ready for review.
+     */
+    case InPending = 'in_pending';
+
+    /**
+     * An admin is reviewing the Project.
      */
     case InReview = 'in_review';
+
+    /**
+     * Admin asked for changes and the Project is under edition by it's owner.
+     */
+    case InEditing = 'in_editing';
 
     /**
      * An admin reviewed it and rejected it. Final.
@@ -38,7 +48,7 @@ enum ProjectStatus: string
     case InFunding = 'in_funding';
 
     /**
-     * Project owner received funds and fulfilled their goals. Final.
+     * Project owner received all raised funds. Final.
      */
-    case Fulfilled = 'fulfilled';
+    case Funded = 'funded';
 }

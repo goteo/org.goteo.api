@@ -107,9 +107,8 @@ class ProjectsPump implements PumpInterface
             case 6:
                 return ProjectStatus::Unfunded;
             case 4:
-                return ProjectStatus::InFunding;
             case 5:
-                return ProjectStatus::Fulfilled;
+                return ProjectStatus::Funded;
             case 0:
             default:
                 return ProjectStatus::Rejected;
