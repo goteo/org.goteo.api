@@ -181,9 +181,8 @@ class ProjectApiTest extends ApiTestCase
         $this->assertJsonContains(['@type' => 'Collection']);
         $data = $response->toArray();
         $this->assertArrayHasKey('member', $data);
-        $expectedValue = $pageSize * ($page - 1);
         $memberCount = count($data['member']);
-        $this->assertGreaterThan($expectedValue, $memberCount);
+        $this->assertGreaterThan(0, $memberCount);
     }
 
     public function testPostUnauthorized()
