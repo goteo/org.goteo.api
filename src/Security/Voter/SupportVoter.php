@@ -28,11 +28,7 @@ final class SupportVoter extends Voter
         /** @var User */
         $user = $token->getUser();
 
-        if (!$user instanceof User) {
-            return $attribute === self::VIEW && !$subject->anonymous;
-        }
-
-        if ($user->hasRoles(['ROLE_ADMIN'])) {
+        if ($user instanceof User && $user->hasRoles(['ROLE_ADMIN'])) {
             return true;
         }
 
