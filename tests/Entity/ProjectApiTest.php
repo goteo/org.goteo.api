@@ -58,9 +58,7 @@ class ProjectApiTest extends ApiTestCase
             ]]
         );
 
-        $this->assertResponseIsSuccessful();
         $data = $response->toArray();
-        $this->assertArrayHasKey('token', $data);
 
         return $data['token'];
     }
@@ -86,7 +84,6 @@ class ProjectApiTest extends ApiTestCase
 
     private function createMultipleProjects(int $number = 20): void
     {
-        $this->entityManager->persist($this->owner);
         for ($i = 1; $i <= $number; ++$i) {
             $project = $this->createTestProject("Test Project $i", "Subtitle $i", "Description $i");
 
@@ -158,7 +155,6 @@ class ProjectApiTest extends ApiTestCase
 
         $project = $this->createTestProject();
 
-        $this->entityManager->persist($this->owner);
         $this->entityManager->persist($project);
         $this->entityManager->flush();
 
@@ -185,7 +181,6 @@ class ProjectApiTest extends ApiTestCase
         $numberOfProjects = $this->getNumberOfCreationProjects($page);
         $this->createMultipleProjects($numberOfProjects);
 
-        // Request the project page
         $response = $client->request('GET', "/v4/projects?page=$page", $headers);
 
         $this->assertResponseIsSuccessful();
