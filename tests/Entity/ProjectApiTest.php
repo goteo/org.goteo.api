@@ -211,9 +211,9 @@ class ProjectApiTest extends ApiTestCase
         $memberCount = count($data['member']);
 
         // Verify that you are returning the first page
-        $this->assertGreaterThan(0, $memberCount, 'Answer must contain projects on first page');
+        $this->assertGreaterThan(0, $memberCount);
 
-        // Verify that the first project has same title than the last project created (descending order)
+        // last project because are in descending order
         $this->assertStringContainsString(
             "Test Project $numberOfProjects",
             $data['member'][0]['title']
@@ -311,7 +311,7 @@ class ProjectApiTest extends ApiTestCase
 
     public function testGetCollectionFilteredByStatuses(): void
     {
-        $filterValues = [ProjectStatus::InCampaign, ProjectStatus::Fulfilled];
+        $filterValues = [ProjectStatus::InCampaign, ProjectStatus::InFunding];
         $this->testGetCollectionFilteredByArray('setStatus', $filterValues, 'status');
     }
 
