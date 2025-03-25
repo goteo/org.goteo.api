@@ -65,7 +65,25 @@ class ProjectApiTest extends ApiTestCase
         return $data['token'];
     }
 
-    // region Tests
+    private function createTestProject(
+        string $title = 'Test Project',
+        string $subtitle = 'Test Project Subtitle',
+        string $description = 'Test Project Description',
+    ): Project {
+        $project = new Project();
+        $project->setTitle($title);
+        $project->setSubtitle($subtitle);
+        $project->setDeadline(ProjectDeadline::Minimum);
+        $project->setCategory(Category::LibreSoftware);
+        $project->setDescription($description);
+        $project->setTerritory(new ProjectTerritory('ES'));
+        $project->setOwner($this->owner);
+        $project->setStatus(ProjectStatus::InEditing);
+
+        return $project;
+    }
+
+    // TESTS
 
     public function testGetCollectionWithInvalidToken()
     {
@@ -118,15 +136,7 @@ class ProjectApiTest extends ApiTestCase
         $this->assertJsonContains(['totalItems' => 0]);
         $this->assertJsonContains(['member' => []]);
 
-        $project = new Project();
-        $project->setTitle('Test Project');
-        $project->setSubtitle('Test Project Subtitle');
-        $project->setDeadline(ProjectDeadline::Minimum);
-        $project->setCategory(Category::LibreSoftware);
-        $project->setDescription('Test Project Description');
-        $project->setTerritory(new ProjectTerritory('ES'));
-        $project->setOwner($this->owner);
-        $project->setStatus(ProjectStatus::InEditing);
+        $project = $this->createTestProject();
 
         $this->entityManager->persist($this->owner);
         $this->entityManager->persist($project);
@@ -145,6 +155,37 @@ class ProjectApiTest extends ApiTestCase
         ]]);
     }
 
+    public function testGetCollectionWithPagination()
+    {
+        $client = static::createClient();
+        $token = $this->getValidToken($client);
+        $headers = ['headers' => ['Authorization' => 'Bearer '.$token]];
+
+        // Create multiple projects
+        $this->entityManager->persist($this->owner);
+        $pageSize = 30;
+        $page = 2;
+        $numberOfProjects = $pageSize * $page - $pageSize / 2;
+        for ($i = 1; $i <= $numberOfProjects; ++$i) {
+            $project = $this->createTestProject("Test Project $i", "Subtitle $i", "Description $i");
+
+            $this->entityManager->persist($project);
+        }
+
+        $this->entityManager->flush();
+
+        // Request the project page
+        $response = $client->request('GET', "/v4/projects?page=$page", $headers);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['@type' => 'Collection']);
+        $data = $response->toArray();
+        $this->assertArrayHasKey('member', $data);
+        $expectedValue = $pageSize * ($page - 1);
+        $memberCount = count($data['member']);
+        $this->assertGreaterThan($expectedValue, $memberCount);
+    }
+
     public function testPostUnauthorized()
     {
         $client = static::createClient();
@@ -161,6 +202,4 @@ class ProjectApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
-
-    // #endregion
 }
