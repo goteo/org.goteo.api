@@ -69,12 +69,13 @@ class ProjectApiTest extends ApiTestCase
         string $title = 'Test Project',
         string $subtitle = 'Test Project Subtitle',
         string $description = 'Test Project Description',
+        Category $category = Category::LibreSoftware,
     ): Project {
         $project = new Project();
         $project->setTitle($title);
         $project->setSubtitle($subtitle);
         $project->setDeadline(ProjectDeadline::Minimum);
-        $project->setCategory(Category::LibreSoftware);
+        $project->setCategory($category);
         $project->setDescription($description);
         $project->setTerritory(new ProjectTerritory('ES'));
         $project->setOwner($this->owner);
@@ -196,7 +197,7 @@ class ProjectApiTest extends ApiTestCase
         $this->assertGreaterThan($memberCount, $totalItems);
     }
 
-    public function testGetCollectionDefaultsToFirstPage()
+    public function testGetCollectionDefaultsToFirstPage(): void
     {
         $client = static::createClient();
         $token = $this->getValidToken($client);
@@ -224,7 +225,7 @@ class ProjectApiTest extends ApiTestCase
         );
     }
 
-    public function testGetCollectionFilteredByTitle()
+    public function testGetCollectionFilteredByTitle(): void
     {
         $client = static::createClient();
         $token = $this->getValidToken($client);
@@ -248,7 +249,32 @@ class ProjectApiTest extends ApiTestCase
         $this->assertStringContainsString($title, $data['member'][0]['title']);
     }
 
-    public function testPostUnauthorized()
+    public function testGetCollectionFilteredByCategory(): void
+    {
+        $client = static::createClient();
+        $token = $this->getValidToken($client);
+        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
+
+        // Create 5 generic projects and one project with specific category
+        $this->createMultipleProjects(5);
+        $category = Category::Education;
+        $project = $this->createTestProject()->setCategory($category);
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        // Make the request filtered by category
+        $response = $client->request('GET', "/v4/projects?category={$category->value}", $headers);
+
+        // Verify that the answer is successful
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+
+        // Verify that the project with the category is present in the results
+        $this->assertGreaterThan(0, count($data['member']));
+        $this->assertEquals($category->value, $data['member'][0]['category']);
+    }
+
+    public function testPostUnauthorized(): void
     {
         $client = static::createClient();
 
