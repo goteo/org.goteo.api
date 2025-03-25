@@ -225,78 +225,49 @@ class ProjectApiTest extends ApiTestCase
         );
     }
 
-    public function testGetCollectionFilteredByTitle(): void
+    private function testGetCollectionFilteredBy(string $filterName, mixed $filterValue, string $urlParamName): void
     {
         $client = static::createClient();
         $token = $this->getValidToken($client);
         $headers = ['headers' => ['Authorization' => "Bearer $token"]];
 
-        // Create 5 generic projects and one specific titled project
+        // Create 5 generic projects and one with the specific filter value
         $this->createMultipleProjects(5);
-        $title = 'Free Software Project';
-        $this->entityManager->persist($this->createTestProject($title, 'Subtitle', 'Description'));
+        $project = $this->createTestProject();
+        $project->{$filterName}($filterValue);
+        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
-        // Make the request filtered by title
-        $response = $client->request('GET', "/v4/projects?title=$title", $headers);
+        // Convert enum to string if it's an enum, otherwise use the string directly
+        $filterValueName = is_object($filterValue) && isset($filterValue->value)
+            ? $filterValue->value : $filterValue;
+
+        // Make the request filtered by the parameter
+        $url = "/v4/projects?$urlParamName={$filterValueName}";
+        $response = $client->request('GET', $url, $headers);
 
         // Verify that the answer is successful
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
 
-        // Verify that the project with the title is present in the results
+        // Verify that the project with the filter value is present in the results
         $this->assertGreaterThan(0, count($data['member']));
-        $this->assertStringContainsString($title, $data['member'][0]['title']);
+        $this->assertEquals($filterValueName, $data['member'][0][$urlParamName]);
+    }
+
+    public function testGetCollectionFilteredByTitle(): void
+    {
+        $this->testGetCollectionFilteredBy('setTitle', 'Free Software Project', 'title');
     }
 
     public function testGetCollectionFilteredByCategory(): void
     {
-        $client = static::createClient();
-        $token = $this->getValidToken($client);
-        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
-
-        // Create 5 generic projects and one project with specific category
-        $this->createMultipleProjects(5);
-        $category = Category::Education;
-        $project = $this->createTestProject()->setCategory($category);
-        $this->entityManager->persist($project);
-        $this->entityManager->flush();
-
-        // Make the request filtered by category
-        $response = $client->request('GET', "/v4/projects?category={$category->value}", $headers);
-
-        // Verify that the answer is successful
-        $this->assertResponseIsSuccessful();
-        $data = $response->toArray();
-
-        // Verify that the project with the category is present in the results
-        $this->assertGreaterThan(0, count($data['member']));
-        $this->assertEquals($category->value, $data['member'][0]['category']);
+        $this->testGetCollectionFilteredBy('setCategory', Category::Education, 'category');
     }
 
     public function testGetCollectionFilteredByStatus(): void
     {
-        $client = static::createClient();
-        $token = $this->getValidToken($client);
-        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
-
-        // Create 5 generic projects and one project with specific category
-        $this->createMultipleProjects(5);
-        $status = ProjectStatus::InCampaign;
-        $project = $this->createTestProject()->setStatus($status);
-        $this->entityManager->persist($project);
-        $this->entityManager->flush();
-
-        // Make the request filtered by status
-        $response = $client->request('GET', "/v4/projects?status={$status->value}", $headers);
-
-        // Verify that the answer is successful
-        $this->assertResponseIsSuccessful();
-        $data = $response->toArray();
-
-        // Verify that the project with the status is present in the results
-        $this->assertGreaterThan(0, count($data['member']));
-        $this->assertEquals($status->value, $data['member'][0]['status']);
+        $this->testGetCollectionFilteredBy('setStatus', ProjectStatus::InCampaign, 'status');
     }
 
     public function testPostUnauthorized(): void
