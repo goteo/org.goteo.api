@@ -51,9 +51,6 @@ class ProjectCalendarTest extends ApiTestCase
         $project->setOwner($this->owner);
         $project->setStatus(ProjectStatus::InReview);
 
-        $this->entityManager->persist($project);
-        $this->entityManager->flush();
-
         return $project;
     }
 
@@ -61,8 +58,11 @@ class ProjectCalendarTest extends ApiTestCase
         ProjectDeadline $deadline = ProjectDeadline::Minimum,
     ): Project {
         $project = $this->createTestProject($deadline);
-        $project->setStatus(ProjectStatus::InCampaign);
 
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        $project->setStatus(ProjectStatus::InCampaign);
         $this->entityManager->flush();
 
         return $project;
