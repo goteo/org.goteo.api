@@ -314,6 +314,12 @@ class ProjectApiTest extends ApiTestCase
         $this->testGetCollectionFilteredByArray('setCategory', $filterValues, 'category');
     }
 
+    public function testGetCollectionFilteredByStatuses(): void
+    {
+        $filterValues = [ProjectStatus::InCampaign, ProjectStatus::Fulfilled];
+        $this->testGetCollectionFilteredByArray('setStatus', $filterValues, 'status');
+    }
+
     public function testPostUnauthorized(): void
     {
         $client = static::createClient();
