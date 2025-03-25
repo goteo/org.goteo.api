@@ -225,8 +225,11 @@ class ProjectApiTest extends ApiTestCase
         );
     }
 
-    private function testGetCollectionFilteredBy(string $filterName, mixed $filterValue, string $urlParamName): void
-    {
+    private function testGetCollectionFilteredBy(
+        string $filterName,
+        mixed $filterValue,
+        string $urlParamName,
+    ): void {
         $client = static::createClient();
         $token = $this->getValidToken($client);
         $headers = ['headers' => ['Authorization' => "Bearer $token"]];
@@ -270,28 +273,25 @@ class ProjectApiTest extends ApiTestCase
         $this->testGetCollectionFilteredBy('setStatus', ProjectStatus::InCampaign, 'status');
     }
 
-    public function testGetCollectionFilteredByCategories()
+    private function testGetCollectionFilteredByArray(string $filterName, array $filterValues, string $urlParamName): void
     {
         $client = static::createClient();
         $token = $this->getValidToken($client);
         $headers = ['headers' => ['Authorization' => "Bearer $token"]];
 
-        // Create projects with specific categories
         $this->createMultipleProjects(5); // Generic projects
 
-        // Create projects with categories to filter'
-        $educationProject = $this->createTestProject('Education Project');
-        $educationProject->setCategory(Category::Education);
-        $this->entityManager->persist($educationProject);
-
-        $healthProject = $this->createTestProject('Health Project');
-        $healthProject->setCategory(Category::HealthCares);
-        $this->entityManager->persist($healthProject);
+        // Create projects with array to filter
+        foreach ($filterValues as $filterValue) {
+            $project = $this->createTestProject();
+            $project->{$filterName}($filterValue);
+            $this->entityManager->persist($project);
+        }
 
         $this->entityManager->flush();
 
-        // Hacer la petición filtrada por categorías
-        $url = '/v4/projects?category[]=["education", "health-and-cares"]';
+        // Make the request filtered by the parameter
+        $url = "/v4/projects?$urlParamName".'[]='.json_encode($filterValues);
         $response = $client->request('GET', $url, $headers);
 
         // Verify that the answer is successful
@@ -304,8 +304,14 @@ class ProjectApiTest extends ApiTestCase
 
         // Verify that the projects have the right categories
         foreach ($data['member'] as $project) {
-            $this->assertContains($project['category'], ['education', 'health-and-cares']);
+            $this->assertContains($project[$filterName], $filterValues);
         }
+    }
+
+    public function testGetCollectionFilteredByCategories(): void
+    {
+        $filterValues = [Category::Education, Category::HealthCares];
+        $this->testGetCollectionFilteredByArray('setCategory', $filterValues, 'category');
     }
 
     public function testPostUnauthorized(): void
