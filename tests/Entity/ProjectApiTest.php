@@ -224,6 +224,44 @@ class ProjectApiTest extends ApiTestCase
         );
     }
 
+    public function testGetCollectionFilteredByTitle()
+    {
+        $client = static::createClient();
+        $token = $this->getValidToken($client);
+        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
+
+        $this->createMultipleProjects(5); // Create 5 generic projects
+
+        // Create a project with the specific title that we are going to look for
+        $title = 'Free Software Project';
+        $project = $this->createTestProject($title, 'Subtitle', 'Description');
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        // Make the request filtered by title
+        $response = $client->request(
+            'GET',
+            "/v4/projects?title=$title",
+            $headers
+        );
+
+        // Verify that the answer is successful
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['@type' => 'Collection']);
+        $data = $response->toArray();
+
+        // Verify that the JSON contains the project with the expected title
+        $this->assertArrayHasKey('member', $data);
+        $this->assertGreaterThan(
+            0,
+            count($data['member']),
+            'No projects were found with the expected title.'
+        );
+
+        // Verify that the project with the title is present in the results
+        $this->assertStringContainsString($title, $data['member'][0]['title']);
+    }
+
     public function testPostUnauthorized()
     {
         $client = static::createClient();
