@@ -274,6 +274,31 @@ class ProjectApiTest extends ApiTestCase
         $this->assertEquals($category->value, $data['member'][0]['category']);
     }
 
+    public function testGetCollectionFilteredByStatus(): void
+    {
+        $client = static::createClient();
+        $token = $this->getValidToken($client);
+        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
+
+        // Create 5 generic projects and one project with specific category
+        $this->createMultipleProjects(5);
+        $status = ProjectStatus::InCampaign;
+        $project = $this->createTestProject()->setStatus($status);
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        // Make the request filtered by status
+        $response = $client->request('GET', "/v4/projects?status={$status->value}", $headers);
+
+        // Verify that the answer is successful
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+
+        // Verify that the project with the status is present in the results
+        $this->assertGreaterThan(0, count($data['member']));
+        $this->assertEquals($status->value, $data['member'][0]['status']);
+    }
+
     public function testPostUnauthorized(): void
     {
         $client = static::createClient();
