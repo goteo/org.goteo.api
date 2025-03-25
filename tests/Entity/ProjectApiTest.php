@@ -105,7 +105,7 @@ class ProjectApiTest extends ApiTestCase
         $client->request(
             'GET',
             '/v4/projects',
-            ['headers' => ['Authorization' => 'Bearer '.$token]]
+            ['headers' => ['Authorization' => "Bearer $token"]]
         );
 
         $this->assertResponseIsSuccessful();
@@ -126,7 +126,7 @@ class ProjectApiTest extends ApiTestCase
         $client = static::createClient();
 
         $token = $this->getValidToken($client);
-        $headers = ['headers' => ['Authorization' => 'Bearer '.$token]];
+        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
 
         $client->request('GET', '/v4/projects', $headers);
 
@@ -159,7 +159,7 @@ class ProjectApiTest extends ApiTestCase
     {
         $client = static::createClient();
         $token = $this->getValidToken($client);
-        $headers = ['headers' => ['Authorization' => 'Bearer '.$token]];
+        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
 
         // Create multiple projects
         $this->entityManager->persist($this->owner);
