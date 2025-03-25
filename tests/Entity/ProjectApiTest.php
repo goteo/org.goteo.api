@@ -83,6 +83,25 @@ class ProjectApiTest extends ApiTestCase
         return $project;
     }
 
+    private function createMultipleProjects(int $number = 20): void
+    {
+        $this->entityManager->persist($this->owner);
+        for ($i = 1; $i <= $number; ++$i) {
+            $project = $this->createTestProject("Test Project $i", "Subtitle $i", "Description $i");
+
+            $this->entityManager->persist($project);
+        }
+
+        $this->entityManager->flush();
+    }
+
+    private function getNumberOfCreationProjects(int $page = 2): int
+    {
+        $pageSize = 30;
+
+        return $pageSize * $page - $pageSize / 2;
+    }
+
     // TESTS
 
     public function testGetCollectionWithInvalidToken()
@@ -161,18 +180,9 @@ class ProjectApiTest extends ApiTestCase
         $token = $this->getValidToken($client);
         $headers = ['headers' => ['Authorization' => "Bearer $token"]];
 
-        // Create multiple projects
-        $this->entityManager->persist($this->owner);
-        $pageSize = 30;
         $page = 2;
-        $numberOfProjects = $pageSize * $page - $pageSize / 2;
-        for ($i = 1; $i <= $numberOfProjects; ++$i) {
-            $project = $this->createTestProject("Test Project $i", "Subtitle $i", "Description $i");
-
-            $this->entityManager->persist($project);
-        }
-
-        $this->entityManager->flush();
+        $numberOfProjects = $this->getNumberOfCreationProjects($page);
+        $this->createMultipleProjects($numberOfProjects);
 
         // Request the project page
         $response = $client->request('GET', "/v4/projects?page=$page", $headers);
@@ -184,6 +194,34 @@ class ProjectApiTest extends ApiTestCase
         $memberCount = count($data['member']);
         $totalItems = $data['totalItems'];
         $this->assertGreaterThan($memberCount, $totalItems);
+    }
+
+    public function testGetCollectionDefaultsToFirstPage()
+    {
+        $client = static::createClient();
+        $token = $this->getValidToken($client);
+        $headers = ['headers' => ['Authorization' => "Bearer $token"]];
+
+        $numberOfProjects = $this->getNumberOfCreationProjects();
+        $this->createMultipleProjects($numberOfProjects);
+
+        $response = $client->request('GET', '/v4/projects', $headers);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['@type' => 'Collection']);
+
+        $data = $response->toArray();
+        $this->assertArrayHasKey('member', $data);
+        $memberCount = count($data['member']);
+
+        // Verify that you are returning the first page
+        $this->assertGreaterThan(0, $memberCount, 'Answer must contain projects on first page');
+
+        // Verify that the first project has same title than the last project created (descending order)
+        $this->assertStringContainsString(
+            "Test Project $numberOfProjects",
+            $data['member'][0]['title']
+        );
     }
 
     public function testPostUnauthorized()
