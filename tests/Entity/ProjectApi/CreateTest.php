@@ -102,7 +102,7 @@ class CreateTest extends ApiTestCase
         $this->assertArraySubset($expectedSubset, $responseData);
     }
 
-    public function testPostWithoutTitle(): void
+    public function testPostWithoutMandatoryField(): void
     {
         // Expected data without the 'title' field
         $requestData = [
@@ -121,6 +121,27 @@ class CreateTest extends ApiTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function testPostWithInvalidInput(): void
+    {
+        $requestData = [
+            'title' => 'New Education Project',
+            'subtitle' => 'Education for the Future',
+            'category' => 'nonexistent-category', // invalid category
+            'territory' => ['country' => 'ES'],
+            'description' => 'Detailed project description',
+            'deadline' => 'minimum',
+            'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
+        ];
+
+        $client = static::createClient();
+        $client->request('POST', self::POST_URL, [
+            'headers' => $this->getHeaders($client),
+            'json' => $requestData,
+        ]);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
     public function testPostUnauthorized()
