@@ -16,11 +16,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectSupport',
     stateOptions: new Options(entityClass: Support::class),
     provider: ApiResourceStateProvider::class,
-    processor: SupportStateProcessor::class,
 )]
 #[API\GetCollection()]
 #[API\Get()]
-#[API\Patch(security: 'is_granted("SUPPORT_EDIT", previous_object)')]
+#[API\Patch(
+    security: 'is_granted("SUPPORT_EDIT", previous_object)',
+    processor: SupportStateProcessor::class
+)]
 class SupportApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
@@ -31,9 +33,12 @@ class SupportApiResource
      * \
      * When `anonymous` is *false* it will only be public to admins and the User.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(
+        writable: false,
+        security: 'is_granted("SUPPORT_VIEW", object)'
+    )]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    public UserApiResource $owner;
+    public ?UserApiResource $owner;
 
     /**
      * The Project being targeted in the Charges.
