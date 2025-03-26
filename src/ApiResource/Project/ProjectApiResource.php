@@ -8,8 +8,8 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\User\UserApiResource;
-use App\Dto\ProjectCreateDto;
-use App\Dto\ProjectUpdateDto;
+use App\Dto\ProjectCreationDto;
+use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectCategory;
@@ -32,13 +32,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\GetCollection()]
 #[API\Post(
-    input: ProjectCreateDto::class,
+    input: ProjectCreationDto::class,
     processor: ProjectStateProcessor::class,
     security: 'is_granted("ROLE_USER")',
 )]
 #[API\Get()]
 #[API\Patch(
-    input: ProjectUpdateDto::class,
+    input: ProjectUpdationDto::class,
     processor: ProjectStateProcessor::class,
     security: 'is_granted("PROJECT_EDIT", previous_object)',
 )]

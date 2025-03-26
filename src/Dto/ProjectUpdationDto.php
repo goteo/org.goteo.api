@@ -12,7 +12,7 @@ use App\Mapping\Transformer\ProjectVideoMapTransformer;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ProjectUpdateDto
+class ProjectUpdationDto
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;

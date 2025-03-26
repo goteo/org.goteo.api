@@ -5,8 +5,8 @@ namespace App\State\Project;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\ProjectApiResource;
-use App\Dto\ProjectCreateDto;
-use App\Dto\ProjectUpdateDto;
+use App\Dto\ProjectCreationDto;
+use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
 use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
@@ -22,14 +22,14 @@ class ProjectStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param ProjectCreateDto|ProjectUpdateDto $data
-     * @param array{id: int}                    $uriVariables
+     * @param ProjectCreationDto|ProjectUpdationDto $data
+     * @param array{id: int}                        $uriVariables
      *
      * @return ProjectApiResource|null
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        if ($data instanceof ProjectCreateDto) {
+        if ($data instanceof ProjectCreationDto) {
             /** @var Project */
             $project = $this->autoMapper->map($data, Project::class);
 
@@ -42,7 +42,7 @@ class ProjectStateProcessor implements ProcessorInterface
             $project->setOwner($owner);
         }
 
-        if ($data instanceof ProjectUpdateDto) {
+        if ($data instanceof ProjectUpdationDto) {
             $data = $this->autoMapper->map($uriVariables, $data);
 
             /** @var Project */
