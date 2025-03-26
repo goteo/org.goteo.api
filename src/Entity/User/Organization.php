@@ -9,6 +9,7 @@ use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(OrganizationMapProvider::class)]
+#[ORM\Table(name: 'user_organization')]
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
