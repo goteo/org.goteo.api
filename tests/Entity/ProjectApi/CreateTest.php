@@ -35,6 +35,12 @@ class CreateTest extends ApiTestCase
         return $user;
     }
 
+    private function prepareTestUser(): void
+    {
+        $this->entityManager->persist($this->createTestUser());
+        $this->entityManager->flush();
+    }
+
     private function getValidToken()
     {
         $client = static::createClient();
@@ -57,30 +63,34 @@ class CreateTest extends ApiTestCase
 
     public function testPostWithValidToken(): void
     {
+        $this->prepareTestUser();
+        
+        $expectedData = [
+            'title' => 'New Education Project',
+            'subtitle' => 'Education for the Future',
+            'category' => 'education',
+            'territory' => ['country' => 'ES'],
+            'description' => 'Detailed project description',
+            'deadline' => 'minimum',
+            'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
+        ];
+        
         $client = static::createClient();
-
-        $this->entityManager->persist($this->createTestUser());
-        $this->entityManager->flush();
-
         $client->request('POST', '/v4/projects', [
             'headers' => [
                 'Authorization' => "Bearer " . $this->getValidToken(),
-                'Content-Type' => 'application/json',
+                'Content-Type' => 'application/json'
             ],
-            'json' => [
-                'title' => 'ProjectApiTest Project',
-                'subtitle' => 'ProjectApiTest Project Subtitle',
-                'category' => 'education',
-                'territory' => ['country' => 'ES'],
-                'description' => 'ProjectApiTest Project Description',
-            ],
+            'json' => $expectedData,
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $responseData = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertArrayHasKey('id', $responseData);
-        $this->assertEquals('ProjectApiTest Project', $responseData['title']);
+        $this->assertEquals($expectedData['title'], $responseData['title']);
+        $this->assertEquals($expectedData['subtitle'], $responseData['subtitle']);
+        $this->assertEquals($expectedData['category'], $responseData['category']);
     }
 
     public function testPostUnauthorized()
