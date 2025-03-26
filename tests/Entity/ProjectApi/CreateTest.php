@@ -57,39 +57,29 @@ class CreateTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        $user = $this->createTestUser();
-        $this->entityManager->persist($user);
+        $this->entityManager->persist($this->createTestUser());
         $this->entityManager->flush();
 
-        $token = $this->getValidToken();
-
-        $client->request(
-            'POST',
-            '/v4/projects',
-            [
-                'headers' => [
-                    'Authorization' => "Bearer $token",
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => [
-                    'title' => 'ProjectApiTest Project',
-                    'subtitle' => 'ProjectApiTest Project Subtitle',
-                    'category' => 'education',
-                    'territory' => [
-                        'country' => 'ES',
-                    ],
-                    'description' => 'ProjectApiTest Project Description',
-                ],
-            ]
-        );
+        $client->request('POST', '/v4/projects', [
+            'headers' => [
+                'Authorization' => "Bearer " . $this->getValidToken(),
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'title' => 'ProjectApiTest Project',
+                'subtitle' => 'ProjectApiTest Project Subtitle',
+                'category' => 'education',
+                'territory' => ['country' => 'ES'],
+                'description' => 'ProjectApiTest Project Description',
+            ],
+        ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
         $responseData = json_decode($client->getResponse()->getContent(), true);
+
         $this->assertArrayHasKey('id', $responseData);
         $this->assertEquals('ProjectApiTest Project', $responseData['title']);
     }
-
 
     public function testPostUnauthorized()
     {
