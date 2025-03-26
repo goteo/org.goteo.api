@@ -90,6 +90,47 @@ class CreateTest extends ApiTestCase
 
     // TESTS
 
+    // Auxiliary Tests
+
+    private function testPostSetBase(
+        array $setData,
+        int $expectedCode = Response::HTTP_CREATED,
+    ): void {
+        $requestData = [
+            'title' => 'New Education Project',
+            'subtitle' => 'Education for the Future',
+            'category' => 'education',
+            'territory' => ['country' => 'ES'],
+            'description' => 'Detailed project description',
+            'deadline' => 'minimum',
+            'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
+        ];
+
+        $requestData = array_merge($requestData, $setData);
+
+        $client = static::createClient();
+        $client->request('POST', self::POST_URL, [
+            'headers' => $this->getHeaders($client),
+            'json' => $requestData,
+        ]);
+
+        $this->assertResponseStatusCodeSame($expectedCode);
+    }
+
+    private function testPostWithInvalidInput(array $invalidData): void
+    {
+        $expectedCode = Response::HTTP_BAD_REQUEST;
+        $this->testPostSetBase($invalidData, $expectedCode);
+    }
+
+    private function testPostWithUnprocessableEntity(array $invalidData): void
+    {
+        $expectedCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+        $this->testPostSetBase($invalidData, $expectedCode);
+    }
+
+    // Runable Tests
+
     public function testPostWithValidToken(): void
     {
         $expectedData = [
@@ -134,31 +175,6 @@ class CreateTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    private function testPostWithInvalidInput(
-        array $invalidData,
-        int $expectedCode = Response::HTTP_BAD_REQUEST,
-    ): void {
-        $requestData = [
-            'title' => 'New Education Project',
-            'subtitle' => 'Education for the Future',
-            'category' => 'education',
-            'territory' => ['country' => 'ES'],
-            'description' => 'Detailed project description',
-            'deadline' => 'minimum',
-            'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
-        ];
-
-        $requestData = array_merge($requestData, $invalidData);
-
-        $client = static::createClient();
-        $client->request('POST', self::POST_URL, [
-            'headers' => $this->getHeaders($client),
-            'json' => $requestData,
-        ]);
-
-        $this->assertResponseStatusCodeSame($expectedCode);
-    }
-
     public function testPostWithInvalidCategory(): void
     {
         $this->testPostWithInvalidInput(['category' => 'nonexistent-category']);
@@ -171,14 +187,12 @@ class CreateTest extends ApiTestCase
 
     public function testPostWithInvalidVideoURL(): void
     {
-        $expectedCode = Response::HTTP_UNPROCESSABLE_ENTITY;
-        $this->testPostWithInvalidInput(['video' => 'invalid-url'], $expectedCode);
+        $this->testPostWithUnprocessableEntity(['video' => 'invalid-url']);
     }
 
     public function testPostWithInvalidTerritoryISO(): void
     {
-        $expectedCode = Response::HTTP_UNPROCESSABLE_ENTITY;
-        $this->testPostWithInvalidInput(['territory' => ['country' => 'XX']], $expectedCode);
+        $this->testPostWithUnprocessableEntity(['territory' => ['country' => 'XX']]);
     }
 
     public function testPostUnauthorized()
