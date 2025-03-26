@@ -195,6 +195,13 @@ class CreateTest extends ApiTestCase
         $this->testPostWithUnprocessableEntity(['territory' => ['country' => 'XX']]);
     }
 
+    public function testPostWithVideoExample(): void
+    {
+        $url = 'https://example.com/video';
+        $expectedCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        $this->testPostSetBase(['video' => $url], $expectedCode);
+    }
+
     public function testPostUnauthorized()
     {
         $client = static::createClient();
