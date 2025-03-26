@@ -71,6 +71,23 @@ class CreateTest extends ApiTestCase
         ];
     }
 
+    private function assertProjectData(array $expectedData, array $responseData): void
+    {
+        $this->assertArrayHasKey('id', $responseData);
+
+        $expectedSubset = $expectedData;
+        unset($expectedSubset['video']);
+
+        $this->assertArraySubset($expectedSubset, $responseData);
+
+        $this->assertEquals(
+            $expectedData['territory']['country'],
+            $responseData['territory']['country']
+        );
+
+        $this->assertMatchesRegularExpression('/^https?:\/\//', $responseData['video']['src']);
+    }
+
     // TESTS
 
     public function testPostWithValidToken(): void
@@ -93,13 +110,7 @@ class CreateTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $responseData = json_decode($client->getResponse()->getContent(), true);
-
-        $this->assertArrayHasKey('id', $responseData);
-
-        $expectedSubset = $expectedData;
-        unset($expectedSubset['video']);
-
-        $this->assertArraySubset($expectedSubset, $responseData);
+        $this->assertProjectData($expectedData, $responseData);
     }
 
     public function testPostWithoutMandatoryField(): void
