@@ -3,6 +3,7 @@
 namespace App\Tests\Entity\ProjectApi;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,8 @@ class CreateTest extends ApiTestCase
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
     }
 
+    // Auxiliary functions
+
     private function createTestUser(): User
     {
         $user = new User();
@@ -42,9 +45,9 @@ class CreateTest extends ApiTestCase
         $this->entityManager->flush();
     }
 
-    private function getValidToken()
+    private function getValidToken(Client $client): string
     {
-        $client = static::createClient();
+        $this->prepareTestUser();
 
         $client->request(
             'POST',
@@ -56,14 +59,14 @@ class CreateTest extends ApiTestCase
                 ],
             ]
         );
-
+        
         return json_decode($client->getResponse()->getContent(), true)['token'];
     }
 
-    private function getHeaders(): array
+    private function getHeaders(Client $client): array
     {
         return [
-            'Authorization' => "Bearer " . $this->getValidToken(),
+            'Authorization' => "Bearer " . $this->getValidToken($client),
             'Content-Type' => 'application/json'
         ];
     }
@@ -72,8 +75,6 @@ class CreateTest extends ApiTestCase
 
     public function testPostWithValidToken(): void
     {
-        $this->prepareTestUser();
-
         $expectedData = [
             'title' => 'New Education Project',
             'subtitle' => 'Education for the Future',
@@ -86,7 +87,7 @@ class CreateTest extends ApiTestCase
 
         $client = static::createClient();
         $client->request('POST', self::POST_URL, [
-            'headers' => $this->getHeaders(),
+            'headers' => $this->getHeaders($client),
             'json' => $expectedData,
         ]);
 
@@ -99,6 +100,27 @@ class CreateTest extends ApiTestCase
         unset($expectedSubset['video']);
 
         $this->assertArraySubset($expectedSubset, $responseData);
+    }
+
+    public function testPostWithoutTitle(): void
+    {
+        // Expected data without the 'title' field
+        $requestData = [
+            'subtitle' => 'Education for the Future',
+            'category' => 'education',
+            'territory' => ['country' => 'ES'],
+            'description' => 'Detailed project description',
+            'deadline' => 'minimum',
+            'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
+        ];
+
+        $client = static::createClient();
+        $client->request('POST', self::POST_URL, [
+            'headers' => $this->getHeaders($client),
+            'json' => $requestData,
+        ]);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testPostUnauthorized()
