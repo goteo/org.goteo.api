@@ -4,8 +4,8 @@ namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Project\ProjectTerritoryApiResource;
-use App\Entity\Project\Category;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Mapping\Transformer\ProjectVideoMapTransformer;
@@ -30,7 +30,7 @@ class ProjectUpdateDto
     /**
      * One of the available categories.
      */
-    public Category $category;
+    public ProjectCategory $category;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

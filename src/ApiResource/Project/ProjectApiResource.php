@@ -10,9 +10,9 @@ use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\ProjectCreateDto;
 use App\Dto\ProjectUpdateDto;
-use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
+use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
@@ -95,7 +95,7 @@ class ProjectApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    public Category $category;
+    public ProjectCategory $category;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

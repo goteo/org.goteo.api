@@ -3,8 +3,8 @@
 namespace App\Dto;
 
 use App\ApiResource\Project\ProjectTerritoryApiResource;
-use App\Entity\Project\Category;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Mapping\Transformer\ProjectVideoMapTransformer;
 use AutoMapper\Attribute\MapTo;
@@ -28,7 +28,7 @@ class ProjectCreateDto
      * One of the available categories.
      */
     #[Assert\NotBlank()]
-    public Category $category;
+    public ProjectCategory $category;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

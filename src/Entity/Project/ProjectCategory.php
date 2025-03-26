@@ -2,7 +2,7 @@
 
 namespace App\Entity\Project;
 
-enum Category: string
+enum ProjectCategory: string
 {
     case Solidary = 'solidary';
 
