@@ -53,6 +53,8 @@ class CreateTest extends ApiTestCase
         return json_decode($client->getResponse()->getContent(), true)['token'];
     }
 
+    // TESTS
+
     public function testPostWithValidToken(): void
     {
         $client = static::createClient();
@@ -89,6 +91,27 @@ class CreateTest extends ApiTestCase
             'POST',
             '/v4/projects',
             [
+                'json' => [
+                    'title' => 'ProjectApiTest Project',
+                ],
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testPostWithInvalidToken()
+    {
+        $client = static::createClient();
+
+        $client->request(
+            'POST',
+            '/v4/projects',
+            [
+                'headers' => [
+                    'Authorization' => "Bearer invalid_token",
+                    'Content-Type' => 'application/json',
+                ],
                 'json' => [
                     'title' => 'ProjectApiTest Project',
                 ],
