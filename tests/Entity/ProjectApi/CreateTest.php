@@ -66,8 +66,8 @@ class CreateTest extends ApiTestCase
     private function getHeaders(Client $client): array
     {
         return [
-            'Authorization' => "Bearer " . $this->getValidToken($client),
-            'Content-Type' => 'application/json'
+            'Authorization' => 'Bearer '.$this->getValidToken($client),
+            'Content-Type' => 'application/json',
         ];
     }
 
@@ -125,7 +125,7 @@ class CreateTest extends ApiTestCase
 
     private function testPostWithInvalidInput(
         array $invalidData,
-        int $expectedCode = Response::HTTP_BAD_REQUEST
+        int $expectedCode = Response::HTTP_BAD_REQUEST,
     ): void {
         $requestData = [
             'title' => 'New Education Project',
@@ -164,6 +164,12 @@ class CreateTest extends ApiTestCase
         $this->testPostWithInvalidInput(['video' => 'invalid-url'], $expectedCode);
     }
 
+    public function testPostWithInvalidTerritoryISO(): void
+    {
+        $expectedCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+        $this->testPostWithInvalidInput(['territory' => ['country' => 'XX']], $expectedCode);
+    }
+
     public function testPostUnauthorized()
     {
         $client = static::createClient();
@@ -190,7 +196,7 @@ class CreateTest extends ApiTestCase
             '/v4/projects',
             [
                 'headers' => [
-                    'Authorization' => "Bearer invalid_token",
+                    'Authorization' => 'Bearer invalid_token',
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
