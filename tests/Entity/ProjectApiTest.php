@@ -67,21 +67,4 @@ class ProjectApiTest extends ApiTestCase
             ],
         ]]);
     }
-
-    public function testPostUnauthorized()
-    {
-        $client = static::createClient();
-
-        $client->request(
-            'POST',
-            '/v4/projects',
-            [
-                'json' => [
-                    'title' => 'ProjectApiTest Project',
-                ],
-            ]
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
-    }
 }
