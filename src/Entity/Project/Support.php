@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
+#[ORM\Table(name: 'project_support')]
 #[ORM\Entity(repositoryClass: SupportRepository::class)]
 class Support
 {

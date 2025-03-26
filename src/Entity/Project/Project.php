@@ -56,8 +56,8 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Embedded(class: ProjectCalendar::class)]
     private ?ProjectCalendar $calendar = null;
 
-    #[ORM\Column(enumType: Category::class)]
-    private ?Category $category = null;
+    #[ORM\Column(enumType: ProjectCategory::class)]
+    private ?ProjectCategory $category = null;
 
     /**
      * Project's territory of interest.
@@ -191,12 +191,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getCategory(): ?Category
+    public function getCategory(): ?ProjectCategory
     {
         return $this->category;
     }
 
-    public function setCategory(Category $category): static
+    public function setCategory(ProjectCategory $category): static
     {
         $this->category = $category;
 
