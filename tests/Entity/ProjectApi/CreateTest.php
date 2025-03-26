@@ -59,7 +59,7 @@ class CreateTest extends ApiTestCase
                 ],
             ]
         );
-        
+
         return json_decode($client->getResponse()->getContent(), true)['token'];
     }
 
@@ -123,8 +123,10 @@ class CreateTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    private function testPostWithInvalidInput(array $invalidData): void
-    {
+    private function testPostWithInvalidInput(
+        array $invalidData,
+        int $expectedCode = Response::HTTP_BAD_REQUEST
+    ): void {
         $requestData = [
             'title' => 'New Education Project',
             'subtitle' => 'Education for the Future',
@@ -143,15 +145,23 @@ class CreateTest extends ApiTestCase
             'json' => $requestData,
         ]);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame($expectedCode);
     }
 
-    public function testPostWithInvalidCategory() : void {
+    public function testPostWithInvalidCategory(): void
+    {
         $this->testPostWithInvalidInput(['category' => 'nonexistent-category']);
     }
 
-    public function testPostWithInvalidDeadline() : void {
+    public function testPostWithInvalidDeadline(): void
+    {
         $this->testPostWithInvalidInput(['deadline' => 'extended']);
+    }
+
+    public function testPostWithInvalidVideoURL(): void
+    {
+        $expectedCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+        $this->testPostWithInvalidInput(['video' => 'invalid-url'], $expectedCode);
     }
 
     public function testPostUnauthorized()
