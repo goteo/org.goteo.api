@@ -16,6 +16,7 @@ class CreateTest extends ApiTestCase
 
     private const USER_EMAIL = 'testuser@example.com';
     private const USER_PASSWORD = 'projectapitestuserpassword';
+    private const POST_URL = '/v4/projects';
 
     public function setUp(): void
     {
@@ -59,12 +60,20 @@ class CreateTest extends ApiTestCase
         return json_decode($client->getResponse()->getContent(), true)['token'];
     }
 
+    private function getHeaders(): array
+    {
+        return [
+            'Authorization' => "Bearer " . $this->getValidToken(),
+            'Content-Type' => 'application/json'
+        ];
+    }
+
     // TESTS
 
     public function testPostWithValidToken(): void
     {
         $this->prepareTestUser();
-        
+
         $expectedData = [
             'title' => 'New Education Project',
             'subtitle' => 'Education for the Future',
@@ -74,13 +83,10 @@ class CreateTest extends ApiTestCase
             'deadline' => 'minimum',
             'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
         ];
-        
+
         $client = static::createClient();
-        $client->request('POST', '/v4/projects', [
-            'headers' => [
-                'Authorization' => "Bearer " . $this->getValidToken(),
-                'Content-Type' => 'application/json'
-            ],
+        $client->request('POST', self::POST_URL, [
+            'headers' => $this->getHeaders(),
             'json' => $expectedData,
         ]);
 
@@ -88,9 +94,11 @@ class CreateTest extends ApiTestCase
         $responseData = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertArrayHasKey('id', $responseData);
-        $this->assertEquals($expectedData['title'], $responseData['title']);
-        $this->assertEquals($expectedData['subtitle'], $responseData['subtitle']);
-        $this->assertEquals($expectedData['category'], $responseData['category']);
+
+        $expectedSubset = $expectedData;
+        unset($expectedSubset['video']);
+
+        $this->assertArraySubset($expectedSubset, $responseData);
     }
 
     public function testPostUnauthorized()
@@ -99,7 +107,7 @@ class CreateTest extends ApiTestCase
 
         $client->request(
             'POST',
-            '/v4/projects',
+            self::POST_URL,
             [
                 'json' => [
                     'title' => 'ProjectApiTest Project',
