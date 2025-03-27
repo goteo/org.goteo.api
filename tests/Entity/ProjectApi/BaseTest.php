@@ -176,4 +176,22 @@ abstract class BaseTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame($expectedToken);
     }
+
+    protected function testForbidden(): void
+    {
+        $otherUser = $this->createTestUser()
+            ->setHandle('other_user')->setEmail('otheruser@example.com');
+        $otherProject = $this->createTestProject()->setOwner($otherUser);
+        $this->entityManager->persist($otherProject);
+        $this->prepareTestUser();
+
+        $client = static::createClient();
+        $client->request(
+            $this->getMethod(),
+            $this->getUri(1),
+            ['headers' => $this->getHeaders($client)]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
 }

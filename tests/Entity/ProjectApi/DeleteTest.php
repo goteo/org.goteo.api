@@ -44,19 +44,6 @@ class DeleteTest extends BaseTest
 
     public function testDeleteForbidden(): void
     {
-        $otherUser = $this->createTestUser()
-            ->setHandle('other_user')->setEmail('otheruser@example.com');
-        $otherProject = $this->createTestProject()->setOwner($otherUser);
-        $this->entityManager->persist($otherProject);
-        $this->prepareTestUser();
-
-        $client = static::createClient();
-        $client->request(
-            $this->getMethod(),
-            $this->getUri(1),
-            ['headers' => $this->getHeaders($client)]
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        $this->testForbidden();
     }
 }

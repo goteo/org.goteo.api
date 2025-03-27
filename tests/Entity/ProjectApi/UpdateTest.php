@@ -75,4 +75,9 @@ class UpdateTest extends BaseTest
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
+
+    public function testUpdateForbidden(): void
+    {
+        $this->testForbidden();
+    }
 }
