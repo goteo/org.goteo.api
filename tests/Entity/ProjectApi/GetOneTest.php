@@ -4,7 +4,6 @@ namespace App\Tests\Entity\ProjectApi;
 
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
-use Symfony\Component\HttpFoundation\Response;
 
 class GetOneTest extends BaseTest
 {
@@ -90,13 +89,7 @@ class GetOneTest extends BaseTest
 
     public function testGetOneWithInvalidToken(): void
     {
-        static::createClient()->request(
-            'GET',
-            $this->getUri(1),
-            ['headers' => ['Authorization' => 'Bearer 123']]
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        $this->testInvalidToken($this->getUri(1));
     }
 
     public function testGetOneNotFound(): void

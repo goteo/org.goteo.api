@@ -167,22 +167,6 @@ class CreateTest extends BaseTest
 
     public function testPostWithInvalidToken()
     {
-        $client = static::createClient();
-
-        $client->request(
-            'POST',
-            self::URI,
-            [
-                'headers' => [
-                    'Authorization' => 'Bearer invalid_token',
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => [
-                    'title' => 'ProjectApiTest Project',
-                ],
-            ]
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        $this->testInvalidToken($this->getUri());
     }
 }

@@ -42,6 +42,6 @@ class UpdateTest extends BaseTest
 
     public function testUpdateWithInvalidToken(): void
     {
-        $this->testInvalidToken($this->getUri(1));
+        $this->testInvalidToken($this->getUri(1), 'application/merge-patch+json');
     }
 }
