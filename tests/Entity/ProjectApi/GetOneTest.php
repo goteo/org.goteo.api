@@ -145,4 +145,14 @@ class GetOneTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
+
+    public function testGetOneNotFound(): void
+    {
+        $this->prepareTestProject();
+
+        $client = static::createClient();
+        $client->request('GET', $this->getUri(999), ['headers' => $this->getHeaders($client)]);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
 }
