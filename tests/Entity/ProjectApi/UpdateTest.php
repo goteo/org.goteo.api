@@ -3,6 +3,7 @@
 namespace App\Tests\Entity\ProjectApi;
 
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use Symfony\Component\HttpFoundation\Response;
 
 class UpdateTest extends BaseTest
 {
@@ -28,5 +29,14 @@ class UpdateTest extends BaseTest
         $this->prepareTestProject();
 
         $this->testInsert(['title' => 'Modified Title'], $this->getUri());
+    }
+
+    public function testUpdateUnauthorized(): void
+    {
+        $this->prepareTestProject();
+
+        static::createClient()->request($this->getMethod(), $this->getUri());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

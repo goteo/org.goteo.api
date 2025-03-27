@@ -32,6 +32,12 @@ abstract class BaseTest extends ApiTestCase
 
     // Auxiliary Methods
 
+    /**
+     * Defines the HTTP method that will be used in the requests made by the tests.
+     *
+     * @return string The HTTP method to be used for the request
+     *                (e.g., 'GET', 'POST', 'PUT', 'DELETE').
+     */
     abstract protected function getMethod(): string;
 
     protected function getUri(int $id = 1): string
