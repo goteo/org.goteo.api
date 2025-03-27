@@ -21,7 +21,7 @@ class GetOneTest extends ApiTestCase
 
     private const USER_EMAIL = 'testuser@example.com';
     private const USER_PASSWORD = 'projectapitestuserpassword';
-    private const URI = '/v4/projects';
+    private const BASE_URI = '/v4/projects';
 
     public function setUp(): void
     {
@@ -31,6 +31,11 @@ class GetOneTest extends ApiTestCase
     }
 
     // Auxiliary functions
+
+    private function getUri(int $id = 1): string
+    {
+        return self::BASE_URI."/$id";
+    }
 
     private function createTestUser(): User
     {
@@ -112,12 +117,20 @@ class GetOneTest extends ApiTestCase
     public function testGetOneWithValidToken(): void
     {
         $this->prepareTestProject();
-        $client = static::createClient();
 
-        $id = 1;
-        $client->request('GET', self::URI."/$id", ['headers' => $this->getHeaders($client)]);
+        $client = static::createClient();
+        $client->request('GET', $this->getUri(), ['headers' => $this->getHeaders($client)]);
 
         $this->assertResponseIsSuccessful();
         $this->assertProjectData(json_decode($client->getResponse()->getContent(), true));
+    }
+
+    public function testGetOneUnauthorized(): void
+    {
+        $this->prepareTestProject();
+
+        static::createClient()->request('GET', $this->getUri());
+
+        $this->assertResponseIsSuccessful();
     }
 }
