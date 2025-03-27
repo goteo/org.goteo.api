@@ -50,6 +50,14 @@ abstract class BaseTest extends ApiTestCase
         return $user;
     }
 
+    protected function prepareTestUser(?User $user = null): void
+    {
+        $user ??= $this->createTestUser();
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
     protected function getExampleProjectData(): array
     {
         return [
