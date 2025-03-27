@@ -44,4 +44,9 @@ class UpdateTest extends BaseTest
     {
         $this->testInvalidToken($this->getUri(1), 'application/merge-patch+json');
     }
+
+    public function testUpdateNotFound(): void
+    {
+        $this->testOneNotFound();
+    }
 }
