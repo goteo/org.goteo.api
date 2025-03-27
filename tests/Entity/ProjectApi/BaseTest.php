@@ -123,7 +123,7 @@ abstract class BaseTest extends ApiTestCase
 
     // Auxiliary Tests
 
-    public function testOneNotFound(): void
+    protected function testOneNotFound(): void
     {
         $this->prepareTestProject();
 
@@ -135,5 +135,20 @@ abstract class BaseTest extends ApiTestCase
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    protected function testInsert(
+        array $data,
+        string $uri = self::BASE_URI,
+        int $expectedCode = Response::HTTP_OK,
+    ): void {
+        $client = static::createClient();
+        $client->request(
+            $this->getMethod(),
+            $uri,
+            ['headers' => $this->getHeaders($client), 'json' => $data]
+        );
+
+        $this->assertResponseStatusCodeSame($expectedCode);
     }
 }

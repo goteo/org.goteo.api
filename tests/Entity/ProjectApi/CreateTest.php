@@ -2,73 +2,25 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
-use App\Entity\User\User;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-class CreateTest extends ApiTestCase
+class CreateTest extends BaseTest
 {
-    use ResetDatabase;
-
-    private EntityManagerInterface $entityManager;
-
-    private const USER_EMAIL = 'testuser@example.com';
-    private const USER_PASSWORD = 'projectapitestuserpassword';
     private const URI = '/v4/projects';
-
-    public function setUp(): void
-    {
-        self::bootKernel();
-
-        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
-    }
 
     // Auxiliary functions
 
-    private function createTestUser(): User
+    protected function getMethod(): string
     {
-        $user = new User();
-        $user->setHandle('test_user');
-        $user->setEmail(self::USER_EMAIL);
-        $passwordHasher = static::getContainer()->get('security.user_password_hasher');
-        $user->setPassword($passwordHasher->hashPassword($user, self::USER_PASSWORD));
-
-        return $user;
+        return 'POST';
     }
 
-    private function prepareTestUser(): void
-    {
-        $this->entityManager->persist($this->createTestUser());
-        $this->entityManager->flush();
-    }
-
-    private function getValidToken(Client $client): string
+    protected function getHeaders(Client $client): array
     {
         $this->prepareTestUser();
 
-        $client->request(
-            'POST',
-            '/v4/user_tokens',
-            [
-                'json' => [
-                    'identifier' => self::USER_EMAIL,
-                    'password' => self::USER_PASSWORD,
-                ],
-            ]
-        );
-
-        return json_decode($client->getResponse()->getContent(), true)['token'];
-    }
-
-    private function getHeaders(Client $client): array
-    {
-        return [
-            'Authorization' => 'Bearer '.$this->getValidToken($client),
-            'Content-Type' => 'application/json',
-        ];
+        return parent::getHeaders($client);
     }
 
     private function assertProjectData(array $expectedData, array $responseData): void
@@ -108,13 +60,7 @@ class CreateTest extends ApiTestCase
 
         $requestData = array_merge($requestData, $setData);
 
-        $client = static::createClient();
-        $client->request('POST', self::URI, [
-            'headers' => $this->getHeaders($client),
-            'json' => $requestData,
-        ]);
-
-        $this->assertResponseStatusCodeSame($expectedCode);
+        $this->testInsert($requestData, self::URI, $expectedCode);
     }
 
     private function testPostWithInvalidInput(array $invalidData): void
