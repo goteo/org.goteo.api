@@ -17,7 +17,7 @@ class CreateTest extends ApiTestCase
 
     private const USER_EMAIL = 'testuser@example.com';
     private const USER_PASSWORD = 'projectapitestuserpassword';
-    private const POST_URL = '/v4/projects';
+    private const URI = '/v4/projects';
 
     public function setUp(): void
     {
@@ -109,7 +109,7 @@ class CreateTest extends ApiTestCase
         $requestData = array_merge($requestData, $setData);
 
         $client = static::createClient();
-        $client->request('POST', self::POST_URL, [
+        $client->request('POST', self::URI, [
             'headers' => $this->getHeaders($client),
             'json' => $requestData,
         ]);
@@ -144,7 +144,7 @@ class CreateTest extends ApiTestCase
         ];
 
         $client = static::createClient();
-        $client->request('POST', self::POST_URL, [
+        $client->request('POST', self::URI, [
             'headers' => $this->getHeaders($client),
             'json' => $expectedData,
         ]);
@@ -167,7 +167,7 @@ class CreateTest extends ApiTestCase
         ];
 
         $client = static::createClient();
-        $client->request('POST', self::POST_URL, [
+        $client->request('POST', self::URI, [
             'headers' => $this->getHeaders($client),
             'json' => $requestData,
         ]);
@@ -208,7 +208,7 @@ class CreateTest extends ApiTestCase
 
         $client->request(
             'POST',
-            self::POST_URL,
+            self::URI,
             [
                 'json' => [
                     'title' => 'ProjectApiTest Project',
@@ -225,7 +225,7 @@ class CreateTest extends ApiTestCase
 
         $client->request(
             'POST',
-            '/v4/projects',
+            self::URI,
             [
                 'headers' => [
                     'Authorization' => 'Bearer invalid_token',
