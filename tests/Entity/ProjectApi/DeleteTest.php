@@ -24,4 +24,15 @@ class DeleteTest extends BaseTest
 
         $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+
+    public function testDeleteWithInvalidToken(): void
+    {
+        static::createClient()->request(
+            'DELETE',
+            $this->getUri(),
+            ['headers' => ['Authorization' => 'Bearer 123']]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
 }
