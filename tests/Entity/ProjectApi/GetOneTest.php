@@ -150,6 +150,13 @@ class GetOneTest extends ApiTestCase
         $this->assertProjectData($responseData, $project);
     }
 
+    private function testGetOneFilteredByStatus(ProjectStatus $status): void
+    {
+        $project = $this->createTestProject()->setStatus($status);
+
+        $this->testSuccessfulGetOneBase($project);
+    }
+
     // Runable Tests
 
     public function testGetOneWithValidToken(): void
@@ -159,11 +166,14 @@ class GetOneTest extends ApiTestCase
         $this->testSuccessfulGetOneBase($project);
     }
 
-    public function testGetOneFilteredByStatus(): void
+    public function testGetOneFilteredByStatusInFunding(): void
     {
-        $project = $this->createTestProject()->setStatus(ProjectStatus::InFunding);
+        $this->testGetOneFilteredByStatus(ProjectStatus::InFunding);
+    }
 
-        $this->testSuccessfulGetOneBase($project);
+    public function testGetOneFilteredByStatusFunded(): void
+    {
+        $this->testGetOneFilteredByStatus(ProjectStatus::Funded);
     }
 
     public function testGetOneUnauthorized(): void
