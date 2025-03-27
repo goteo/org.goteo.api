@@ -6,6 +6,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DeleteTest extends BaseTest
 {
+    protected function getMethod(): string
+    {
+        return 'DELETE';
+    }
+
+    // Runable Tests
+
     public function testDeleteWithValidToken(): void
     {
         $this->prepareTestProject();
@@ -34,5 +41,10 @@ class DeleteTest extends BaseTest
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testDeleteNotFound(): void
+    {
+        $this->testOneNotFound();
     }
 }

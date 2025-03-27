@@ -11,9 +11,10 @@ use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class BaseTest extends ApiTestCase
+abstract class BaseTest extends ApiTestCase
 {
     use ResetDatabase;
     protected EntityManagerInterface $entityManager;
@@ -28,6 +29,10 @@ class BaseTest extends ApiTestCase
 
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
     }
+
+    // Auxiliary Methods
+
+    abstract protected function getMethod(): string;
 
     protected function getUri(int $id = 1): string
     {
@@ -106,5 +111,21 @@ class BaseTest extends ApiTestCase
             'Authorization' => 'Bearer '.$this->getValidToken($client),
             'Content-Type' => 'application/json',
         ];
+    }
+
+    // Auxiliary Tests
+
+    public function testOneNotFound(): void
+    {
+        $this->prepareTestProject();
+
+        $client = static::createClient();
+        $client->request(
+            $this->getMethod(),
+            $this->getUri(999),
+            ['headers' => $this->getHeaders($client)]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 }
