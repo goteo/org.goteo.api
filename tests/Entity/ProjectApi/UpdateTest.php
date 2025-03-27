@@ -54,4 +54,25 @@ class UpdateTest extends BaseTest
     {
         $this->testOneNotFound();
     }
+
+    public function testUpdateInvalidInput(): void
+    {
+        $this->prepareTestProject();
+        $invalidInput = [
+            'title' => 'New project title',
+            'category' => 'invalid-category',
+        ];
+
+        $client = static::createClient();
+        $client->request(
+            $this->getMethod(),
+            $this->getUri(1),
+            [
+                'headers' => $this->getHeaders($client),
+                'json' => $invalidInput,
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
 }
