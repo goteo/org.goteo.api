@@ -15,4 +15,13 @@ class DeleteTest extends BaseTest
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
+
+    public function testDeleteUnauthorized()
+    {
+        $this->prepareTestProject();
+
+        static::createClient()->request('DELETE', $this->getUri());
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
 }
