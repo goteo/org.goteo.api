@@ -18,7 +18,7 @@ class DeleteTest extends BaseTest
         $this->prepareTestProject();
 
         $client = static::createClient();
-        $client->request('DELETE', $this->getUri(), ['headers' => $this->getHeaders($client)]);
+        $client->request('DELETE', $this->getUri(1), ['headers' => $this->getHeaders($client)]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
@@ -27,7 +27,7 @@ class DeleteTest extends BaseTest
     {
         $this->prepareTestProject();
 
-        static::createClient()->request('DELETE', $this->getUri());
+        static::createClient()->request('DELETE', $this->getUri(1));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
     }
@@ -36,7 +36,7 @@ class DeleteTest extends BaseTest
     {
         static::createClient()->request(
             'DELETE',
-            $this->getUri(),
+            $this->getUri(1),
             ['headers' => ['Authorization' => 'Bearer 123']]
         );
 

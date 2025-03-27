@@ -28,15 +28,20 @@ class UpdateTest extends BaseTest
     {
         $this->prepareTestProject();
 
-        $this->testInsert(['title' => 'Modified Title'], $this->getUri());
+        $this->testInsert(['title' => 'Modified Title'], $this->getUri(1));
     }
 
     public function testUpdateUnauthorized(): void
     {
         $this->prepareTestProject();
 
-        static::createClient()->request($this->getMethod(), $this->getUri());
+        static::createClient()->request($this->getMethod(), $this->getUri(1));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function testUpdateWithInvalidToken(): void
+    {
+        $this->testInvalidToken($this->getUri(1));
     }
 }

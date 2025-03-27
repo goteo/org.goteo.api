@@ -46,7 +46,7 @@ class GetOneTest extends BaseTest
         $this->prepareTestProject($project);
 
         $client = static::createClient();
-        $client->request('GET', $this->getUri(), ['headers' => $this->getHeaders($client)]);
+        $client->request('GET', $this->getUri(1), ['headers' => $this->getHeaders($client)]);
 
         $this->assertResponseIsSuccessful();
         $responseData = json_decode($client->getResponse()->getContent(), true);
@@ -83,7 +83,7 @@ class GetOneTest extends BaseTest
     {
         $this->prepareTestProject();
 
-        static::createClient()->request('GET', $this->getUri());
+        static::createClient()->request('GET', $this->getUri(1));
 
         $this->assertResponseIsSuccessful();
     }
@@ -92,7 +92,7 @@ class GetOneTest extends BaseTest
     {
         static::createClient()->request(
             'GET',
-            $this->getUri(),
+            $this->getUri(1),
             ['headers' => ['Authorization' => 'Bearer 123']]
         );
 

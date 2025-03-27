@@ -40,9 +40,11 @@ abstract class BaseTest extends ApiTestCase
      */
     abstract protected function getMethod(): string;
 
-    protected function getUri(int $id = 1): string
+    protected function getUri(int $id = -1): string
     {
-        return self::BASE_URI."/$id";
+        $param = $id < 0 ? '' : $id;
+
+        return self::BASE_URI."/$param";
     }
 
     protected function createTestUser(): User
@@ -156,5 +158,16 @@ abstract class BaseTest extends ApiTestCase
         );
 
         $this->assertResponseStatusCodeSame($expectedCode);
+    }
+
+    protected function testInvalidToken(string $uri): void
+    {
+        static::createClient()->request(
+            $this->getMethod(),
+            $uri,
+            ['headers' => ['Authorization' => 'Bearer 123']]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 }
