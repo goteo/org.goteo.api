@@ -24,11 +24,16 @@ class UpdateTest extends BaseTest
 
     // Runable Tests
 
-    public function testUpdateWithValidToken(): void
+    public function testUpdateSuccessful(): void
     {
         $this->prepareTestProject();
 
-        $this->testInsert(['title' => 'Modified Title'], $this->getUri(1));
+        $dataToModify = [
+            'title' => 'New project title',
+            'description' => 'Updated project description',
+        ];
+
+        $this->testInsert($dataToModify, $this->getUri(1));
     }
 
     public function testUpdateUnauthorized(): void
