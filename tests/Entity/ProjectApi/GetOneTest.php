@@ -11,6 +11,7 @@ use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 class GetOneTest extends ApiTestCase
@@ -132,5 +133,16 @@ class GetOneTest extends ApiTestCase
         static::createClient()->request('GET', $this->getUri());
 
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testGetOneWithInvalidToken(): void
+    {
+        static::createClient()->request(
+            'GET',
+            $this->getUri(),
+            ['headers' => ['Authorization' => 'Bearer 123']]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 }
