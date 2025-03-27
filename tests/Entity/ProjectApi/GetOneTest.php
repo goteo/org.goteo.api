@@ -49,24 +49,40 @@ class GetOneTest extends ApiTestCase
         return $user;
     }
 
+    private function getExampleProjectData(): array
+    {
+        return [
+            'id' => 1,
+            'title' => 'Test Project',
+            'subtitle' => 'Test Project Subtitle',
+            'category' => Category::LibreSoftware,
+            'territory' => ['country' => 'ES'],
+            'description' => 'Test Project Description',
+            'deadline' => ProjectDeadline::Minimum,
+            'status' => ProjectStatus::InEditing,
+        ];
+    }
+
     private function createTestProject(): Project
     {
+        $example = $this->getExampleProjectData();
+
         $project = new Project();
-        $project->setTitle('Test Project');
-        $project->setSubtitle('Test Project Subtitle');
-        $project->setDeadline(ProjectDeadline::Minimum);
-        $project->setCategory(Category::LibreSoftware);
-        $project->setDescription('Test Project Description');
-        $project->setTerritory(new ProjectTerritory('ES'));
+        $project->setTitle($example['title']);
+        $project->setSubtitle($example['subtitle']);
+        $project->setCategory($example['category']);
+        $project->setTerritory(new ProjectTerritory($example['territory']['country']));
+        $project->setDescription($example['description']);
+        $project->setDeadline($example['deadline']);
         $project->setOwner($this->createTestUser());
-        $project->setStatus(ProjectStatus::InEditing);
+        $project->setStatus($example['status']);
 
         return $project;
     }
 
-    private function prepareTestProject(): void
+    private function prepareTestProject(?Project $project = null): void
     {
-        $project = $this->createTestProject();
+        $project ??= $this->createTestProject();
 
         $this->entityManager->persist($project);
         $this->entityManager->flush();
@@ -96,18 +112,23 @@ class GetOneTest extends ApiTestCase
         ];
     }
 
-    private function assertProjectData(array $responseData): void
+    private function getSerializedProject(Project $project)
     {
-        $expectedData = [
-            'id' => 1,
-            'title' => 'Test Project',
-            'subtitle' => 'Test Project Subtitle',
-            'category' => Category::LibreSoftware->value,
-            'territory' => ['country' => 'ES'],
-            'description' => 'Test Project Description',
-            'deadline' => ProjectDeadline::Minimum->value,
-            'status' => ProjectStatus::InEditing->value,
+        return [
+            'id' => $project->getId(),
+            'title' => $project->getTitle(),
+            'subtitle' => $project->getSubtitle(),
+            'category' => $project->getCategory()->value,
+            'territory' => ['country' => $project->getTerritory()->country],
+            'description' => $project->getDescription(),
+            'deadline' => $project->getDeadline()->value,
+            'status' => $project->getStatus()->value,
         ];
+    }
+
+    private function assertProjectData(array $responseData, Project $project): void
+    {
+        $expectedData = $this->getSerializedProject($project);
 
         $this->assertArrayHasKey('id', $responseData);
         $this->assertArraySubset($expectedData, $responseData);
@@ -115,15 +136,34 @@ class GetOneTest extends ApiTestCase
 
     // TESTS
 
-    public function testGetOneWithValidToken(): void
+    // Auxiliary Tests
+
+    private function testSuccessfulGetOneBase(Project $project): void
     {
-        $this->prepareTestProject();
+        $this->prepareTestProject($project);
 
         $client = static::createClient();
         $client->request('GET', $this->getUri(), ['headers' => $this->getHeaders($client)]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertProjectData(json_decode($client->getResponse()->getContent(), true));
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertProjectData($responseData, $project);
+    }
+
+    // Runable Tests
+
+    public function testGetOneWithValidToken(): void
+    {
+        $project = $this->createTestProject();
+
+        $this->testSuccessfulGetOneBase($project);
+    }
+
+    public function testGetOneFilteredByStatus(): void
+    {
+        $project = $this->createTestProject()->setStatus(ProjectStatus::InFunding);
+
+        $this->testSuccessfulGetOneBase($project);
     }
 
     public function testGetOneUnauthorized(): void
