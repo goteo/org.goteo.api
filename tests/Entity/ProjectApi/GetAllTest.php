@@ -69,4 +69,11 @@ class GetAllTest extends ApiTestCase
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount($numberOfProjects, $responseData['member']);
     }
+
+    public function testGetAllUnauthorized(): void
+    {
+        static::createClient()->request(self::METHOD, self::BASE_URI);
+
+        $this->assertResponseIsSuccessful();
+    }
 }
