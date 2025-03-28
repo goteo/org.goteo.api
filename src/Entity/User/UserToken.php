@@ -5,7 +5,9 @@ namespace App\Entity\User;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\UserOwnedTrait;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserTokenRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -17,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
  * `oat_` means the token was created via an OAuth flow.\
  * `pat_` means the token was created via a login flow.
  */
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: UserTokenRepository::class)]
 class UserToken implements UserOwnedInterface
 {

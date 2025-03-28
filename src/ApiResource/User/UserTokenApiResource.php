@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Dto\UserTokenLoginDto;
 use App\Entity\User\UserToken;
+use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use App\State\User\UserTokenLoginProcessor;
 
@@ -19,6 +20,7 @@ use App\State\User\UserTokenLoginProcessor;
     shortName: 'UserToken',
     stateOptions: new Options(entityClass: UserToken::class),
     provider: ApiResourceStateProvider::class,
+    processor: ApiResourceStateProcessor::class,
 )]
 #[API\Post(input: UserTokenLoginDto::class, processor: UserTokenLoginProcessor::class)]
 #[API\Get(security: 'is_granted("USER_OWNED", object)')]
