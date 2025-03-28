@@ -4,6 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -84,10 +85,19 @@ class GetAllTest extends ApiTestCase
             'email' => self::USER_EMAIL,
             'password' => self::USER_PASSWORD,
         ]);
+
+        $territory = new ProjectTerritory('ES');
+
         $page = 2;
         $numberOfProjectsInPage = 1;
         $numberOfProjectsTotal = $this->getMinNumInPage($page) + $numberOfProjectsInPage;
-        ProjectFactory::createMany($numberOfProjectsTotal, ['owner' => $owner]);
+
+        // It passes an owner and a territory already created
+        // because memory management is critical here
+        ProjectFactory::createMany($numberOfProjectsTotal, [
+            'owner' => $owner,
+            'territory' => $territory,
+        ]);
 
         $client = static::createClient();
         $client->request(self::METHOD, self::BASE_URI."?page=$page", $this->getHeaders($client));
@@ -96,6 +106,8 @@ class GetAllTest extends ApiTestCase
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount(max($numberOfProjectsInPage, 0), $responseData['member']);
+
+        $this->entityManager->clear();
     }
 
     public function testGetAllUnauthorized(): void

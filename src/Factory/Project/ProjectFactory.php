@@ -7,6 +7,7 @@ use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
+use App\Entity\User\User;
 use App\Factory\User\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -34,15 +35,30 @@ final class ProjectFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        return $this->defaultsOptimized();
+    }
+
+    protected static function defaultsOptimized(): array|callable
+    {
+        return [
+            'category' => Category::Design,
+            'deadline' => ProjectDeadline::Minimum,
+            'description' => '',
+            'territory' => new ProjectTerritory('ES'),
+            'owner' => new User(),
+            'status' => ProjectStatus::InEditing,
+            'subtitle' => 'Subtitle',
+            'title' => 'Title',
+        ];
+    }
+
+    protected static function defaultsFull(): array|callable
+    {
         return [
             'category' => self::faker()->randomElement(Category::cases()),
-            // 'dateCreated' => self::faker()->dateTime(),
-            // 'dateUpdated' => self::faker()->dateTime(),
             'deadline' => self::faker()->randomElement(ProjectDeadline::cases()),
             'description' => self::faker()->text(),
             'territory' => new ProjectTerritory('ES'),
-            // 'locales' => [],
-            // 'migrated' => self::faker()->boolean(),
             'owner' => UserFactory::createOne(),
             'status' => self::faker()->randomElement(ProjectStatus::cases()),
             'subtitle' => self::faker()->text(255),
@@ -58,5 +74,14 @@ final class ProjectFactory extends PersistentProxyObjectFactory
         return $this
             // ->afterInstantiate(function(Project $project): void {})
         ;
+    }
+
+    /**
+     * Create projects with optimized or complete values ​​according to the parameter.
+     */
+    public static function createManyWithMode(int $count, array $overrides = [], bool $optimized = false): void
+    {
+        $defaults = $optimized ? self::defaultsOptimized() : self::defaultsFull();
+        self::createMany($count, array_merge($defaults, $overrides));
     }
 }
