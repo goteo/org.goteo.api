@@ -21,11 +21,7 @@ final class UserFactory extends PersistentProxyObjectFactory
 
     protected function defaults(): array|callable
     {
-        return [
-            'email' => 'user@example.com',
-            'handle' => 'user',
-            'password' => 'password123',
-        ];
+        return $this->defaultsOptimized();
     }
 
     protected static function defaultsOptimized(): array|callable
@@ -63,7 +59,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     /**
      * Create projects with optimized or complete values ​​according to the parameter.
      */
-    public static function createOneWithMode(int $count, array $overrides = [], bool $optimized = false): void
+    public static function createWithMode(int $count = 1, array $overrides = [], bool $optimized = false): void
     {
         $defaults = $optimized ? self::defaultsOptimized() : self::defaultsFull();
         self::createMany($count, array_merge($defaults, $overrides));

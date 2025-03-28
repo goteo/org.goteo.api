@@ -35,16 +35,7 @@ final class ProjectFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        return [
-            'category' => Category::Design,
-            'deadline' => ProjectDeadline::Minimum,
-            'description' => '',
-            'territory' => new ProjectTerritory('ES'),
-            'owner' => new User(),
-            'status' => ProjectStatus::InEditing,
-            'subtitle' => 'Subtitle',
-            'title' => 'Title',
-        ];
+        return $this->defaultsOptimized();
     }
 
     protected static function defaultsOptimized(): array|callable
@@ -68,7 +59,7 @@ final class ProjectFactory extends PersistentProxyObjectFactory
             'deadline' => self::faker()->randomElement(ProjectDeadline::cases()),
             'description' => self::faker()->text(),
             'territory' => new ProjectTerritory('ES'),
-            'owner' => UserFactory::createOne(),
+            'owner' => UserFactory::createWithMode(),
             'status' => self::faker()->randomElement(ProjectStatus::cases()),
             'subtitle' => self::faker()->text(255),
             'title' => self::faker()->text(255),
