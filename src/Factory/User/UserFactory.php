@@ -21,6 +21,20 @@ final class UserFactory extends PersistentProxyObjectFactory
 
     protected function defaults(): array|callable
     {
+        return self::defaultsOptimized();
+    }
+
+    protected static function defaultsOptimized(): array|callable
+    {
+        return [
+            'email' => 'user@example.com',
+            'handle' => 'user',
+            'password' => 'password123',
+        ];
+    }
+
+    protected static function defaultsFull(): array|callable
+    {
         return [
             'active' => self::faker()->boolean(),
             'dateCreated' => self::faker()->dateTime(),
@@ -40,5 +54,14 @@ final class UserFactory extends PersistentProxyObjectFactory
         return $this->afterInstantiate(function (User $user) {
             $user->setPassword($this->passwordHasher->hashPassword($user, $user->getPassword()));
         });
+    }
+
+    /**
+     * Create projects with optimized or complete values ​​according to the parameter.
+     */
+    public static function createOneWithMode(int $count, array $overrides = [], bool $optimized = false): void
+    {
+        $defaults = $optimized ? self::defaultsOptimized() : self::defaultsFull();
+        self::createMany($count, array_merge($defaults, $overrides));
     }
 }
