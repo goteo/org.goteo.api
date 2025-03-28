@@ -12,11 +12,13 @@ use App\Entity\Project\ProjectTerritory;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 abstract class BaseTest extends ApiTestCase
 {
     use ResetDatabase;
+    use Factories;
     protected EntityManagerInterface $entityManager;
 
     private const USER_EMAIL = 'testuser@example.com';
@@ -47,11 +49,13 @@ abstract class BaseTest extends ApiTestCase
         return self::BASE_URI.$param;
     }
 
-    protected function createTestUser(): User
-    {
+    protected function createTestUser(
+        string $handle = 'test_user',
+        string $email = self::USER_EMAIL,
+    ): User {
         $user = new User();
-        $user->setHandle('test_user');
-        $user->setEmail(self::USER_EMAIL);
+        $user->setHandle($handle);
+        $user->setEmail($email);
         $passwordHasher = static::getContainer()->get('security.user_password_hasher');
         $user->setPassword($passwordHasher->hashPassword($user, self::USER_PASSWORD));
 
@@ -179,8 +183,7 @@ abstract class BaseTest extends ApiTestCase
 
     protected function testForbidden(): void
     {
-        $otherUser = $this->createTestUser()
-            ->setHandle('other_user')->setEmail('otheruser@example.com');
+        $otherUser = $this->createTestUser('other_user', 'otheruser@example.com');
         $otherProject = $this->createTestProject()->setOwner($otherUser);
         $this->entityManager->persist($otherProject);
         $this->prepareTestUser();

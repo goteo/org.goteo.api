@@ -6,6 +6,7 @@ use App\Entity\Project\Category;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\ProjectTerritory;
 use App\Factory\User\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -35,13 +36,14 @@ final class ProjectFactory extends PersistentProxyObjectFactory
     {
         return [
             'category' => self::faker()->randomElement(Category::cases()),
-            'dateCreated' => self::faker()->dateTime(),
-            'dateUpdated' => self::faker()->dateTime(),
+            // 'dateCreated' => self::faker()->dateTime(),
+            // 'dateUpdated' => self::faker()->dateTime(),
             'deadline' => self::faker()->randomElement(ProjectDeadline::cases()),
             'description' => self::faker()->text(),
-            'locales' => [],
-            'migrated' => self::faker()->boolean(),
-            'owner' => UserFactory::new(),
+            'territory' => new ProjectTerritory('ES'),
+            // 'locales' => [],
+            // 'migrated' => self::faker()->boolean(),
+            'owner' => UserFactory::createOne(),
             'status' => self::faker()->randomElement(ProjectStatus::cases()),
             'subtitle' => self::faker()->text(255),
             'title' => self::faker()->text(255),
