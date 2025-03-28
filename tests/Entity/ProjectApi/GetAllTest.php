@@ -22,6 +22,8 @@ class GetAllTest extends ApiTestCase
     private const BASE_URI = '/v4/projects';
     private const METHOD = 'GET';
 
+    private const PAGE_SIZE = 30;
+
     public function setUp(): void
     {
         self::bootKernel();
@@ -69,6 +71,31 @@ class GetAllTest extends ApiTestCase
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount($numberOfProjects, $responseData['member']);
+    }
+
+    private function getMinNumInPage($page = 1)
+    {
+        return self::PAGE_SIZE * ($page - 1);
+    }
+
+    public function testGetAllOnPage(): void
+    {
+        $owner = UserFactory::createOne([
+            'email' => self::USER_EMAIL,
+            'password' => self::USER_PASSWORD,
+        ]);
+        $page = 2;
+        $numberOfProjectsInPage = self::PAGE_SIZE / 2;
+        $numberOfProjectsTotal = $this->getMinNumInPage($page) + $numberOfProjectsInPage;
+        ProjectFactory::createMany($numberOfProjectsTotal, ['owner' => $owner]);
+
+        $client = static::createClient();
+        $client->request(self::METHOD, self::BASE_URI."?page=$page", $this->getHeaders($client));
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(max($numberOfProjectsInPage, 0), $responseData['member']);
     }
 
     public function testGetAllUnauthorized(): void
