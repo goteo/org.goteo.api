@@ -7,6 +7,7 @@ use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -75,5 +76,16 @@ class GetAllTest extends ApiTestCase
         static::createClient()->request(self::METHOD, self::BASE_URI);
 
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testGetAllWithInvalidToken(): void
+    {
+        static::createClient()->request(
+            self::METHOD,
+            self::BASE_URI,
+            ['headers' => ['Authorization' => 'Bearer 123']]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 }
