@@ -35,7 +35,16 @@ final class ProjectFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        return $this->defaultsOptimized();
+        return [
+            'category' => Category::Design,
+            'deadline' => ProjectDeadline::Minimum,
+            'description' => '',
+            'territory' => new ProjectTerritory('ES'),
+            'owner' => new User(),
+            'status' => ProjectStatus::InEditing,
+            'subtitle' => 'Subtitle',
+            'title' => 'Title',
+        ];
     }
 
     protected static function defaultsOptimized(): array|callable

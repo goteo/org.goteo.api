@@ -21,7 +21,11 @@ final class UserFactory extends PersistentProxyObjectFactory
 
     protected function defaults(): array|callable
     {
-        return self::defaultsOptimized();
+        return [
+            'email' => 'user@example.com',
+            'handle' => 'user',
+            'password' => 'password123',
+        ];
     }
 
     protected static function defaultsOptimized(): array|callable
