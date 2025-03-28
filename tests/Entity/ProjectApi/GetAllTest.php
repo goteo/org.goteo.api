@@ -85,7 +85,7 @@ class GetAllTest extends ApiTestCase
             'password' => self::USER_PASSWORD,
         ]);
         $page = 2;
-        $numberOfProjectsInPage = self::PAGE_SIZE / 2;
+        $numberOfProjectsInPage = 1;
         $numberOfProjectsTotal = $this->getMinNumInPage($page) + $numberOfProjectsInPage;
         ProjectFactory::createMany($numberOfProjectsTotal, ['owner' => $owner]);
 
