@@ -228,6 +228,11 @@ class GetAllTest extends ApiTestCase
         $this->testGetAllByParam('category', Category::Education, Category::Culture);
     }
 
+    public function testGetAllByCategorySolidary()
+    {
+        $this->testGetAllByParam('category', Category::Solidary, Category::Education);
+    }
+
     public function testGetAllByStatus()
     {
         $this->testGetAllByParam('status', ProjectStatus::InFunding, ProjectStatus::InCampaign);
