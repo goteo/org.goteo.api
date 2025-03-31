@@ -5,7 +5,6 @@ namespace App\Tests\Entity\ProjectApi;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Project\ProjectTerritory;
-use App\Entity\User\User;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,7 +42,17 @@ class GetAllTest extends ApiTestCase
         ]);
     }
 
-    private function createTestProject(int $count, User $owner) {}
+    private function createTestProjectOptimized(int $count)
+    {
+        $owner = $this->createTestUser();
+        $territory = new ProjectTerritory('ES');
+
+        // It passes an attributes already created because memory management is critical here
+        ProjectFactory::createMany($count, [
+            'owner' => $owner,
+            'territory' => $territory,
+        ]);
+    }
 
     private function getHeaders(Client $client)
     {
@@ -89,20 +98,13 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllOnPage(): void
     {
-        $owner = $this->createTestUser();
-        $territory = new ProjectTerritory('ES');
-
         $page = 2;
         $numberOfProjectsInPage = 1;
         $itemsPerPage = 2;
         $minCountInPage = $this->getMinNumInPage($page, $itemsPerPage);
-        $numberOfProjectsTotal = $minCountInPage + $numberOfProjectsInPage;
+        $totalNumberOfProjects = $minCountInPage + $numberOfProjectsInPage;
 
-        // It passes an attributes already created because memory management is critical here
-        ProjectFactory::createMany($numberOfProjectsTotal, [
-            'owner' => $owner,
-            'territory' => $territory,
-        ]);
+        $this->createTestProjectOptimized($totalNumberOfProjects);
 
         $client = static::createClient();
         $client->request(
@@ -114,8 +116,31 @@ class GetAllTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame($numberOfProjectsTotal, $responseData['totalItems']);
+        $this->assertSame($totalNumberOfProjects, $responseData['totalItems']);
         $this->assertCount(max($numberOfProjectsInPage, 0), $responseData['member']);
+
+        $this->entityManager->clear();
+    }
+
+    public function testGetAllDefaultsFirstPage(): void
+    {
+        $itemsPerPage = 2;
+        $totalNumberOfProjects = $itemsPerPage + 1;
+
+        $this->createTestProjectOptimized($totalNumberOfProjects);
+
+        $client = static::createClient();
+        $client->request(
+            self::METHOD,
+            self::BASE_URI."?itemsPerPage=$itemsPerPage",
+            $this->getHeaders($client)
+        );
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertSame($totalNumberOfProjects, $responseData['totalItems']);
+        $this->assertCount($itemsPerPage, $responseData['member']);
 
         $this->entityManager->clear();
     }
