@@ -5,6 +5,7 @@ namespace App\Tests\Entity\ProjectApi;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Project\ProjectTerritory;
+use App\Entity\User\User;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +35,16 @@ class GetAllTest extends ApiTestCase
 
     // Auxiliary functions
 
+    private function createTestUser()
+    {
+        return UserFactory::createOne([
+            'email' => self::USER_EMAIL,
+            'password' => self::USER_PASSWORD,
+        ]);
+    }
+
+    private function createTestProject(int $count, User $owner) {}
+
     private function getHeaders(Client $client)
     {
         // Responsability 1: Get Token
@@ -58,10 +69,7 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllSuccessful(): void
     {
-        $owner = UserFactory::createOne([
-            'email' => self::USER_EMAIL,
-            'password' => self::USER_PASSWORD,
-        ]);
+        $owner = $this->createTestUser();
         $numberOfProjects = 2;
         ProjectFactory::createMany($numberOfProjects, ['owner' => $owner]);
 
@@ -74,37 +82,39 @@ class GetAllTest extends ApiTestCase
         $this->assertCount($numberOfProjects, $responseData['member']);
     }
 
-    private function getMinNumInPage($page = 1)
+    private function getMinNumInPage($page = 1, $pageSize = self::PAGE_SIZE)
     {
-        return self::PAGE_SIZE * ($page - 1);
+        return $pageSize * ($page - 1);
     }
 
     public function testGetAllOnPage(): void
     {
-        $owner = UserFactory::createOne([
-            'email' => self::USER_EMAIL,
-            'password' => self::USER_PASSWORD,
-        ]);
-
+        $owner = $this->createTestUser();
         $territory = new ProjectTerritory('ES');
 
         $page = 2;
         $numberOfProjectsInPage = 1;
-        $numberOfProjectsTotal = $this->getMinNumInPage($page) + $numberOfProjectsInPage;
+        $itemsPerPage = 5;
+        $minCountInPage = $this->getMinNumInPage($page, $itemsPerPage);
+        $numberOfProjectsTotal = $minCountInPage + $numberOfProjectsInPage;
 
-        // It passes an owner and a territory already created
-        // because memory management is critical here
+        // It passes an attributes already created because memory management is critical here
         ProjectFactory::createMany($numberOfProjectsTotal, [
             'owner' => $owner,
             'territory' => $territory,
         ]);
 
         $client = static::createClient();
-        $client->request(self::METHOD, self::BASE_URI."?page=$page", $this->getHeaders($client));
+        $client->request(
+            self::METHOD,
+            self::BASE_URI."?page=$page&itemsPerPage=$itemsPerPage",
+            $this->getHeaders($client)
+        );
 
         $this->assertResponseIsSuccessful();
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertSame($numberOfProjectsTotal, $responseData['totalItems']);
         $this->assertCount(max($numberOfProjectsInPage, 0), $responseData['member']);
 
         $this->entityManager->clear();
