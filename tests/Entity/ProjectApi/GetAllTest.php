@@ -296,6 +296,28 @@ class GetAllTest extends ApiTestCase
         );
     }
 
+    public function testGetAllLocalesFieldReturned()
+    {
+        $this->createTestProjectOptimized(1);
+
+        $client = static::createClient();
+        $client->request('GET', self::BASE_URI, $this->getHeaders($client));
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $project = $responseData['member'][0];
+
+        $localesKey = 'locales';
+        $this->assertArrayHasKey($localesKey, $project);
+
+        $locales = $project[$localesKey];
+        $this->assertIsArray($locales);
+        foreach ($locales as $locale) {
+            $this->assertIsString($locale);
+        }
+    }
+
     public function testGetAllUnauthorized(): void
     {
         static::createClient()->request(self::METHOD, self::BASE_URI);
