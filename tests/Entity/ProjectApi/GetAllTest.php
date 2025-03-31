@@ -245,6 +245,17 @@ class GetAllTest extends ApiTestCase
         $this->testGetAllByParamList('status', $searchValues, ProjectStatus::Rejected);
     }
 
+    public function testGetAllByPartialDescription()
+    {
+        $partialDescription = 'Physically defined as a modulable space';
+
+        $this->testGetAllByParam(
+            'description',
+            "lorem ipsum $partialDescription",
+            'lorem ipsum vitae'
+        );
+    }
+
     public function testGetAllUnauthorized(): void
     {
         static::createClient()->request(self::METHOD, self::BASE_URI);
