@@ -239,6 +239,12 @@ class GetAllTest extends ApiTestCase
         $this->testGetAllByParamList('category', $searchValues, Category::LibreSoftware);
     }
 
+    public function testGetAllByStatusList()
+    {
+        $searchValues = [ProjectStatus::InCampaign, ProjectStatus::Funded];
+        $this->testGetAllByParamList('status', $searchValues, ProjectStatus::Rejected);
+    }
+
     public function testGetAllUnauthorized(): void
     {
         static::createClient()->request(self::METHOD, self::BASE_URI);
