@@ -82,6 +82,13 @@ class GetAllTest extends ApiTestCase
         return $pageSize * ($page - 1);
     }
 
+    private function getString(string|Category|ProjectStatus $data)
+    {
+        $isEnum = $data instanceof Category || $data instanceof ProjectStatus;
+
+        return $isEnum ? $data->value : (string) $data;
+    }
+
     // Auxiliary Tests
 
     private function testGetAllByParam(
@@ -102,8 +109,7 @@ class GetAllTest extends ApiTestCase
         );
         ProjectFactory::createOne(array_merge([$param => $otherValue], $baseAttributes));
 
-        $isEnum = $searchValue instanceof Category || $searchValue instanceof ProjectStatus;
-        $valueName = $isEnum ? $searchValue->value : (string) $searchValue;
+        $valueName = $this->getString($searchValue);
 
         $uri = self::BASE_URI."?$param=$valueName";
         $client = static::createClient();
@@ -113,6 +119,37 @@ class GetAllTest extends ApiTestCase
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount($searchCount, $responseData['member']);
+    }
+
+    private function testGetAllByParamList(
+        string $param,
+        array $searchValues,
+        string|Category|ProjectStatus $otherValue,
+    ) {
+        $owner = $this->createTestUser();
+        $territory = new ProjectTerritory('ES');
+        $baseAttributes = [
+            'owner' => $owner,
+            'territory' => $territory,
+        ];
+        foreach ($searchValues as $searchValue) {
+            ProjectFactory::createOne(array_merge([$param => $searchValue], $baseAttributes));
+        }
+        ProjectFactory::createOne(array_merge([$param => $otherValue], $baseAttributes));
+
+        foreach ($searchValues as $searchValue) {
+            $valueNames[] = $this->getString($searchValue);
+        }
+        $queryParams = http_build_query([$param => $valueNames], '', '&');
+
+        $uri = self::BASE_URI.'?'.$queryParams;
+        $client = static::createClient();
+        $client->request(self::METHOD, $uri, $this->getHeaders($client));
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(count($searchValues), $responseData['member']);
     }
 
     // Runable Tests
@@ -194,6 +231,12 @@ class GetAllTest extends ApiTestCase
     public function testGetAllByStatus()
     {
         $this->testGetAllByParam('status', ProjectStatus::InFunding, ProjectStatus::InCampaign);
+    }
+
+    public function testGetAllByCategoryList()
+    {
+        $searchValues = [Category::Education, Category::HealthCares];
+        $this->testGetAllByParamList('category', $searchValues, Category::LibreSoftware);
     }
 
     public function testGetAllUnauthorized(): void
