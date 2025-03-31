@@ -95,6 +95,7 @@ class GetAllTest extends ApiTestCase
         string $param,
         string|Category|ProjectStatus $searchValue,
         string|Category|ProjectStatus $otherValue,
+        $searchCount = 2,
         int $responseCode = Response::HTTP_OK,
     ) {
         $owner = $this->createTestUser();
@@ -103,7 +104,6 @@ class GetAllTest extends ApiTestCase
             'owner' => $owner,
             'territory' => $territory,
         ];
-        $searchCount = 2;
         ProjectFactory::createMany(
             $searchCount,
             array_merge([$param => $searchValue], $baseAttributes)
@@ -245,6 +245,24 @@ class GetAllTest extends ApiTestCase
 
         $responseCode = Response::HTTP_OK;
         $this->assertResponseStatusCodeSame($responseCode);
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(0, $responseData['member']);
+    }
+
+    public function testGetAllByTitleNotFound()
+    {
+        ProjectFactory::createOne([
+            'owner' => $this->createTestUser(),
+            'territory' => new ProjectTerritory('ES'),
+            'title' => 'Lorem ipsum title',
+        ]);
+
+        $uri = self::BASE_URI.'?title=NotFound';
+        $client = static::createClient();
+        $client->request(self::METHOD, $uri, $this->getHeaders($client));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount(0, $responseData['member']);
