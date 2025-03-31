@@ -5,6 +5,7 @@ namespace App\Tests\Entity\ProjectApi;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Project\Category;
+use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
@@ -85,8 +86,8 @@ class GetAllTest extends ApiTestCase
 
     private function testGetAllByParam(
         string $param,
-        string|Category $searchValue,
-        string|Category $otherValue,
+        string|Category|ProjectStatus $searchValue,
+        string|Category|ProjectStatus $otherValue,
     ) {
         $owner = $this->createTestUser();
         $territory = new ProjectTerritory('ES');
@@ -101,14 +102,12 @@ class GetAllTest extends ApiTestCase
         );
         ProjectFactory::createOne(array_merge([$param => $otherValue], $baseAttributes));
 
-        $valueName = $searchValue instanceof Category ? $searchValue->value : (string) $searchValue;
+        $isEnum = $searchValue instanceof Category || $searchValue instanceof ProjectStatus;
+        $valueName = $isEnum ? $searchValue->value : (string) $searchValue;
 
+        $uri = self::BASE_URI."?$param=$valueName";
         $client = static::createClient();
-        $client->request(
-            self::METHOD,
-            self::BASE_URI."?$param=$valueName",
-            $this->getHeaders($client)
-        );
+        $client->request(self::METHOD, $uri, $this->getHeaders($client));
 
         $this->assertResponseIsSuccessful();
 
@@ -184,29 +183,17 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllByTitle()
     {
-        $title = 'Free Software Project';
-        $owner = $this->createTestUser();
-        $territory = new ProjectTerritory('ES');
-        $baseAttributes = [
-            'owner' => $owner,
-            'territory' => $territory,
-        ];
-        $searchCount = 2;
-        ProjectFactory::createMany($searchCount, array_merge(['title' => $title], $baseAttributes));
-        ProjectFactory::createOne(array_merge(['title' => 'Educational Project'], $baseAttributes));
-
-        $client = static::createClient();
-        $client->request(self::METHOD, self::BASE_URI."?title=$title", $this->getHeaders($client));
-
-        $this->assertResponseIsSuccessful();
-
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertCount($searchCount, $responseData['member']);
+        $this->testGetAllByParam('title', 'Free Software Project', 'Education');
     }
 
     public function testGetAllByCategory()
     {
         $this->testGetAllByParam('category', Category::Education, Category::Culture);
+    }
+
+    public function testGetAllByStatus()
+    {
+        $this->testGetAllByParam('status', ProjectStatus::InFunding, ProjectStatus::InCampaign);
     }
 
     public function testGetAllUnauthorized(): void
