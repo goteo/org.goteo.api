@@ -94,7 +94,7 @@ class GetAllTest extends ApiTestCase
 
         $page = 2;
         $numberOfProjectsInPage = 1;
-        $itemsPerPage = 5;
+        $itemsPerPage = 2;
         $minCountInPage = $this->getMinNumInPage($page, $itemsPerPage);
         $numberOfProjectsTotal = $minCountInPage + $numberOfProjectsInPage;
 
