@@ -42,16 +42,17 @@ class GetAllTest extends ApiTestCase
         ]);
     }
 
-    private function createTestProjectOptimized(int $count)
+    private function createTestProjectOptimized(int $count, array $attributes = [])
     {
         $owner = $this->createTestUser();
         $territory = new ProjectTerritory('ES');
 
-        // It passes an attributes already created because memory management is critical here
-        ProjectFactory::createMany($count, [
+        $mergedAttributes = array_merge([
             'owner' => $owner,
             'territory' => $territory,
-        ]);
+        ], $attributes);
+
+        ProjectFactory::createMany($count, $mergedAttributes);
     }
 
     private function getHeaders(Client $client)
@@ -143,6 +144,28 @@ class GetAllTest extends ApiTestCase
         $this->assertCount($itemsPerPage, $responseData['member']);
 
         $this->entityManager->clear();
+    }
+
+    public function testGetAllByTitle()
+    {
+        $title = 'Free Software Project';
+        $owner = $this->createTestUser();
+        $territory = new ProjectTerritory('ES');
+        $baseAttributes = [
+            'owner' => $owner,
+            'territory' => $territory,
+        ];
+        $searchCount = 2;
+        ProjectFactory::createMany($searchCount, array_merge(['title' => $title], $baseAttributes));
+        ProjectFactory::createOne(array_merge(['title' => 'Educational Project'], $baseAttributes));
+
+        $client = static::createClient();
+        $client->request(self::METHOD, self::BASE_URI."?title=$title", $this->getHeaders($client));
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount($searchCount, $responseData['member']);
     }
 
     public function testGetAllUnauthorized(): void
