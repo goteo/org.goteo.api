@@ -4,6 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Entity\Project\Category;
 use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
@@ -75,6 +76,46 @@ class GetAllTest extends ApiTestCase
         return ['headers' => ['Authorization' => "Bearer $token"]];
     }
 
+    private function getMinNumInPage($page = 1, $pageSize = self::PAGE_SIZE)
+    {
+        return $pageSize * ($page - 1);
+    }
+
+    // Auxiliary Tests
+
+    private function testGetAllByParam(
+        string $param,
+        string|Category $searchValue,
+        string|Category $otherValue,
+    ) {
+        $owner = $this->createTestUser();
+        $territory = new ProjectTerritory('ES');
+        $baseAttributes = [
+            'owner' => $owner,
+            'territory' => $territory,
+        ];
+        $searchCount = 2;
+        ProjectFactory::createMany(
+            $searchCount,
+            array_merge([$param => $searchValue], $baseAttributes)
+        );
+        ProjectFactory::createOne(array_merge([$param => $otherValue], $baseAttributes));
+
+        $valueName = $searchValue instanceof Category ? $searchValue->value : (string) $searchValue;
+
+        $client = static::createClient();
+        $client->request(
+            self::METHOD,
+            self::BASE_URI."?$param=$valueName",
+            $this->getHeaders($client)
+        );
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount($searchCount, $responseData['member']);
+    }
+
     // Runable Tests
 
     public function testGetAllSuccessful(): void
@@ -90,11 +131,6 @@ class GetAllTest extends ApiTestCase
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount($numberOfProjects, $responseData['member']);
-    }
-
-    private function getMinNumInPage($page = 1, $pageSize = self::PAGE_SIZE)
-    {
-        return $pageSize * ($page - 1);
     }
 
     public function testGetAllOnPage(): void
@@ -166,6 +202,11 @@ class GetAllTest extends ApiTestCase
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount($searchCount, $responseData['member']);
+    }
+
+    public function testGetAllByCategory()
+    {
+        $this->testGetAllByParam('category', Category::Education, Category::Culture);
     }
 
     public function testGetAllUnauthorized(): void
