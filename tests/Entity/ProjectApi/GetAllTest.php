@@ -2,79 +2,29 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Project\Category;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
-use App\Factory\User\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-class GetAllTest extends ApiTestCase
+class GetAllTest extends BaseTest
 {
-    use ResetDatabase;
-    use Factories;
     protected EntityManagerInterface $entityManager;
-
-    private const USER_EMAIL = 'testuser@example.com';
-    private const USER_PASSWORD = 'projectapitestuserpassword';
-    private const BASE_URI = '/v4/projects';
-    private const METHOD = 'GET';
 
     private const PAGE_SIZE = 30;
 
     public function setUp(): void
     {
-        self::bootKernel();
-
-        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        parent::setUp();
     }
 
     // Auxiliary functions
 
-    private function createTestUser()
+    protected function getMethod(): string
     {
-        return UserFactory::createOne([
-            'email' => self::USER_EMAIL,
-            'password' => self::USER_PASSWORD,
-        ]);
-    }
-
-    private function createTestProjectOptimized(int $count, array $attributes = [])
-    {
-        $owner = $this->createTestUser();
-        $territory = new ProjectTerritory('ES');
-
-        $mergedAttributes = array_merge([
-            'owner' => $owner,
-            'territory' => $territory,
-        ], $attributes);
-
-        ProjectFactory::createMany($count, $mergedAttributes);
-    }
-
-    private function getHeaders(Client $client)
-    {
-        // Responsability 1: Get Token
-        $client->request(
-            'POST',
-            '/v4/user_tokens',
-            [
-                'json' => [
-                    'identifier' => self::USER_EMAIL,
-                    'password' => self::USER_PASSWORD,
-                ],
-            ]
-        );
-
-        $token = json_decode($client->getResponse()->getContent(), true)['token'];
-
-        // Responsability 2 : Return headers
-        return ['headers' => ['Authorization' => "Bearer $token"]];
+        return 'GET';
     }
 
     private function getMinNumInPage($page = 1, $pageSize = self::PAGE_SIZE)
@@ -114,7 +64,7 @@ class GetAllTest extends ApiTestCase
 
         $uri = self::BASE_URI."?$param=$valueName";
         $client = static::createClient();
-        $client->request(self::METHOD, $uri, $this->getHeaders($client));
+        $client->request($this->getMethod(), $uri, $this->getRequestOptions($client));
 
         $this->assertResponseStatusCodeSame($responseCode);
 
@@ -145,7 +95,7 @@ class GetAllTest extends ApiTestCase
 
         $uri = self::BASE_URI.'?'.$queryParams;
         $client = static::createClient();
-        $client->request(self::METHOD, $uri, $this->getHeaders($client));
+        $client->request($this->getMethod(), $uri, $this->getRequestOptions($client));
 
         $this->assertResponseIsSuccessful();
 
@@ -162,7 +112,11 @@ class GetAllTest extends ApiTestCase
         ProjectFactory::createMany($numberOfProjects, ['owner' => $owner]);
 
         $client = static::createClient();
-        $client->request(self::METHOD, self::BASE_URI, $this->getHeaders($client));
+        $client->request(
+            $$this->getMethod()(),
+            self::BASE_URI,
+            ['headers' => $this->getHeaders($client)]
+        );
 
         $this->assertResponseIsSuccessful();
 
@@ -182,9 +136,9 @@ class GetAllTest extends ApiTestCase
 
         $client = static::createClient();
         $client->request(
-            self::METHOD,
+            $this->getMethod(),
             self::BASE_URI."?page=$page&itemsPerPage=$itemsPerPage",
-            $this->getHeaders($client)
+            ['headers' => $this->getHeaders($client)]
         );
 
         $this->assertResponseIsSuccessful();
@@ -205,9 +159,9 @@ class GetAllTest extends ApiTestCase
 
         $client = static::createClient();
         $client->request(
-            self::METHOD,
+            $this->getMethod(),
             self::BASE_URI."?itemsPerPage=$itemsPerPage",
-            $this->getHeaders($client)
+            ['headers' => $this->getHeaders($client)]
         );
 
         $this->assertResponseIsSuccessful();
@@ -241,7 +195,7 @@ class GetAllTest extends ApiTestCase
         $category = 'invalid_category';
         $uri = self::BASE_URI."?category=$category";
         $client = static::createClient();
-        $client->request(self::METHOD, $uri, $this->getHeaders($client));
+        $client->request($this->getMethod(), $uri, ['headers' => $this->getHeaders($client)]);
 
         $responseCode = Response::HTTP_OK;
         $this->assertResponseStatusCodeSame($responseCode);
@@ -260,7 +214,7 @@ class GetAllTest extends ApiTestCase
 
         $uri = self::BASE_URI.'?title=NotFound';
         $client = static::createClient();
-        $client->request(self::METHOD, $uri, $this->getHeaders($client));
+        $client->request($this->getMethod(), $uri, ['headers' => $this->getHeaders($client)]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -311,7 +265,7 @@ class GetAllTest extends ApiTestCase
         $this->createTestProjectOptimized(1);
 
         $client = static::createClient();
-        $client->request('GET', self::BASE_URI, $this->getHeaders($client));
+        $client->request('GET', self::BASE_URI, ['headers' => $this->getHeaders($client)]);
 
         $this->assertResponseIsSuccessful();
 
@@ -330,7 +284,7 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllUnauthorized(): void
     {
-        static::createClient()->request(self::METHOD, self::BASE_URI);
+        static::createClient()->request($this->getMethod(), self::BASE_URI);
 
         $this->assertResponseIsSuccessful();
     }
@@ -338,7 +292,7 @@ class GetAllTest extends ApiTestCase
     public function testGetAllWithInvalidToken(): void
     {
         static::createClient()->request(
-            self::METHOD,
+            $this->getMethod(),
             self::BASE_URI,
             ['headers' => ['Authorization' => 'Bearer 123']]
         );

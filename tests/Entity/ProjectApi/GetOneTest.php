@@ -42,8 +42,6 @@ class GetOneTest extends BaseTest
 
     private function testSuccessfulGetOneBase(Project $project): void
     {
-        $this->prepareTestProject($project);
-
         $client = static::createClient();
         $client->request('GET', $this->getUri(1), ['headers' => $this->getHeaders($client)]);
 
@@ -54,7 +52,7 @@ class GetOneTest extends BaseTest
 
     private function testGetOneFilteredByStatus(ProjectStatus $status): void
     {
-        $project = $this->createTestProject()->setStatus($status);
+        $project = $this->createTestProjectOptimized(1, ['status' => $status])[0];
 
         $this->testSuccessfulGetOneBase($project);
     }
@@ -63,7 +61,7 @@ class GetOneTest extends BaseTest
 
     public function testGetOneWithValidToken(): void
     {
-        $project = $this->createTestProject();
+        $project = $this->createTestProjectOptimized(1)[0];
 
         $this->testSuccessfulGetOneBase($project);
     }
@@ -80,7 +78,7 @@ class GetOneTest extends BaseTest
 
     public function testGetOneUnauthorized(): void
     {
-        $this->prepareTestProject();
+        $this->createTestProjectOptimized(1);
 
         static::createClient()->request('GET', $this->getUri(1));
 

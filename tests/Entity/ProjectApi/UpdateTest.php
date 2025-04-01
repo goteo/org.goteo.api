@@ -2,7 +2,6 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
-use ApiPlatform\Symfony\Bundle\Test\Client;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateTest extends BaseTest
@@ -14,19 +13,11 @@ class UpdateTest extends BaseTest
         return 'PATCH';
     }
 
-    protected function getHeaders(Client $client): array
-    {
-        return [
-            'Authorization' => 'Bearer '.$this->getValidToken($client),
-            'Content-Type' => 'application/merge-patch+json',
-        ];
-    }
-
     // Runable Tests
 
     public function testUpdateSuccessful(): void
     {
-        $this->prepareTestProject();
+        $this->createTestProjectOptimized();
 
         $dataToModify = [
             'title' => 'New project title',
@@ -38,7 +29,7 @@ class UpdateTest extends BaseTest
 
     public function testUpdateUnauthorized(): void
     {
-        $this->prepareTestProject();
+        $this->createTestProjectOptimized();
 
         static::createClient()->request($this->getMethod(), $this->getUri(1));
 
@@ -57,7 +48,7 @@ class UpdateTest extends BaseTest
 
     public function testUpdateInvalidInput(): void
     {
-        $this->prepareTestProject();
+        $this->createTestProjectOptimized();
         $invalidInput = [
             'title' => 'New project title',
             'category' => 'invalid-category',

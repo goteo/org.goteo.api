@@ -5,11 +5,12 @@ namespace App\Tests\Entity\ProjectApi;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Project\Category;
-use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
-use App\Entity\User\User;
+use App\Factory\Project\ProjectFactory;
+use App\Factory\User\UserFactory;
+use App\Tests\Traits\TestHelperTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
@@ -19,14 +20,17 @@ abstract class BaseTest extends ApiTestCase
 {
     use ResetDatabase;
     use Factories;
+    use TestHelperTrait;
+
     protected EntityManagerInterface $entityManager;
 
     private const USER_EMAIL = 'testuser@example.com';
     private const USER_PASSWORD = 'projectapitestuserpassword';
-    private const BASE_URI = '/v4/projects';
+    protected const BASE_URI = '/v4/projects';
 
     public function setUp(): void
     {
+        parent::setUp();
         self::bootKernel();
 
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -49,25 +53,20 @@ abstract class BaseTest extends ApiTestCase
         return self::BASE_URI.$param;
     }
 
+    protected function getRequestOptions(Client $client)
+    {
+        return ['headers' => $this->getHeaders($client)];
+    }
+
     protected function createTestUser(
         string $handle = 'test_user',
         string $email = self::USER_EMAIL,
-    ): User {
-        $user = new User();
-        $user->setHandle($handle);
-        $user->setEmail($email);
-        $passwordHasher = static::getContainer()->get('security.user_password_hasher');
-        $user->setPassword($passwordHasher->hashPassword($user, self::USER_PASSWORD));
-
-        return $user;
-    }
-
-    protected function prepareTestUser(?User $user = null): void
-    {
-        $user ??= $this->createTestUser();
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+    ) {
+        return UserFactory::createOne([
+            'handle' => $handle,
+            'email' => $email,
+            'password' => self::USER_PASSWORD,
+        ]);
     }
 
     protected function getExampleProjectData(): array
@@ -84,60 +83,31 @@ abstract class BaseTest extends ApiTestCase
         ];
     }
 
-    protected function createTestProject(): Project
+    protected function createTestProjectOptimized(int $count = 1, array $attributes = []): array
     {
-        $example = $this->getExampleProjectData();
+        $owner = $this->createTestUser();
+        $territory = new ProjectTerritory('ES');
 
-        $project = new Project();
-        $project->setTitle($example['title']);
-        $project->setSubtitle($example['subtitle']);
-        $project->setCategory($example['category']);
-        $project->setTerritory(new ProjectTerritory($example['territory']['country']));
-        $project->setDescription($example['description']);
-        $project->setDeadline($example['deadline']);
-        $project->setOwner($this->createTestUser());
-        $project->setStatus($example['status']);
+        $mergedAttributes = array_merge([
+            'owner' => $owner,
+            'territory' => $territory,
+        ], $attributes);
 
-        return $project;
-    }
-
-    protected function prepareTestProject(?Project $project = null): void
-    {
-        $project ??= $this->createTestProject();
-
-        $this->entityManager->persist($project);
-        $this->entityManager->flush();
-    }
-
-    protected function getValidToken(Client $client): string
-    {
-        $client->request(
-            'POST',
-            '/v4/user_tokens',
-            [
-                'json' => [
-                    'identifier' => self::USER_EMAIL,
-                    'password' => self::USER_PASSWORD,
-                ],
-            ]
-        );
-
-        return json_decode($client->getResponse()->getContent(), true)['token'];
+        return ProjectFactory::createMany($count, $mergedAttributes);
     }
 
     protected function getHeaders(Client $client): array
     {
-        return [
-            'Authorization' => 'Bearer '.$this->getValidToken($client),
-            'Content-Type' => 'application/json',
-        ];
+        $method = $this->getMethod();
+
+        return $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD, $method);
     }
 
     // Auxiliary Tests
 
     protected function testOneNotFound(): void
     {
-        $this->prepareTestProject();
+        $this->createTestProjectOptimized(1);
 
         $client = static::createClient();
         $client->request(
@@ -184,15 +154,13 @@ abstract class BaseTest extends ApiTestCase
     protected function testForbidden(): void
     {
         $otherUser = $this->createTestUser('other_user', 'otheruser@example.com');
-        $otherProject = $this->createTestProject()->setOwner($otherUser);
-        $this->entityManager->persist($otherProject);
-        $this->prepareTestUser();
+        $this->createTestProjectOptimized(1, ['owner' => $otherUser]);
 
         $client = static::createClient();
         $client->request(
             $this->getMethod(),
             $this->getUri(1),
-            ['headers' => $this->getHeaders($client)]
+            $this->getRequestOptions($client)
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);

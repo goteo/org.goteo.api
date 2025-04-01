@@ -2,25 +2,15 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
-use ApiPlatform\Symfony\Bundle\Test\Client;
 use Symfony\Component\HttpFoundation\Response;
 
 class CreateTest extends BaseTest
 {
-    private const URI = '/v4/projects';
-
     // Auxiliary functions
 
     protected function getMethod(): string
     {
         return 'POST';
-    }
-
-    protected function getHeaders(Client $client): array
-    {
-        $this->prepareTestUser();
-
-        return parent::getHeaders($client);
     }
 
     private function assertProjectData(array $expectedData, array $responseData): void
@@ -60,7 +50,8 @@ class CreateTest extends BaseTest
 
         $requestData = array_merge($requestData, $setData);
 
-        $this->testInsert($requestData, self::URI, $expectedCode);
+        $this->createTestUser();
+        $this->testInsert($requestData, self::BASE_URI, $expectedCode);
     }
 
     private function testPostWithInvalidInput(array $invalidData): void
@@ -79,6 +70,8 @@ class CreateTest extends BaseTest
 
     public function testPostWithValidToken(): void
     {
+        $this->createTestUser();
+
         $expectedData = [
             'title' => 'New Education Project',
             'subtitle' => 'Education for the Future',
@@ -90,7 +83,7 @@ class CreateTest extends BaseTest
         ];
 
         $client = static::createClient();
-        $client->request('POST', self::URI, [
+        $client->request('POST', self::BASE_URI, [
             'headers' => $this->getHeaders($client),
             'json' => $expectedData,
         ]);
@@ -102,6 +95,8 @@ class CreateTest extends BaseTest
 
     public function testPostWithoutMandatoryField(): void
     {
+        $this->createTestUser();
+
         // Expected data without the 'title' field
         $requestData = [
             'subtitle' => 'Education for the Future',
@@ -113,7 +108,7 @@ class CreateTest extends BaseTest
         ];
 
         $client = static::createClient();
-        $client->request('POST', self::URI, [
+        $client->request('POST', self::BASE_URI, [
             'headers' => $this->getHeaders($client),
             'json' => $requestData,
         ]);
@@ -154,7 +149,7 @@ class CreateTest extends BaseTest
 
         $client->request(
             'POST',
-            self::URI,
+            self::BASE_URI,
             [
                 'json' => [
                     'title' => 'ProjectApiTest Project',

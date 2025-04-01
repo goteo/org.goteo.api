@@ -15,17 +15,17 @@ class DeleteTest extends BaseTest
 
     public function testDeleteWithValidToken(): void
     {
-        $this->prepareTestProject();
+        $this->createTestProjectOptimized();
 
         $client = static::createClient();
-        $client->request('DELETE', $this->getUri(1), ['headers' => $this->getHeaders($client)]);
+        $client->request('DELETE', $this->getUri(1), $this->getRequestOptions($client));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
 
     public function testDeleteUnauthorized()
     {
-        $this->prepareTestProject();
+        $this->createTestProjectOptimized();
 
         static::createClient()->request('DELETE', $this->getUri(1));
 
