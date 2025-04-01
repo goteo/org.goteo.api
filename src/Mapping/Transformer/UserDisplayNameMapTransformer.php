@@ -13,12 +13,10 @@ class UserDisplayNameMapTransformer implements PropertyTransformerInterface
      */
     public function transform(mixed $value, object|array $source, array $context): mixed
     {
-        switch ($source->getType()) {
-            case UserType::Individual:
-                return $this->individualDisplayName($source);
-            case UserType::Organization:
-                return $this->organizationDisplayName($source);
-        }
+        return match ($source->getType()) {
+            UserType::Individual => $this->individualDisplayName($source),
+            UserType::Organization => $this->organizationDisplayName($source),
+        };
     }
 
     private function individualDisplayName(User $user): string

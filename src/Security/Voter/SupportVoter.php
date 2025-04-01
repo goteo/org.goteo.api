@@ -3,9 +3,9 @@
 namespace App\Security\Voter;
 
 use App\ApiResource\Project\SupportApiResource;
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 final class SupportVoter extends Voter
 {
@@ -25,24 +25,19 @@ final class SupportVoter extends Voter
      */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
-        /** @var \App\Entity\User\User */
+        /** @var User */
         $user = $token->getUser();
 
-        if (!$user instanceof UserInterface) {
-            return false;
-        }
-
-        if ($user->hasRoles(['ROLE_ADMIN'])) {
+        if ($user instanceof User && $user->hasRoles(['ROLE_ADMIN'])) {
             return true;
         }
 
-        switch ($attribute) {
-            case self::EDIT:
-                return $this->isOwnerOf($subject, $user);
-            case self::VIEW:
-                return !$subject->anonymous;
-        }
+        $isOwner = $this->isOwnerOf($subject, $user);
 
-        return false;
+        return match ($attribute) {
+            self::EDIT => $isOwner,
+            self::VIEW => $isOwner || !$subject->anonymous,
+            default => false,
+        };
     }
 }

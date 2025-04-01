@@ -2,7 +2,7 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
-use App\Entity\Project\Category;
+use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
@@ -24,9 +24,9 @@ class GetAllTest extends BaseTest
         return $pageSize * ($page - 1);
     }
 
-    private function getString(string|Category|ProjectStatus $data)
+    private function getString(string|ProjectCategory|ProjectStatus $data)
     {
-        $isEnum = $data instanceof Category || $data instanceof ProjectStatus;
+        $isEnum = $data instanceof ProjectCategory || $data instanceof ProjectStatus;
 
         return $isEnum ? $data->value : (string) $data;
     }
@@ -45,8 +45,8 @@ class GetAllTest extends BaseTest
 
     private function testGetAllByParam(
         string $param,
-        string|Category|ProjectStatus $searchValue,
-        string|Category|ProjectStatus $otherValue,
+        string|ProjectCategory|ProjectStatus $searchValue,
+        string|ProjectCategory|ProjectStatus $otherValue,
         $searchCount = 2,
         int $responseCode = Response::HTTP_OK,
     ) {
@@ -77,7 +77,7 @@ class GetAllTest extends BaseTest
     private function testGetAllByParamList(
         string $param,
         array $searchValues,
-        string|Category|ProjectStatus $otherValue,
+        string|ProjectCategory|ProjectStatus $otherValue,
     ) {
         $owner = $this->createTestUser();
         $territory = new ProjectTerritory('ES');
@@ -208,12 +208,16 @@ class GetAllTest extends BaseTest
 
     public function testGetAllByCategory()
     {
-        $this->testGetAllByParam('category', Category::Education, Category::Culture);
+        $this->testGetAllByParam('category', ProjectCategory::Education, ProjectCategory::Culture);
     }
 
     public function testGetAllByCategorySolidary()
     {
-        $this->testGetAllByParam('category', Category::Solidary, Category::Education);
+        $this->testGetAllByParam(
+            'category',
+            ProjectCategory::Solidary,
+            ProjectCategory::Education
+        );
     }
 
     public function testGetAllByCategoryWithInvalidCategory()
@@ -267,8 +271,8 @@ class GetAllTest extends BaseTest
 
     public function testGetAllByCategoryList()
     {
-        $searchValues = [Category::Education, Category::HealthCares];
-        $this->testGetAllByParamList('category', $searchValues, Category::LibreSoftware);
+        $searchValues = [ProjectCategory::Education, ProjectCategory::HealthCares];
+        $this->testGetAllByParamList('category', $searchValues, ProjectCategory::LibreSoftware);
     }
 
     public function testGetAllByStatusList()
