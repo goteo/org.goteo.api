@@ -97,7 +97,7 @@ class GetAllTest extends BaseTest
 
     // Runable Tests
 
-    public function testGetCollection(): void
+    public function testGetEmptyCollection()
     {
         static::createClient()->request($this->getMethod(), $this->getUri());
 
@@ -106,10 +106,14 @@ class GetAllTest extends BaseTest
         $this->assertJsonContains(['@type' => 'Collection']);
         $this->assertJsonContains(['totalItems' => 0]);
         $this->assertJsonContains(['member' => []]);
+    }
 
+    public function testGetCollection(): void
+    {
+        $status = ProjectStatus::InEditing;
         $attributes = [
             'title' => 'Test Project',
-            'status' => ProjectStatus::InEditing,
+            'status' => $status,
             'rewards' => [],
         ];
         $this->createTestProjectOptimized(1, $attributes);
@@ -119,7 +123,7 @@ class GetAllTest extends BaseTest
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['totalItems' => 1]);
         $this->assertJsonContains(['member' => [
-            array_merge($attributes, ['status' => ProjectStatus::InEditing->value]),
+            array_merge($attributes, ['status' => $status->value]),
         ]]);
     }
 
