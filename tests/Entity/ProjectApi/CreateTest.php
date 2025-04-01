@@ -83,10 +83,7 @@ class CreateTest extends BaseTest
         ];
 
         $client = static::createClient();
-        $client->request('POST', self::BASE_URI, [
-            'headers' => $this->getHeaders($client),
-            'json' => $expectedData,
-        ]);
+        $client->request('POST', self::BASE_URI, $this->getRequestOptions($client, $expectedData));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $responseData = json_decode($client->getResponse()->getContent(), true);
@@ -108,10 +105,7 @@ class CreateTest extends BaseTest
         ];
 
         $client = static::createClient();
-        $client->request('POST', self::BASE_URI, [
-            'headers' => $this->getHeaders($client),
-            'json' => $requestData,
-        ]);
+        $client->request('POST', self::BASE_URI, $this->getRequestOptions($client, $requestData));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }

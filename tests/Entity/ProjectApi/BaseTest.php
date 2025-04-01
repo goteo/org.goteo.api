@@ -47,9 +47,22 @@ abstract class BaseTest extends ApiTestCase
         return self::BASE_URI.$param;
     }
 
-    protected function getRequestOptions(Client $client)
+    protected function getHeaders(Client $client): array
     {
-        return ['headers' => $this->getHeaders($client)];
+        $method = $this->getMethod();
+
+        return $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD, $method);
+    }
+
+    protected function getRequestOptions(Client $client, array $data = []): array
+    {
+        $options = ['headers' => $this->getHeaders($client)];
+
+        if (!empty($data)) {
+            $options['json'] = $data;
+        }
+
+        return $options;
     }
 
     protected function createTestUser(
@@ -90,13 +103,6 @@ abstract class BaseTest extends ApiTestCase
         return ProjectFactory::createMany($count, $mergedAttributes);
     }
 
-    protected function getHeaders(Client $client): array
-    {
-        $method = $this->getMethod();
-
-        return $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD, $method);
-    }
-
     // Auxiliary Tests
 
     protected function testOneNotFound(): void
@@ -122,7 +128,7 @@ abstract class BaseTest extends ApiTestCase
         $client->request(
             $this->getMethod(),
             $uri,
-            ['headers' => $this->getHeaders($client), 'json' => $data]
+            $this->getRequestOptions($client, $data)
         );
 
         $this->assertResponseStatusCodeSame($expectedCode);

@@ -130,7 +130,7 @@ class GetAllTest extends BaseTest
         $client->request(
             $this->getMethod(),
             self::BASE_URI."?page=$page&itemsPerPage=$itemsPerPage",
-            ['headers' => $this->getHeaders($client)]
+            $this->getRequestOptions($client)
         );
 
         $this->assertResponseIsSuccessful();
@@ -151,7 +151,7 @@ class GetAllTest extends BaseTest
         $client->request(
             $this->getMethod(),
             self::BASE_URI."?itemsPerPage=$itemsPerPage",
-            ['headers' => $this->getHeaders($client)]
+            $this->getRequestOptions($client)
         );
 
         $this->assertResponseIsSuccessful();

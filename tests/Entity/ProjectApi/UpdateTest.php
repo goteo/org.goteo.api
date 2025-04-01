@@ -58,10 +58,7 @@ class UpdateTest extends BaseTest
         $client->request(
             $this->getMethod(),
             $this->getUri(1),
-            [
-                'headers' => $this->getHeaders($client),
-                'json' => $invalidInput,
-            ]
+            $this->getRequestOptions($client, $invalidInput)
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);

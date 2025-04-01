@@ -43,7 +43,7 @@ class GetOneTest extends BaseTest
     private function testSuccessfulGetOneBase(Project $project): void
     {
         $client = static::createClient();
-        $client->request('GET', $this->getUri(1), ['headers' => $this->getHeaders($client)]);
+        $client->request('GET', $this->getUri(1), $this->getRequestOptions($client));
 
         $this->assertResponseIsSuccessful();
         $responseData = json_decode($client->getResponse()->getContent(), true);
