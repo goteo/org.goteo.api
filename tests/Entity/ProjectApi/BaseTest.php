@@ -4,9 +4,6 @@ namespace App\Tests\Entity\ProjectApi;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
-use App\Entity\Project\Category;
-use App\Entity\Project\ProjectDeadline;
-use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
@@ -74,20 +71,6 @@ abstract class BaseTest extends ApiTestCase
             'email' => $email,
             'password' => self::USER_PASSWORD,
         ]);
-    }
-
-    protected function getExampleProjectData(): array
-    {
-        return [
-            'id' => 1,
-            'title' => 'Test Project',
-            'subtitle' => 'Test Project Subtitle',
-            'category' => Category::LibreSoftware,
-            'territory' => ['country' => 'ES'],
-            'description' => 'Test Project Description',
-            'deadline' => ProjectDeadline::Minimum,
-            'status' => ProjectStatus::InEditing,
-        ];
     }
 
     protected function createTestProjectOptimized(int $count = 1, array $attributes = []): array
