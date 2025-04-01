@@ -97,6 +97,32 @@ class GetAllTest extends BaseTest
 
     // Runable Tests
 
+    public function testGetCollection(): void
+    {
+        static::createClient()->request($this->getMethod(), $this->getUri());
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['@id' => '/v4/projects']);
+        $this->assertJsonContains(['@type' => 'Collection']);
+        $this->assertJsonContains(['totalItems' => 0]);
+        $this->assertJsonContains(['member' => []]);
+
+        $attributes = [
+            'title' => 'Test Project',
+            'status' => ProjectStatus::InEditing,
+            'rewards' => [],
+        ];
+        $this->createTestProjectOptimized(1, $attributes);
+
+        static::createClient()->request($this->getMethod(), $this->getUri());
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['totalItems' => 1]);
+        $this->assertJsonContains(['member' => [
+            array_merge($attributes, ['status' => ProjectStatus::InEditing->value]),
+        ]]);
+    }
+
     public function testGetAllSuccessful(): void
     {
         $owner = $this->createTestUser();
