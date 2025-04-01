@@ -113,7 +113,7 @@ abstract class BaseTest extends ApiTestCase
         $client->request(
             $this->getMethod(),
             $this->getUri(999),
-            ['headers' => $this->getHeaders($client)]
+            $this->getRequestOptions($client)
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);

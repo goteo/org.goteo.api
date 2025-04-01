@@ -15,11 +15,6 @@ class GetAllTest extends BaseTest
 
     private const PAGE_SIZE = 30;
 
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
     // Auxiliary functions
 
     protected function getMethod(): string
@@ -113,9 +108,9 @@ class GetAllTest extends BaseTest
 
         $client = static::createClient();
         $client->request(
-            $$this->getMethod()(),
+            $this->getMethod(),
             self::BASE_URI,
-            ['headers' => $this->getHeaders($client)]
+            $this->getRequestOptions($client)
         );
 
         $this->assertResponseIsSuccessful();
@@ -188,14 +183,14 @@ class GetAllTest extends BaseTest
         $this->testGetAllByParam('category', Category::Solidary, Category::Education);
     }
 
-    public function testeGetAllByCategoryWithInvalidCategory()
+    public function testGetAllByCategoryWithInvalidCategory()
     {
         $this->createTestUser();
 
         $category = 'invalid_category';
         $uri = self::BASE_URI."?category=$category";
         $client = static::createClient();
-        $client->request($this->getMethod(), $uri, ['headers' => $this->getHeaders($client)]);
+        $client->request($this->getMethod(), $uri, $this->getRequestOptions($client));
 
         $responseCode = Response::HTTP_OK;
         $this->assertResponseStatusCodeSame($responseCode);
@@ -214,7 +209,7 @@ class GetAllTest extends BaseTest
 
         $uri = self::BASE_URI.'?title=NotFound';
         $client = static::createClient();
-        $client->request($this->getMethod(), $uri, ['headers' => $this->getHeaders($client)]);
+        $client->request($this->getMethod(), $uri, $this->getRequestOptions($client));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -265,7 +260,7 @@ class GetAllTest extends BaseTest
         $this->createTestProjectOptimized(1);
 
         $client = static::createClient();
-        $client->request('GET', self::BASE_URI, ['headers' => $this->getHeaders($client)]);
+        $client->request('GET', self::BASE_URI, $this->getRequestOptions($client));
 
         $this->assertResponseIsSuccessful();
 
