@@ -11,7 +11,6 @@ use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use App\Tests\Traits\TestHelperTrait;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -22,18 +21,13 @@ abstract class BaseTest extends ApiTestCase
     use Factories;
     use TestHelperTrait;
 
-    protected EntityManagerInterface $entityManager;
-
     private const USER_EMAIL = 'testuser@example.com';
     private const USER_PASSWORD = 'projectapitestuserpassword';
     protected const BASE_URI = '/v4/projects';
 
     public function setUp(): void
     {
-        parent::setUp();
         self::bootKernel();
-
-        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
     }
 
     // Auxiliary Methods

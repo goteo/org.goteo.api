@@ -6,13 +6,10 @@ use App\Entity\Project\Category;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class GetAllTest extends BaseTest
 {
-    protected EntityManagerInterface $entityManager;
-
     private const PAGE_SIZE = 30;
 
     // Auxiliary functions
@@ -141,8 +138,6 @@ class GetAllTest extends BaseTest
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame($totalNumberOfProjects, $responseData['totalItems']);
         $this->assertCount(max($numberOfProjectsInPage, 0), $responseData['member']);
-
-        $this->entityManager->clear();
     }
 
     public function testGetAllDefaultsFirstPage(): void
@@ -164,8 +159,6 @@ class GetAllTest extends BaseTest
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame($totalNumberOfProjects, $responseData['totalItems']);
         $this->assertCount($itemsPerPage, $responseData['member']);
-
-        $this->entityManager->clear();
     }
 
     public function testGetAllByTitle()
