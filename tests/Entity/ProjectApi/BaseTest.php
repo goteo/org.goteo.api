@@ -37,18 +37,21 @@ abstract class BaseTest extends ApiTestCase
      */
     abstract protected function getMethod(): string;
 
-    protected function getUri(int $id = -1): string
+    protected function getUri(?int $id = null): string
     {
-        $param = $id < 0 ? '' : "/$id";
+        $param = $id == null ? '' : "/$id";
 
         return self::BASE_URI.$param;
     }
 
     protected function getHeaders(Client $client): array
     {
-        $method = $this->getMethod();
-
-        return $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD, $method);
+        return $this->getAuthHeaders(
+            $client,
+            self::USER_EMAIL,
+            self::USER_PASSWORD,
+            $this->getMethod()
+        );
     }
 
     protected function getRequestOptions(Client $client, array $data = []): array
@@ -88,22 +91,8 @@ abstract class BaseTest extends ApiTestCase
 
     // Auxiliary Tests
 
-    protected function testOneNotFound(): void
-    {
-        $this->createTestProjectOptimized(1);
-
-        $client = static::createClient();
-        $client->request(
-            $this->getMethod(),
-            $this->getUri(999),
-            $this->getRequestOptions($client)
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-    }
-
-    protected function testInsert(
-        array $data,
+    protected function testRequestHelper(
+        array $data = [],
         string $uri = self::BASE_URI,
         int $expectedCode = Response::HTTP_OK,
     ): void {
@@ -115,6 +104,13 @@ abstract class BaseTest extends ApiTestCase
         );
 
         $this->assertResponseStatusCodeSame($expectedCode);
+    }
+
+    protected function testOneNotFound(): void
+    {
+        $this->createTestProjectOptimized(1);
+
+        $this->testRequestHelper([], $this->getUri(999), Response::HTTP_NOT_FOUND);
     }
 
     protected function testInvalidToken(

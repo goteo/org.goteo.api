@@ -57,7 +57,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     }
 
     /**
-     * Create projects with optimized or complete values ​​according to the parameter.
+     * Create users with optimized or complete values ​​according to the parameter.
      */
     public static function createWithMode(int $count = 1, array $overrides = [], bool $optimized = false): void
     {

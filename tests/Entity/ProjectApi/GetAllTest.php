@@ -31,6 +31,16 @@ class GetAllTest extends BaseTest
         return $isEnum ? $data->value : (string) $data;
     }
 
+    private function buildQueryParams($param, array $valueNames): string
+    {
+        $queryParts = [];
+        foreach ($valueNames as $value) {
+            $queryParts[] = urlencode($param).'[]='.urlencode($value);
+        }
+
+        return implode('&', $queryParts);
+    }
+
     // Auxiliary Tests
 
     private function testGetAllByParam(
@@ -83,7 +93,7 @@ class GetAllTest extends BaseTest
         foreach ($searchValues as $searchValue) {
             $valueNames[] = $this->getString($searchValue);
         }
-        $queryParams = http_build_query([$param => $valueNames], '', '&');
+        $queryParams = $this->buildQueryParams($param, $valueNames);
 
         $uri = self::BASE_URI.'?'.$queryParams;
         $client = static::createClient();

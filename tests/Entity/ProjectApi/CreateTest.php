@@ -51,7 +51,7 @@ class CreateTest extends BaseTest
         $requestData = array_merge($requestData, $setData);
 
         $this->createTestUser();
-        $this->testInsert($requestData, self::BASE_URI, $expectedCode);
+        $this->testRequestHelper($requestData, self::BASE_URI, $expectedCode);
     }
 
     private function testPostWithInvalidInput(array $invalidData): void

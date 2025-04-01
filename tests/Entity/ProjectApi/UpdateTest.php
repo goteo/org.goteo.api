@@ -24,7 +24,7 @@ class UpdateTest extends BaseTest
             'description' => 'Updated project description',
         ];
 
-        $this->testInsert($dataToModify, $this->getUri(1));
+        $this->testRequestHelper($dataToModify, $this->getUri(1));
     }
 
     public function testUpdateUnauthorized(): void
