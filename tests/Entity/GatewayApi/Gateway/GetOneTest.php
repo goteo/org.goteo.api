@@ -23,15 +23,6 @@ class GetOneTest extends BaseGetTest
         return $this->makeGetRequest($this->getUri($name), $expectedCode, $createUser);
     }
 
-    // private function makeGetOneRequests(array $names, int $expectedCode): void
-    // {
-    //     $this->createTestUser();
-
-    //     foreach ($names as $name) {
-    //         $this->makeGetOneRequest($name, $expectedCode, false);
-    //     }
-    // }
-
     private function makeGetOneRequests(array $namesWithResponseCodeMap): void
     {
         $this->createTestUser();
@@ -61,6 +52,14 @@ class GetOneTest extends BaseGetTest
         ];
 
         $this->makeGetOneRequests($namesWithResponseCodeMap);
+    }
+
+    public function testGetOneWithTooLongName()
+    {
+        $longName = str_repeat('a', 51);
+
+        // Should return a 400
+        $this->makeGetOneRequest($longName, Response::HTTP_NOT_FOUND);
     }
 
     public function testGetOneWithSpecialCharacters()
