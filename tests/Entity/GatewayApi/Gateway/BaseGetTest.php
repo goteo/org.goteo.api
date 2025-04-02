@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Tests\Entity\GatewayApi\Gateway;
+
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Factory\User\UserFactory;
+use App\Tests\Traits\TestHelperTrait;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
+
+class BaseGetTest extends ApiTestCase
+{
+    use ResetDatabase;
+    use Factories;
+    use TestHelperTrait;
+
+    protected const USER_EMAIL = 'testuser@example.com';
+    protected const USER_PASSWORD = 'projectapitestuserpassword';
+    protected const BASE_URI = '/v4/gateways';
+    protected const METHOD = 'GET';
+
+    public function setUp(): void
+    {
+        self::bootKernel();
+    }
+
+    // Auxiliary functions
+
+    protected function createTestUser(
+        string $handle = 'test_user',
+        string $email = self::USER_EMAIL,
+    ) {
+        return UserFactory::createOne([
+            'handle' => $handle,
+            'email' => $email,
+            'password' => self::USER_PASSWORD,
+        ]);
+    }
+
+    protected function getRequestOptions(Client $client)
+    {
+        $headers = $this->getAuthHeaders(
+            $client,
+            self::USER_EMAIL,
+            self::USER_PASSWORD,
+            self::METHOD
+        );
+
+        return ['headers' => $headers];
+    }
+
+    protected function makeGetRequest(string $uri = self::BASE_URI): mixed
+    {
+        $this->createTestUser();
+
+        $client = static::createClient();
+        $client->request(self::METHOD, $uri, $this->getRequestOptions($client));
+
+        $this->assertResponseIsSuccessful();
+
+        return json_decode($client->getResponse()->getContent(), true);
+    }
+
+    protected function assertGatewayIsCorrect(array $gateway): void
+    {
+        $this->assertArrayHasKey('name', $gateway, "Each gateway must have a 'name' field");
+        $this->assertArrayHasKey('supports', $gateway, "Each gateway must have a 'support' field");
+        $this->assertIsString($gateway['name'], "'name' must be a string");
+        $this->assertIsArray($gateway['supports'], "'Supports' must be an array");
+        $this->assertEmpty(
+            array_diff($gateway['supports'], ['single', 'recurring']),
+            "All 'support' values ​must be 'single' or 'resort'"
+        );
+    }
+
+    protected function assertGatewaysAreCorrects(array $gateways): void
+    {
+        $this->assertJsonContains(['@type' => 'Collection']);
+        $this->assertIsArray($gateways, 'Response must contain an array of gateways');
+        $this->assertNotEmpty($gateways, 'There must be at least one gateway in the answer');
+
+        $this->assertGatewayIsCorrect($gateways[0]);
+    }
+}
