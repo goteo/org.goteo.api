@@ -67,6 +67,25 @@ class GetAllTest extends ApiTestCase
         );
     }
 
+    // Auxiliary Tests
+
+    private function baseTestGetAllOnPage(int $page)
+    {
+        $this->createTestUser();
+
+        $client = static::createClient();
+        $uri = self::BASE_URI."?page=$page";
+        $client->request(self::METHOD, $uri, $this->getRequestOptions($client));
+
+        // TODO: Correct Asserts when pagination works as expected
+        $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $gateways = $responseData['member'];
+
+        $this->assertGatewaysAreCorrects($gateways);
+    }
+
     // Runable Tests
 
     public function testGetAllSuccessful()
@@ -84,20 +103,12 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllOnPage()
     {
-        $page = 99;
-        $this->createTestUser();
+        $this->baseTestGetAllOnPage(99);
+    }
 
-        $client = static::createClient();
-        $uri = self::BASE_URI."?page=$page";
-        $client->request(self::METHOD, $uri, $this->getRequestOptions($client));
-
-        // TODO: Correct Asserts when pagination works as expected
-        $this->assertResponseIsSuccessful();
-
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $gateways = $responseData['member'];
-
-        $this->assertGatewaysAreCorrects($gateways);
+    public function testGetAllOnOutOfRangePage()
+    {
+        $this->baseTestGetAllOnPage(9999);
     }
 
     public function testGetAllWithInvalidToken()
