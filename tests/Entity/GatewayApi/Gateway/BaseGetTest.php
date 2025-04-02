@@ -85,4 +85,11 @@ class BaseGetTest extends ApiTestCase
 
         $this->assertGatewayIsCorrect($gateways[0]);
     }
+
+    // Auxiliary Tests
+
+    protected function baseTestWithInvalidToken(string $uri = self::BASE_URI)
+    {
+        $this->testInvalidToken($uri, self::METHOD);
+    }
 }
