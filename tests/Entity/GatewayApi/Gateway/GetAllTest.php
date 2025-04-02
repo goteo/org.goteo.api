@@ -104,4 +104,11 @@ class GetAllTest extends ApiTestCase
     {
         $this->testInvalidToken(self::BASE_URI, self::METHOD);
     }
+
+    public function testGetAllWithoutToken()
+    {
+        static::createClient()->request(self::METHOD, self::BASE_URI);
+
+        $this->assertResponseIsSuccessful();
+    }
 }
