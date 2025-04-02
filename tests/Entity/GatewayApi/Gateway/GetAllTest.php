@@ -50,6 +50,23 @@ class GetAllTest extends ApiTestCase
         return ['headers' => $headers];
     }
 
+    private function assertGatewaysAreCorrects(array $gateways): void
+    {
+        $this->assertIsArray($gateways, 'Response must contain an array of gateways');
+        $this->assertNotEmpty($gateways, 'There must be at least one gateway in the answer');
+
+        $gateway = $gateways[0];
+
+        $this->assertArrayHasKey('name', $gateway, "Each gateway must have a 'name' field");
+        $this->assertArrayHasKey('supports', $gateway, "Each gateway must have a 'support' field");
+        $this->assertIsString($gateway['name'], "'name' must be a string");
+        $this->assertIsArray($gateway['supports'], "'Supports' must be an array");
+        $this->assertEmpty(
+            array_diff($gateway['supports'], ['single', 'recurring']),
+            "All 'support' values ​must be 'single' or 'resort'"
+        );
+    }
+
     // Runable Tests
 
     public function testGetAllSuccessful()
@@ -61,21 +78,25 @@ class GetAllTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
 
+        $gateways = json_decode($client->getResponse()->getContent(), true)['member'];
+        $this->assertGatewaysAreCorrects($gateways);
+    }
+
+    public function testGetAllOnPage()
+    {
+        $page = 99;
+        $this->createTestUser();
+
+        $client = static::createClient();
+        $uri = self::BASE_URI."?page=$page";
+        $client->request(self::METHOD, $uri, $this->getRequestOptions($client));
+
+        // TODO: Correct Asserts when pagination works as expected
+        $this->assertResponseIsSuccessful();
+
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $gateways = $responseData['member'];
 
-        $this->assertIsArray($gateways, 'Response must contain an array of gateways');
-        $this->assertNotEmpty($gateways, 'There must be at least one gateway in the answer');
-
-        $gateway = $responseData['member'][0];
-
-        $this->assertArrayHasKey('name', $gateway, "Each gateway must have a 'name' field");
-        $this->assertArrayHasKey('supports', $gateway, "Each gateway must have a 'support' field");
-        $this->assertIsString($gateway['name'], "'name' must be a string");
-        $this->assertIsArray($gateway['supports'], "'Supports' must be an array");
-        $this->assertEmpty(
-            array_diff($gateway['supports'], ['single', 'recurring']),
-            "All 'support' values ​​must be 'single' or 'resort'"
-        );
+        $this->assertGatewaysAreCorrects($gateways);
     }
 }
