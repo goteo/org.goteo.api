@@ -39,11 +39,12 @@ trait TestHelperTrait
 
     protected function testInvalidToken(
         string $uri,
+        string $method,
         string $contentType = 'application/json',
         int $expectedToken = Response::HTTP_UNAUTHORIZED,
     ): void {
         static::createClient()->request(
-            $this->getMethod(),
+            $method,
             $uri,
             ['headers' => [
                 'Authorization' => 'Bearer invalid_token',

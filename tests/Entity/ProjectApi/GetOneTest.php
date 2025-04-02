@@ -87,7 +87,7 @@ class GetOneTest extends BaseTest
 
     public function testGetOneWithInvalidToken(): void
     {
-        $this->testInvalidToken($this->getUri(1));
+        $this->testWithInvalidToken($this->getUri(1));
     }
 
     public function testGetOneNotFound(): void

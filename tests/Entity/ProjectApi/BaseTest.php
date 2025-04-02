@@ -113,21 +113,12 @@ abstract class BaseTest extends ApiTestCase
         $this->testRequestHelper([], $this->getUri(999), Response::HTTP_NOT_FOUND);
     }
 
-    protected function testInvalidToken(
+    protected function testWithInvalidToken(
         string $uri,
         string $contentType = 'application/json',
         int $expectedToken = Response::HTTP_UNAUTHORIZED,
     ): void {
-        static::createClient()->request(
-            $this->getMethod(),
-            $uri,
-            ['headers' => [
-                'Authorization' => 'Bearer invalid_token',
-                'Content-Type' => $contentType,
-            ]]
-        );
-
-        $this->assertResponseStatusCodeSame($expectedToken);
+        $this->testInvalidToken($uri, $this->getMethod(), $contentType, $expectedToken);
     }
 
     protected function testForbidden(): void

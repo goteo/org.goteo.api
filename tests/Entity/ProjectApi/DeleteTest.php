@@ -34,7 +34,7 @@ class DeleteTest extends BaseTest
 
     public function testDeleteWithInvalidToken(): void
     {
-        $this->testInvalidToken($this->getUri(1));
+        $this->testWithInvalidToken($this->getUri(1));
     }
 
     public function testDeleteNotFound(): void

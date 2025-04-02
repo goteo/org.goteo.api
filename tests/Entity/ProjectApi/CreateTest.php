@@ -156,6 +156,6 @@ class CreateTest extends BaseTest
 
     public function testPostWithInvalidToken()
     {
-        $this->testInvalidToken($this->getUri());
+        $this->testWithInvalidToken($this->getUri());
     }
 }

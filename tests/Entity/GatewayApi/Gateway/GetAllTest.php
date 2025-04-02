@@ -99,4 +99,9 @@ class GetAllTest extends ApiTestCase
 
         $this->assertGatewaysAreCorrects($gateways);
     }
+
+    public function testGetAllWithInvalidToken()
+    {
+        $this->testInvalidToken(self::BASE_URI, self::METHOD);
+    }
 }
