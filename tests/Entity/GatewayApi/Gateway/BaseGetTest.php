@@ -6,6 +6,7 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Factory\User\UserFactory;
 use App\Tests\Traits\TestHelperTrait;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -50,16 +51,18 @@ class BaseGetTest extends ApiTestCase
         return ['headers' => $headers];
     }
 
-    protected function makeGetRequest(string $uri = self::BASE_URI): mixed
-    {
+    protected function makeGetRequest(
+        string $uri = self::BASE_URI,
+        $expectedCode = Response::HTTP_OK,
+    ): mixed {
         $this->createTestUser();
 
         $client = static::createClient();
         $client->request(self::METHOD, $uri, $this->getRequestOptions($client));
 
-        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame($expectedCode);
 
-        return json_decode($client->getResponse()->getContent(), true);
+        return $client;
     }
 
     protected function assertGatewayIsCorrect(array $gateway): void

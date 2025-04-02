@@ -7,6 +7,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait TestHelperTrait
 {
+    protected function getResponseData(Client $client)
+    {
+        return json_decode($client->getResponse()->getContent(), true);
+    }
+
     protected function getValidToken(Client $client, string $email, string $password): string
     {
         $client->request(

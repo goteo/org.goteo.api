@@ -4,8 +4,6 @@ namespace App\Tests\Entity\GatewayApi\Gateway;
 
 class GetAllTest extends BaseGetTest
 {
-    // Auxiliary functions
-
     // Auxiliary Tests
 
     private function baseTestGetAllOnPage(int|string $page): void
@@ -29,7 +27,7 @@ class GetAllTest extends BaseGetTest
 
     public function testGetAllSuccessful()
     {
-        $responseData = $this->makeGetRequest();
+        $responseData = $this->getResponseData($this->makeGetRequest());
 
         $gateways = $responseData['member'];
         $this->assertGatewaysAreCorrects($gateways);
@@ -37,7 +35,7 @@ class GetAllTest extends BaseGetTest
 
     public function testGetAllEmpty()
     {
-        $responseData = $this->makeGetRequest();
+        $responseData = $this->getResponseData($this->makeGetRequest());
 
         if ($responseData['totalItems'] == 0) {
             $this->assertSame([], $responseData['member']);
