@@ -10,14 +10,26 @@ class GetOneTest extends BaseGetTest
 
     // Auxiliary functions
 
-    private function getUri(string $name)
+    private function getUri(string $name = self::VALID_NAME)
     {
         return self::BASE_URI."/{$name}";
     }
 
-    private function makeGetOneRequest(string $name, $expectedCode = Response::HTTP_OK): mixed
+    private function makeGetOneRequest(
+        string $name,
+        $expectedCode = Response::HTTP_OK,
+        bool $createUser = true,
+    ): mixed {
+        return $this->makeGetRequest($this->getUri($name), $expectedCode, $createUser);
+    }
+
+    private function makeGetOneRequests(array $names, int $expectedCode): void
     {
-        return $this->makeGetRequest($this->getUri($name), $expectedCode);
+        $this->createTestUser();
+
+        foreach ($names as $name) {
+            $this->makeGetOneRequest($name, $expectedCode, false);
+        }
     }
 
     // Runable Tests
@@ -30,13 +42,18 @@ class GetOneTest extends BaseGetTest
         $this->assertGatewayIsCorrect($responseData);
     }
 
-    public function testGetOneInvalidName()
+    public function testGetOneWithInvalidNames()
     {
-        $this->makeGetOneRequest('test', Response::HTTP_NOT_FOUND);
+        $this->makeGetOneRequests(['test', '""', 'null'], Response::HTTP_NOT_FOUND);
     }
 
     public function testGetOneWithInvalidToken()
     {
-        $this->baseTestWithInvalidToken($this->getUri(self::VALID_NAME));
+        $this->baseTestGetWithInvalidToken($this->getUri());
+    }
+
+    public function testGetOneWithoutToken()
+    {
+        $this->baseTestGetWithoutToken($this->getUri());
     }
 }

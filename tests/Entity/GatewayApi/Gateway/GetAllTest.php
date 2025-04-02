@@ -59,13 +59,11 @@ class GetAllTest extends BaseGetTest
 
     public function testGetAllWithInvalidToken()
     {
-        $this->baseTestWithInvalidToken();
+        $this->baseTestGetWithInvalidToken();
     }
 
     public function testGetAllWithoutToken()
     {
-        static::createClient()->request(self::METHOD, self::BASE_URI);
-
-        $this->assertResponseIsSuccessful();
+        $this->baseTestGetWithoutToken();
     }
 }

@@ -54,8 +54,11 @@ class BaseGetTest extends ApiTestCase
     protected function makeGetRequest(
         string $uri = self::BASE_URI,
         $expectedCode = Response::HTTP_OK,
+        bool $createUser = true,
     ): mixed {
-        $this->createTestUser();
+        if ($createUser) {
+            $this->createTestUser();
+        }
 
         $client = static::createClient();
         $client->request(self::METHOD, $uri, $this->getRequestOptions($client));
@@ -88,8 +91,16 @@ class BaseGetTest extends ApiTestCase
 
     // Auxiliary Tests
 
-    protected function baseTestWithInvalidToken(string $uri = self::BASE_URI)
+    protected function baseTestGetWithInvalidToken(string $uri = self::BASE_URI)
     {
         $this->testInvalidToken($uri, self::METHOD);
+    }
+
+    protected function baseTestGetWithoutToken($uri = self::BASE_URI)
+    {
+        static::createClient()->request(self::METHOD, $uri);
+
+        // TODO: Change if a 401 must be returned
+        $this->assertResponseIsSuccessful();
     }
 }
