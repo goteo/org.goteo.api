@@ -52,6 +52,7 @@ class GetAllTest extends ApiTestCase
 
     private function assertGatewaysAreCorrects(array $gateways): void
     {
+        $this->assertJsonContains(['@type' => 'Collection']);
         $this->assertIsArray($gateways, 'Response must contain an array of gateways');
         $this->assertNotEmpty($gateways, 'There must be at least one gateway in the answer');
 
@@ -103,12 +104,12 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllOnPage()
     {
-        $this->baseTestGetAllOnPage(99);
+        $this->baseTestGetAllOnPage(2);
     }
 
     public function testGetAllOnOutOfRangePage()
     {
-        $this->baseTestGetAllOnPage(9999);
+        $this->baseTestGetAllOnPage(99999);
     }
 
     public function testGetAllWithInvalidToken()
