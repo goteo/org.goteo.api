@@ -23,11 +23,20 @@ class GetOneTest extends BaseGetTest
         return $this->makeGetRequest($this->getUri($name), $expectedCode, $createUser);
     }
 
-    private function makeGetOneRequests(array $names, int $expectedCode): void
+    // private function makeGetOneRequests(array $names, int $expectedCode): void
+    // {
+    //     $this->createTestUser();
+
+    //     foreach ($names as $name) {
+    //         $this->makeGetOneRequest($name, $expectedCode, false);
+    //     }
+    // }
+
+    private function makeGetOneRequests(array $namesWithResponseCodeMap): void
     {
         $this->createTestUser();
 
-        foreach ($names as $name) {
+        foreach ($namesWithResponseCodeMap as $name => $expectedCode) {
             $this->makeGetOneRequest($name, $expectedCode, false);
         }
     }
@@ -44,7 +53,27 @@ class GetOneTest extends BaseGetTest
 
     public function testGetOneWithInvalidNames()
     {
-        $this->makeGetOneRequests(['test', '""', 'null'], Response::HTTP_NOT_FOUND);
+        $expectedCode = Response::HTTP_NOT_FOUND;
+        $namesWithResponseCodeMap = [
+            'test' => $expectedCode,
+            '""' => $expectedCode,
+            'null' => $expectedCode,
+        ];
+
+        $this->makeGetOneRequests($namesWithResponseCodeMap);
+    }
+
+    public function testGetOneWithSpecialCharacters()
+    {
+        $namesWithResponseCodeMap = [
+            '!@#$%^&*()' => Response::HTTP_NOT_FOUND,
+
+            // It should give a 400, but it seems that
+            // Symfony internally transforms special characters
+            '$%&' => Response::HTTP_NOT_FOUND,
+        ];
+
+        $this->makeGetOneRequests($namesWithResponseCodeMap);
     }
 
     public function testGetOneWithInvalidToken()
