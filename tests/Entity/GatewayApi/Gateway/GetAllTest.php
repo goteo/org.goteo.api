@@ -87,9 +87,7 @@ class GetAllTest extends ApiTestCase
         $this->assertGatewaysAreCorrects($gateways);
     }
 
-    // Runable Tests
-
-    public function testGetAllSuccessful()
+    private function makeGetRequest(): array
     {
         $this->createTestUser();
 
@@ -98,8 +96,26 @@ class GetAllTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
 
-        $gateways = json_decode($client->getResponse()->getContent(), true)['member'];
+        return json_decode($client->getResponse()->getContent(), true);
+    }
+
+    // Runable Tests
+
+    public function testGetAllSuccessful()
+    {
+        $responseData = $this->makeGetRequest();
+
+        $gateways = $responseData['member'];
         $this->assertGatewaysAreCorrects($gateways);
+    }
+
+    public function testGetAllEmpty()
+    {
+        $responseData = $this->makeGetRequest();
+
+        if ($responseData['totalItems'] == 0) {
+            $this->assertSame([], $responseData['member']);
+        }
     }
 
     public function testGetAllOnPage()
