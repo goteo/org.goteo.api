@@ -70,7 +70,7 @@ class GetAllTest extends ApiTestCase
 
     // Auxiliary Tests
 
-    private function baseTestGetAllOnPage(int $page)
+    private function baseTestGetAllOnPage(int|string $page): void
     {
         $this->createTestUser();
 
@@ -110,6 +110,11 @@ class GetAllTest extends ApiTestCase
     public function testGetAllOnOutOfRangePage()
     {
         $this->baseTestGetAllOnPage(99999);
+    }
+
+    public function testGetAllOnInvalidPage()
+    {
+        $this->baseTestGetAllOnPage('abx');
     }
 
     public function testGetAllWithInvalidToken()
