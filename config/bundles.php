@@ -15,4 +15,5 @@ return [
     AutoMapper\Symfony\Bundle\AutoMapperBundle::class => ['all' => true],
     Zenstruck\Foundry\ZenstruckFoundryBundle::class => ['dev' => true, 'test' => true],
     Goteo\Benzina\BenzinaBundle::class => ['all' => true],
+    Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
 ];
