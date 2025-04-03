@@ -21,7 +21,7 @@ class GetAllTest extends ApiTestCase
     public const USER_PASSWORD = 'projectapitestuserpassword';
 
     public const METHOD = 'GET';
-    public const BASE_URI = '/v4/gateway_checkouts?page=1';
+    public const BASE_URI = '/v4/gateway_checkouts';
 
     public function setUp(): void
     {
@@ -40,6 +40,23 @@ class GetAllTest extends ApiTestCase
         ]);
 
         CheckoutFactory::createOne(['origin' => $user->getAccounting()]);
+    }
+
+    private function getUri(int $page = 1)
+    {
+        return self::BASE_URI."?page={$page}";
+    }
+
+    private function makeRequest(int $page = 1)
+    {
+        $client = static::createClient();
+        $client->request(
+            self::METHOD,
+            $this->getUri($page),
+            ['headers' => $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD)]
+        );
+
+        return $client;
     }
 
     private function assertChargeIsCorrect($charge)
@@ -100,17 +117,19 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllSuccessful()
     {
-        $client = static::createClient();
-        $client->request(
-            self::METHOD,
-            self::BASE_URI,
-            ['headers' => $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD)]
-        );
+        $client = $this->makeRequest();
 
         $this->assertResponseIsSuccessful();
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCheckoutIsCorrect($responseData['member'][0]);
+    }
+
+    public function testGetAllWithInvalidPage()
+    {
+        $this->makeRequest(-1);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
     public function testGetAllWithInvalidToken()
