@@ -26,6 +26,7 @@ class GetAllTest extends ApiTestCase
     public const BASE_URI = '/v4/gateway_checkouts';
 
     public const PAGE_SIZE = 30;
+    public const PAGES_TO_FILL = 1;
 
     public function setUp(): void
     {
@@ -36,7 +37,7 @@ class GetAllTest extends ApiTestCase
 
     // Auxiliary functions
 
-    private static function loadCheckouts(int $count = self::PAGE_SIZE + 1)
+    private static function loadCheckouts(int $count = self::PAGE_SIZE * self::PAGES_TO_FILL + 1)
     {
         $user = UserFactory::createOne([
             'email' => self::USER_EMAIL,
@@ -138,7 +139,7 @@ class GetAllTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = $this->getResponseData($client);
         $this->assertCheckoutIsCorrect($responseData['member'][0]);
     }
 
@@ -146,8 +147,20 @@ class GetAllTest extends ApiTestCase
     {
         $client = $this->makeRequest();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertResponseIsSuccessful();
+
+        $responseData = $this->getResponseData($client);
         $this->assertCount(self::PAGE_SIZE, $responseData['member']);
+    }
+
+    public function testGetAllNoResultsOnEmptyPage()
+    {
+        $client = $this->makeRequest(self::PAGES_TO_FILL + 2);
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = $this->getResponseData($client);
+        $this->assertCount(0, $responseData['member']);
     }
 
     public function testGetAllWithInvalidPage()
