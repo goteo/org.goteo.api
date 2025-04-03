@@ -32,18 +32,8 @@ final class CheckoutFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $originUser = UserFactory::createOne([
-            'handle' => 'checkout_user',
-            'email' => 'checkoutuser@checkout.com',
-        ]);
-        $origin = $originUser->getAccounting();
-
-        $charge = ChargeFactory::createOne();
-
         return [
             'gatewayName' => 'stripe',
-            'origin' => $origin,
-            'charges' => [$charge],
             'status' => CheckoutStatus::Pending,
             'returnUrl' => 'https://example.com/success',
         ];
@@ -54,8 +44,20 @@ final class CheckoutFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(Project $project): void {})
-        ;
+        return $this->beforeInstantiate(function (array $parameters) {
+            if (!isset($parameters['origin'])) {
+                $originUser = UserFactory::createOne([
+                    'handle' => 'checkout_user',
+                    'email' => 'checkoutuser@checkout.com',
+                ]);
+                $parameters['origin'] = $originUser->getAccounting();
+            }
+
+            if (!isset($parameters['charges'])) {
+                $parameters['charges'] = ChargeFactory::createOne();
+            }
+
+            return $parameters;
+        });
     }
 }

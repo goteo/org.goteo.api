@@ -33,15 +33,11 @@ final class ChargeFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $project = ProjectFactory::createOne();
-        $target = $project->getAccounting();
-
         $money = new Money(1000, 'USD');
 
         return [
             'type' => ChargeType::Single,
             'title' => 'Generic Title',
-            'target' => $target,
             'money' => $money,
             'description' => 'Test charge',
         ];
@@ -52,8 +48,13 @@ final class ChargeFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(Project $project): void {})
-        ;
+        return $this->beforeInstantiate(function (array $parameters) {
+            if (!isset($parameters['target'])) {
+                $project = ProjectFactory::createOne();
+                $parameters['target'] = $project->getAccounting();
+            }
+
+            return $parameters;
+        });
     }
 }

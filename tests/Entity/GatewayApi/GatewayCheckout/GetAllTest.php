@@ -3,7 +3,9 @@
 namespace App\Tests\Entity\GatewayApi\GatewayCheckout;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Factory\Gateway\ChargeFactory;
 use App\Factory\Gateway\CheckoutFactory;
+use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use App\Gateway\CheckoutStatus;
 use App\Tests\Traits\TestHelperTrait;
@@ -23,6 +25,8 @@ class GetAllTest extends ApiTestCase
     public const METHOD = 'GET';
     public const BASE_URI = '/v4/gateway_checkouts';
 
+    public const PAGE_SIZE = 30;
+
     public function setUp(): void
     {
         self::bootKernel();
@@ -32,22 +36,35 @@ class GetAllTest extends ApiTestCase
 
     // Auxiliary functions
 
-    private static function loadCheckouts()
+    private static function loadCheckouts(int $count = self::PAGE_SIZE + 1)
     {
         $user = UserFactory::createOne([
             'email' => self::USER_EMAIL,
             'password' => self::USER_PASSWORD,
         ]);
 
-        CheckoutFactory::createOne(['origin' => $user->getAccounting()]);
+        $otherUser = UserFactory::createOne([
+            'handle' => 'other_user_test',
+            'email' => 'otheruser@test.com',
+        ]);
+
+        $project = ProjectFactory::createOne(['owner' => $otherUser]);
+        $charge = ChargeFactory::createOne(['target' => $project->getAccounting()]);
+
+        CheckoutFactory::createMany($count, [
+            'origin' => $user->getAccounting(),
+            'charges' => [$charge],
+        ]);
     }
 
-    private function getUri(int $page = 1)
+    private function getUri(?int $page = null)
     {
-        return self::BASE_URI."?page={$page}";
+        $pageParam = $page == null ? '' : "?page={$page}";
+
+        return self::BASE_URI.$pageParam;
     }
 
-    private function makeRequest(int $page = 1)
+    private function makeRequest(?int $page = null)
     {
         $client = static::createClient();
         $client->request(
@@ -117,12 +134,20 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllSuccessful()
     {
-        $client = $this->makeRequest();
+        $client = $this->makeRequest(1);
 
         $this->assertResponseIsSuccessful();
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertCheckoutIsCorrect($responseData['member'][0]);
+    }
+
+    public function testGetAllDefaultsFirstPage()
+    {
+        $client = $this->makeRequest();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(self::PAGE_SIZE, $responseData['member']);
     }
 
     public function testGetAllWithInvalidPage()
