@@ -7,6 +7,7 @@ use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
+use App\Entity\User\User;
 use App\Factory\User\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -39,18 +40,22 @@ final class ProjectFactory extends PersistentProxyObjectFactory
 
     protected static function defaultsOptimized(): array|callable
     {
-        $user = UserFactory::createOne([
-            'handle' => 'project_user_project',
-            'email' => 'projectuser@project.com',
-            'password' => 'pu123456',
-        ]);
+        // TODO: Create a user with factory instead of void.
+        // This will break some tests (only those of ProjectApi at this moment: 04/03/2025).
+        // Correct them. I leave an idea of ​​implementation:
+        //
+        // $user = UserFactory::createOne([
+        //     'handle' => 'project_user_project',
+        //     'email' => 'projectuser@project.com',
+        //     'password' => 'pu123456',
+        // ]);
 
         return [
             'category' => ProjectCategory::Design,
             'deadline' => ProjectDeadline::Minimum,
             'description' => '',
             'territory' => new ProjectTerritory('ES'),
-            'owner' => $user,
+            'owner' => new User(),
             'status' => ProjectStatus::InEditing,
             'subtitle' => 'Subtitle',
             'title' => 'Title',
