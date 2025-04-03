@@ -5,6 +5,7 @@ namespace App\Tests\Entity\GatewayApi\GatewayCheckout;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Factory\Gateway\CheckoutFactory;
 use App\Factory\User\UserFactory;
+use App\Gateway\CheckoutStatus;
 use App\Tests\Traits\TestHelperTrait;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -16,7 +17,6 @@ class GetAllTest extends ApiTestCase
     use Factories;
 
     public const USER_EMAIL = 'testuser@example.com';
-    public const OTHER_USER_EMAIL = 'othertestuser@example.com';
     public const USER_PASSWORD = 'projectapitestuserpassword';
 
     public function setUp(): void
@@ -38,6 +38,60 @@ class GetAllTest extends ApiTestCase
         CheckoutFactory::createOne(['origin' => $user->getAccounting()]);
     }
 
+    private function assertChargeIsCorrect($charge)
+    {
+        $this->assertArrayHasKey('money', $charge);
+
+        $money = $charge['money'];
+
+        $this->assertIsInt($money['amount']);
+
+        $this->assertArrayHasKey('currency', $money);
+        $this->assertIsString($money['currency']);
+    }
+
+    private function assertArrayKeysExist(array $array, ?array $keys = null)
+    {
+        $keys ??= [
+            'id',
+            'gateway',
+            'origin',
+            'charges',
+            'returnUrl',
+            'status',
+            'links',
+            'trackings',
+        ];
+
+        foreach ($keys as $key) {
+            $this->assertArrayHasKey($key, $array);
+        }
+    }
+
+    private function assertCheckoutIsCorrect($checkout)
+    {
+        $this->assertNotEmpty($checkout);
+
+        $this->assertArrayKeysExist($checkout);
+
+        $this->assertIsInt($checkout['id']);
+        $this->assertIsString($checkout['gateway']);
+        $this->assertIsString($checkout['origin']);
+        $this->assertIsArray($checkout['charges']);
+        $this->assertNotEmpty($checkout['charges']);
+
+        $this->assertChargeIsCorrect($checkout['charges'][0]);
+
+        $this->assertIsString($checkout['returnUrl']);
+        $this->assertContains(
+            $checkout['status'],
+            [CheckoutStatus::Pending->value, CheckoutStatus::Charged->value]
+        );
+
+        $this->assertIsArray($checkout['links']);
+        $this->assertIsArray($checkout['trackings']);
+    }
+
     // Runable tests
 
     public function testGetAllSuccessful()
@@ -50,5 +104,8 @@ class GetAllTest extends ApiTestCase
         );
 
         $this->assertResponseIsSuccessful();
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCheckoutIsCorrect($responseData['member'][0]);
     }
 }
