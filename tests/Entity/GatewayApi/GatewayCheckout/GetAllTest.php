@@ -7,6 +7,7 @@ use App\Factory\Gateway\CheckoutFactory;
 use App\Factory\User\UserFactory;
 use App\Gateway\CheckoutStatus;
 use App\Tests\Traits\TestHelperTrait;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -115,5 +116,12 @@ class GetAllTest extends ApiTestCase
     public function testGetAllWithInvalidToken()
     {
         $this->testInvalidToken(self::BASE_URI, self::METHOD);
+    }
+
+    public function testGetAllWithoutAccessToken()
+    {
+        static::createClient()->request(self::METHOD, self::BASE_URI);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 }
