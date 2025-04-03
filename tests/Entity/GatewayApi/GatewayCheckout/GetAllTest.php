@@ -2,61 +2,11 @@
 
 namespace App\Tests\Entity\GatewayApi\GatewayCheckout;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\Factory\Gateway\ChargeFactory;
-use App\Factory\Gateway\CheckoutFactory;
-use App\Factory\Project\ProjectFactory;
-use App\Factory\User\UserFactory;
-use App\Gateway\CheckoutStatus;
-use App\Tests\Traits\TestHelperTrait;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-class GetAllTest extends ApiTestCase
+class GetAllTest extends GetBaseTest
 {
-    use TestHelperTrait;
-    use ResetDatabase;
-    use Factories;
-
-    public const USER_EMAIL = 'testuser@example.com';
-    public const USER_PASSWORD = 'projectapitestuserpassword';
-
-    public const METHOD = 'GET';
-    public const BASE_URI = '/v4/gateway_checkouts';
-
-    public const PAGE_SIZE = 30;
-    public const PAGES_TO_FILL = 1;
-
-    public function setUp(): void
-    {
-        self::bootKernel();
-
-        self::loadCheckouts();
-    }
-
     // Auxiliary functions
-
-    private static function loadCheckouts(int $count = self::PAGE_SIZE * self::PAGES_TO_FILL + 1)
-    {
-        $user = UserFactory::createOne([
-            'email' => self::USER_EMAIL,
-            'password' => self::USER_PASSWORD,
-        ]);
-
-        $otherUser = UserFactory::createOne([
-            'handle' => 'other_user_test',
-            'email' => 'otheruser@test.com',
-        ]);
-
-        $project = ProjectFactory::createOne(['owner' => $otherUser]);
-        $charge = ChargeFactory::createOne(['target' => $project->getAccounting()]);
-
-        CheckoutFactory::createMany($count, [
-            'origin' => $user->getAccounting(),
-            'charges' => [$charge],
-        ]);
-    }
 
     private function getUri(?int $page = null)
     {
@@ -75,60 +25,6 @@ class GetAllTest extends ApiTestCase
         );
 
         return $client;
-    }
-
-    private function assertChargeIsCorrect($charge)
-    {
-        $this->assertArrayHasKey('money', $charge);
-
-        $money = $charge['money'];
-
-        $this->assertIsInt($money['amount']);
-
-        $this->assertArrayHasKey('currency', $money);
-        $this->assertIsString($money['currency']);
-    }
-
-    private function assertArrayKeysExist(array $array, ?array $keys = null)
-    {
-        $keys ??= [
-            'id',
-            'gateway',
-            'origin',
-            'charges',
-            'returnUrl',
-            'status',
-            'links',
-            'trackings',
-        ];
-
-        foreach ($keys as $key) {
-            $this->assertArrayHasKey($key, $array);
-        }
-    }
-
-    private function assertCheckoutIsCorrect($checkout)
-    {
-        $this->assertNotEmpty($checkout);
-
-        $this->assertArrayKeysExist($checkout);
-
-        $this->assertIsInt($checkout['id']);
-        $this->assertIsString($checkout['gateway']);
-        $this->assertIsString($checkout['origin']);
-        $this->assertIsArray($checkout['charges']);
-        $this->assertNotEmpty($checkout['charges']);
-
-        $this->assertChargeIsCorrect($checkout['charges'][0]);
-
-        $this->assertIsString($checkout['returnUrl']);
-        $this->assertContains(
-            $checkout['status'],
-            [CheckoutStatus::Pending->value, CheckoutStatus::Charged->value]
-        );
-
-        $this->assertIsArray($checkout['links']);
-        $this->assertIsArray($checkout['trackings']);
     }
 
     // Runable tests
@@ -160,7 +56,7 @@ class GetAllTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
 
         $responseData = $this->getResponseData($client);
-        $this->assertCount(0, $responseData['member']);
+        $this->assertEmpty($responseData['member']);
     }
 
     public function testGetAllWithInvalidPage()
