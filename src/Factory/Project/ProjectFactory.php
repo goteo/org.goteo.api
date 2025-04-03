@@ -7,7 +7,6 @@ use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
-use App\Entity\User\User;
 use App\Factory\User\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -40,12 +39,18 @@ final class ProjectFactory extends PersistentProxyObjectFactory
 
     protected static function defaultsOptimized(): array|callable
     {
+        $user = UserFactory::createOne([
+            'handle' => 'project_user_project',
+            'email' => 'projectuser@project.com',
+            'password' => 'pu123456',
+        ]);
+
         return [
             'category' => ProjectCategory::Design,
             'deadline' => ProjectDeadline::Minimum,
             'description' => '',
             'territory' => new ProjectTerritory('ES'),
-            'owner' => new User(),
+            'owner' => $user,
             'status' => ProjectStatus::InEditing,
             'subtitle' => 'Subtitle',
             'title' => 'Title',

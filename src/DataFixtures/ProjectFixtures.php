@@ -13,6 +13,11 @@ class ProjectFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $this->loadFactories();
+    }
+
+    public function loadFactories(): void
+    {
         $owner = $this->getReference(UserFixtures::USER_EMAIL, User::class);
         $project = ProjectFactory::createOne(['owner' => $owner]);
 
