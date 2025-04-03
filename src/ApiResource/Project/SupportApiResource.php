@@ -7,9 +7,12 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Gateway\ChargeApiResource;
 use App\ApiResource\User\UserApiResource;
+use App\Entity\Money;
 use App\Entity\Project\Support;
+use App\Mapping\Transformer\SupportMoneyMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\SupportStateProcessor;
+use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[API\ApiResource(
@@ -31,12 +34,9 @@ class SupportApiResource
     /**
      * The User who created the ProjectSupport record.\
      * \
-     * When `anonymous` is *false* it will only be public to admins and the User.
+     * When `anonymous` is *true* it will only be public to admins and the User.
      */
-    #[API\ApiProperty(
-        writable: false,
-        security: 'is_granted("SUPPORT_VIEW", object)'
-    )]
+    #[API\ApiProperty(writable: false, security: 'is_granted("SUPPORT_VIEW", object)')]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ?UserApiResource $owner;
 
@@ -54,6 +54,12 @@ class SupportApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $charges;
+
+    /**
+     * The total monetary value of the Charges paid by the User.
+     */
+    #[MapFrom(Support::class, transformer: SupportMoneyMapTransformer::class)]
+    public Money $money;
 
     /**
      * User's will to have their support to the Project be shown publicly.
