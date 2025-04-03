@@ -6,7 +6,6 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Factory\Gateway\CheckoutFactory;
 use App\Factory\User\UserFactory;
 use App\Tests\Traits\TestHelperTrait;
-use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -20,13 +19,9 @@ class GetAllTest extends ApiTestCase
     public const OTHER_USER_EMAIL = 'othertestuser@example.com';
     public const USER_PASSWORD = 'projectapitestuserpassword';
 
-    public static function setUpBeforeClass(): void
+    public function setUp(): void
     {
         self::bootKernel();
-
-        self::ensureKernelShutdown();
-
-        $purger = new ORMPurger();
 
         self::loadCheckouts();
     }
@@ -47,14 +42,11 @@ class GetAllTest extends ApiTestCase
 
     public function testGetAllSuccessful()
     {
-        $email = self::USER_EMAIL;
-        $password = self::USER_PASSWORD;
-
         $client = static::createClient();
         $client->request(
             'GET',
             '/v4/gateway_checkouts?page=1',
-            ['headers' => $this->getAuthHeaders($client, $email, $password)]
+            ['headers' => $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD)]
         );
 
         $this->assertResponseIsSuccessful();

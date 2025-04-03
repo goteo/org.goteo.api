@@ -6,7 +6,6 @@ use App\Entity\Gateway\Charge;
 use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Factory\Project\ProjectFactory;
-use App\Factory\User\UserFactory;
 use App\Gateway\ChargeType;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -34,11 +33,7 @@ final class ChargeFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $projectUser = UserFactory::createOne([
-            'handle' => 'project_user_charge',
-            'email' => 'projectuser@charge.com',
-        ]);
-        $project = ProjectFactory::createOne(['owner' => $projectUser]);
+        $project = ProjectFactory::createOne();
         $target = $project->getAccounting();
 
         $money = new Money(1000, 'USD');

@@ -7,7 +7,6 @@ use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
-use App\Entity\User\User;
 use App\Factory\User\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -40,22 +39,11 @@ final class ProjectFactory extends PersistentProxyObjectFactory
 
     protected static function defaultsOptimized(): array|callable
     {
-        // TODO: Create a user with factory instead of void.
-        // This will break some tests (only those of ProjectApi at this moment: 04/03/2025).
-        // Correct them. I leave an idea of ​​implementation:
-        //
-        // $user = UserFactory::createOne([
-        //     'handle' => 'project_user_project',
-        //     'email' => 'projectuser@project.com',
-        //     'password' => 'pu123456',
-        // ]);
-
         return [
             'category' => ProjectCategory::Design,
             'deadline' => ProjectDeadline::Minimum,
             'description' => '',
             'territory' => new ProjectTerritory('ES'),
-            'owner' => new User(),
             'status' => ProjectStatus::InEditing,
             'subtitle' => 'Subtitle',
             'title' => 'Title',
@@ -69,7 +57,6 @@ final class ProjectFactory extends PersistentProxyObjectFactory
             'deadline' => self::faker()->randomElement(ProjectDeadline::cases()),
             'description' => self::faker()->text(),
             'territory' => new ProjectTerritory('ES'),
-            'owner' => UserFactory::createWithMode(),
             'status' => self::faker()->randomElement(ProjectStatus::cases()),
             'subtitle' => self::faker()->text(255),
             'title' => self::faker()->text(255),
@@ -81,9 +68,18 @@ final class ProjectFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(Project $project): void {})
-        ;
+        return $this->beforeInstantiate(function (array $parameters) {
+            if (!isset($parameters['owner'])) {
+                $user = UserFactory::createOne([
+                    'handle' => 'project_user_project',
+                    'email' => 'projectuser@project.com',
+                    'password' => 'pu123456',
+                ]);
+                $parameters['owner'] = $user;
+            }
+
+            return $parameters;
+        });
     }
 
     /**
