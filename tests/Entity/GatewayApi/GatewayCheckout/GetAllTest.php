@@ -35,12 +35,12 @@ class GetAllTest extends ApiTestCase
 
     private static function loadCheckouts()
     {
-        UserFactory::createOne([
+        $user = UserFactory::createOne([
             'email' => self::USER_EMAIL,
             'password' => self::USER_PASSWORD,
         ]);
 
-        CheckoutFactory::createOne();
+        CheckoutFactory::createOne(['origin' => $user->getAccounting()]);
     }
 
     // Runable tests
