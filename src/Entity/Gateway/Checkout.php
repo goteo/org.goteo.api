@@ -229,6 +229,8 @@ class Checkout
 
     public function addLink(Link $link): static
     {
+        $this->removeLink($link);
+
         $this->links = [...$this->links, $link];
 
         return $this;
@@ -266,6 +268,8 @@ class Checkout
 
     public function addTracking(Tracking $tracking): static
     {
+        $this->removeTracking($tracking);
+
         $this->trackings = [...$this->trackings, $tracking];
 
         return $this;
