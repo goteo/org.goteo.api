@@ -2,6 +2,8 @@
 
 namespace App\Tests\Entity\GatewayApi\GatewayCheckout;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class GetOneTest extends GetBaseTest
 {
     // Auxiliary functions
@@ -33,5 +35,12 @@ class GetOneTest extends GetBaseTest
 
         $responseData = $this->getResponseData($client);
         $this->assertCheckoutIsCorrect($responseData);
+    }
+
+    public function testGetOneWithInvalidId()
+    {
+        $this->makeRequest(99999);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 }
