@@ -78,4 +78,9 @@ class CreateTest extends BaseTest
     {
         $this->baseTestCreateWithEmptyMandatoryField('origin');
     }
+
+    public function testCreateWithEmptyChargesField()
+    {
+        $this->baseTestCreateWithEmptyMandatoryField('charges');
+    }
 }
