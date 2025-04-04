@@ -55,12 +55,12 @@ class GetOneTest extends ApiTestCase
         ]);
     }
 
-    private function getUri(int $id): string
+    private function getUri(int|string $id): string
     {
         return self::BASE_URI.'/'.$id;
     }
 
-    private function makeRequest(int $id)
+    private function makeRequest(int|string $id)
     {
         $client = static::createClient();
         $client->request(
@@ -84,6 +84,18 @@ class GetOneTest extends ApiTestCase
         $this->assertIsString($money['currency']);
     }
 
+    // Auxiliary tests
+
+    private function baseTestGetOneWithInvalidId(array $ids)
+    {
+        foreach ($ids as $id) {
+            $this->makeRequest($id);
+
+            // Probably must give a 400
+            $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        }
+    }
+
     // Runable tests
 
     public function testGetOneSuccessful()
@@ -101,6 +113,11 @@ class GetOneTest extends ApiTestCase
         $this->makeRequest(99999);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testGetOneWithInvalidId()
+    {
+        $this->baseTestGetOneWithInvalidId(['""', 'null']);
     }
 
     public function testGetOneWithInvalidAccessToken()
