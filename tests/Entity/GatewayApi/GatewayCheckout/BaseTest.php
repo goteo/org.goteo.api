@@ -54,18 +54,6 @@ class BaseTest extends ApiTestCase
         ]);
     }
 
-    private function assertChargeIsCorrect($charge)
-    {
-        $this->assertArrayHasKey('money', $charge);
-
-        $money = $charge['money'];
-
-        $this->assertIsInt($money['amount']);
-
-        $this->assertArrayHasKey('currency', $money);
-        $this->assertIsString($money['currency']);
-    }
-
     private function assertArrayKeysExist(array $array, ?array $keys = null)
     {
         $keys ??= [
@@ -95,10 +83,6 @@ class BaseTest extends ApiTestCase
         $this->assertIsString($checkout['origin']);
 
         $this->assertIsArray($checkout['charges']);
-
-        if (!empty($checkout['charges'])) {
-            $this->assertChargeIsCorrect($checkout['charges'][0]);
-        }
 
         $this->assertIsString($checkout['returnUrl']);
         $this->assertContains(

@@ -7,6 +7,7 @@ use App\Factory\Gateway\ChargeFactory;
 use App\Factory\Gateway\CheckoutFactory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
+use App\Gateway\ChargeType;
 use App\Tests\Traits\TestHelperTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
@@ -72,15 +73,48 @@ class GetOneTest extends ApiTestCase
         return $client;
     }
 
+    private function assertArrayKeysExist(array $array, ?array $keys = null)
+    {
+        $keys ??= [
+            'id',
+            'type',
+            'title',
+            'description',
+            'target',
+            'money',
+        ];
+
+        foreach ($keys as $key) {
+            $this->assertArrayHasKey($key, $array);
+        }
+    }
+
     private function assertChargeIsCorrect($charge)
     {
-        $this->assertArrayHasKey('money', $charge);
+        $this->assertArrayKeysExist($charge);
+
+        $this->assertIsInt($charge['id']);
+
+        $this->assertContains(
+            $charge['type'],
+            [ChargeType::Single->value, ChargeType::Recurring->value],
+        );
+
+        $this->assertIsString($charge['title']);
+        $this->assertIsString($charge['description']);
+
+        $this->assertIsString($charge['target']);
+        $this->assertMatchesRegularExpression(
+            '/^\/v4\/accountings\/\d+$/',
+            $charge['target'],
+            'Target must be a valid accounting URI'
+        );
 
         $money = $charge['money'];
 
-        $this->assertIsInt($money['amount']);
+        $this->assertArrayKeysExist($money, ['amount', 'currency']);
 
-        $this->assertArrayHasKey('currency', $money);
+        $this->assertIsInt($money['amount']);
         $this->assertIsString($money['currency']);
     }
 
