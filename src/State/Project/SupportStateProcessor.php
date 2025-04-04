@@ -21,9 +21,13 @@ class SupportStateProcessor implements ProcessorInterface
         private EntityManagerInterface $entityManager,
     ) {}
 
+    /**
+     * @param SupportApiResource $data
+     *
+     * @return SupportApiResource
+     */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        // Verify if the user is authenticated
         $user = $this->authService->getUser();
         if (!$user) {
             throw new AuthenticationException();
