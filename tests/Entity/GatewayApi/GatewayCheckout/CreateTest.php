@@ -94,4 +94,19 @@ class CreateTest extends BaseTest
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
+
+    public function testCreateWithInvalidCharge()
+    {
+        $override = [
+            'charges' => [
+                [
+                    'type' => 'invalid_type',
+                ],
+            ],
+        ];
+
+        $data = array_merge(self::DATA, $override);
+        $this->makeRequest($data);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
 }
