@@ -18,13 +18,14 @@ class GetOneTest extends ApiTestCase
     use ResetDatabase;
     use Factories;
 
-    protected const USER_EMAIL = 'testuser@example.com';
-    protected const USER_PASSWORD = 'projectapitestuserpassword';
+    private const USER_EMAIL = 'testuser@example.com';
+    private const USER_PASSWORD = 'projectapitestuserpassword';
 
-    protected const BASE_URI = '/v4/gateway_charges';
+    private const METHOD = 'GET';
+    private const BASE_URI = '/v4/gateway_charges';
 
-    protected const PAGE_SIZE = 30;
-    protected const PAGES_TO_FILL = 1;
+    private const PAGE_SIZE = 30;
+    private const PAGES_TO_FILL = 1;
 
     public function setUp(): void
     {
@@ -54,6 +55,23 @@ class GetOneTest extends ApiTestCase
         ]);
     }
 
+    private function getUri(int $id): string
+    {
+        return self::BASE_URI.'/'.$id;
+    }
+
+    private function makeRequest(int $id)
+    {
+        $client = static::createClient();
+        $client->request(
+            self::METHOD,
+            $this->getUri($id),
+            ['headers' => $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD)]
+        );
+
+        return $client;
+    }
+
     private function assertChargeIsCorrect($charge)
     {
         $this->assertArrayHasKey('money', $charge);
@@ -64,18 +82,6 @@ class GetOneTest extends ApiTestCase
 
         $this->assertArrayHasKey('currency', $money);
         $this->assertIsString($money['currency']);
-    }
-
-    private function makeRequest(int $id)
-    {
-        $client = static::createClient();
-        $client->request(
-            'GET',
-            self::BASE_URI.'/'.$id,
-            ['headers' => $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD)]
-        );
-
-        return $client;
     }
 
     // Runable tests
@@ -95,5 +101,10 @@ class GetOneTest extends ApiTestCase
         $this->makeRequest(99999);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testGetOneWithInvalidAccessToken()
+    {
+        $this->testInvalidToken(self::METHOD, $this->getUri(1));
     }
 }
