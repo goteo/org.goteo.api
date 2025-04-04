@@ -8,12 +8,12 @@ class GetOneTest extends GetBaseTest
 {
     // Auxiliary functions
 
-    private function getUri(int $id = 1)
+    private function getUri(int|string $id = 1): string
     {
         return self::BASE_URI."/{$id}";
     }
 
-    private function makeRequest(int $id = 1)
+    private function makeRequest(int|string $id = 1)
     {
         $client = static::createClient();
         $client->request(
@@ -37,10 +37,18 @@ class GetOneTest extends GetBaseTest
         $this->assertCheckoutIsCorrect($responseData);
     }
 
-    public function testGetOneWithInvalidId()
+    public function testGetOneWithNotFoundId()
     {
         $this->makeRequest(99999);
 
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
+    public function testGetOneWithInvalidId()
+    {
+        $this->makeRequest('abc123');
+
+        // Probably must give a 400
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
