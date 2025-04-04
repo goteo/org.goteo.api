@@ -83,4 +83,15 @@ class CreateTest extends BaseTest
     {
         $this->baseTestCreateWithEmptyMandatoryField('charges');
     }
+
+    public function testCreateWithInvalidURL()
+    {
+        $data = array_merge(self::DATA, [
+            'returnUrl' => 'invalid-url',
+        ]);
+
+        $this->makeRequest($data);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
 }
