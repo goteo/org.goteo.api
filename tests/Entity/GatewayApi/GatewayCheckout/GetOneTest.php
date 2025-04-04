@@ -43,4 +43,11 @@ class GetOneTest extends GetBaseTest
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
+
+    public function testGetOneWithoutAccessToken()
+    {
+        static::createClient()->request(self::METHOD, $this->getUri(1));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
 }
