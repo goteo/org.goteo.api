@@ -109,4 +109,9 @@ class CreateTest extends BaseTest
         $this->makeRequest($data);
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
+
+    public function testCreateWithInvalidToken()
+    {
+        $this->testInvalidToken(self::METHOD, self::BASE_URI);
+    }
 }
