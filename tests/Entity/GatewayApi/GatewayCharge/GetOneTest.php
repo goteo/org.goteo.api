@@ -150,6 +150,13 @@ class GetOneTest extends ApiTestCase
         $this->assertJsonContains([]);
     }
 
+    public function testGetOneWithTooLongId()
+    {
+        $this->makeRequest(str_repeat(1, 51));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
     public function testGetOneWithInvalidId()
     {
         $this->baseTestGetOneWithInvalidId(['""', 'null']);
