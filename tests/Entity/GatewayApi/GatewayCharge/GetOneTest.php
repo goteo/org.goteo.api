@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Tests\Entity\GatewayApi\GatewayCharge;
+
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Factory\Gateway\ChargeFactory;
+use App\Factory\Gateway\CheckoutFactory;
+use App\Factory\Project\ProjectFactory;
+use App\Factory\User\UserFactory;
+use App\Tests\Traits\TestHelperTrait;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
+
+class GetOneTest extends ApiTestCase
+{
+    use TestHelperTrait;
+    use ResetDatabase;
+    use Factories;
+
+    protected const USER_EMAIL = 'testuser@example.com';
+    protected const USER_PASSWORD = 'projectapitestuserpassword';
+
+    protected const BASE_URI = '/v4/gateway_charges';
+
+    protected const PAGE_SIZE = 30;
+    protected const PAGES_TO_FILL = 1;
+
+    public function setUp(): void
+    {
+        self::bootKernel();
+
+        self::loadCheckouts();
+    }
+
+    private static function loadCheckouts(int $count = self::PAGE_SIZE * self::PAGES_TO_FILL + 1)
+    {
+        $user = UserFactory::createOne([
+            'email' => self::USER_EMAIL,
+            'password' => self::USER_PASSWORD,
+        ]);
+
+        $otherUser = UserFactory::createOne([
+            'handle' => 'other_user_test',
+            'email' => 'otheruser@test.com',
+        ]);
+
+        $project = ProjectFactory::createOne(['owner' => $otherUser]);
+        $charge = ChargeFactory::createOne(['target' => $project->getAccounting()]);
+
+        CheckoutFactory::createMany($count, [
+            'origin' => $user->getAccounting(),
+            'charges' => [$charge],
+        ]);
+    }
+
+    private function assertChargeIsCorrect($charge)
+    {
+        $this->assertArrayHasKey('money', $charge);
+
+        $money = $charge['money'];
+
+        $this->assertIsInt($money['amount']);
+
+        $this->assertArrayHasKey('currency', $money);
+        $this->assertIsString($money['currency']);
+    }
+
+    // Runable tests
+
+    public function testGetOneSuccessful()
+    {
+        $client = static::createClient();
+        $client->request(
+            'GET',
+            self::BASE_URI.'/1',
+            ['headers' => $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD)]
+        );
+
+        $this->assertResponseIsSuccessful();
+
+        $responseData = $this->getResponseData($client);
+        $this->assertChargeIsCorrect($responseData);
+    }
+}
