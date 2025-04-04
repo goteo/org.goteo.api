@@ -8,6 +8,7 @@ use App\Factory\Gateway\CheckoutFactory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use App\Tests\Traits\TestHelperTrait;
+use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -65,20 +66,34 @@ class GetOneTest extends ApiTestCase
         $this->assertIsString($money['currency']);
     }
 
-    // Runable tests
-
-    public function testGetOneSuccessful()
+    private function makeRequest(int $id)
     {
         $client = static::createClient();
         $client->request(
             'GET',
-            self::BASE_URI.'/1',
+            self::BASE_URI.'/'.$id,
             ['headers' => $this->getAuthHeaders($client, self::USER_EMAIL, self::USER_PASSWORD)]
         );
+
+        return $client;
+    }
+
+    // Runable tests
+
+    public function testGetOneSuccessful()
+    {
+        $client = $this->makeRequest(1);
 
         $this->assertResponseIsSuccessful();
 
         $responseData = $this->getResponseData($client);
         $this->assertChargeIsCorrect($responseData);
+    }
+
+    public function testGetOneWithNotFoundId()
+    {
+        $this->makeRequest(99999);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 }
