@@ -147,6 +147,7 @@ class GetOneTest extends ApiTestCase
         $this->makeRequest(99999);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertJsonContains([]);
     }
 
     public function testGetOneWithInvalidId()
