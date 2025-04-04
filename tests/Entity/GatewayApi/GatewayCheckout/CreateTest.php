@@ -44,6 +44,19 @@ class CreateTest extends BaseTest
         return $client;
     }
 
+    // Auxiliary tests
+
+    private function baseTestCreateWithEmptyMandatoryField(string $field)
+    {
+        $data = array_merge(self::DATA, [
+            $field => '',
+        ]);
+
+        $this->makeRequest($data);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
     // Runable tests
 
     public function testCreateSuccessful()
@@ -58,12 +71,11 @@ class CreateTest extends BaseTest
 
     public function testCreateWithEmptyGatewayField()
     {
-        $data = array_merge(self::DATA, [
-            'gateway' => '',
-        ]);
+        $this->baseTestCreateWithEmptyMandatoryField('gateway');
+    }
 
-        $this->makeRequest($data);
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    public function testCreateWithEmptyOriginField()
+    {
+        $this->baseTestCreateWithEmptyMandatoryField('origin');
     }
 }
