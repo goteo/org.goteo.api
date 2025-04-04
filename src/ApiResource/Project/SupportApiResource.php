@@ -64,7 +64,8 @@ class SupportApiResource
     /**
      * User's will to have their support to the Project be shown publicly.
      */
-    #[Assert\NotBlank()]
+    #[Assert\NotNull()]
+    #[Assert\Type('bool')]
     public bool $anonymous = true;
 
     /**
