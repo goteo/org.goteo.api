@@ -118,7 +118,7 @@ abstract class BaseTest extends ApiTestCase
         string $contentType = 'application/json',
         int $expectedToken = Response::HTTP_UNAUTHORIZED,
     ): void {
-        $this->testInvalidToken($uri, $this->getMethod(), $contentType, $expectedToken);
+        $this->testInvalidToken($this->getMethod(), $uri, $contentType, $expectedToken);
     }
 
     protected function testForbidden(): void

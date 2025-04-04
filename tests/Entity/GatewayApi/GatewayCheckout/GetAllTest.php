@@ -68,7 +68,7 @@ class GetAllTest extends GetBaseTest
 
     public function testGetAllWithInvalidToken()
     {
-        $this->testInvalidToken(self::BASE_URI, self::METHOD);
+        $this->testInvalidToken(self::METHOD, self::BASE_URI);
     }
 
     public function testGetAllWithoutAccessToken()

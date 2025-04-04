@@ -43,8 +43,8 @@ trait TestHelperTrait
     }
 
     protected function testInvalidToken(
-        string $uri,
         string $method,
+        string $uri,
         string $contentType = 'application/json',
         int $expectedToken = Response::HTTP_UNAUTHORIZED,
     ): void {

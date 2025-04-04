@@ -93,7 +93,7 @@ class BaseGetTest extends ApiTestCase
 
     protected function baseTestGetWithInvalidToken(string $uri = self::BASE_URI)
     {
-        $this->testInvalidToken($uri, self::METHOD);
+        $this->testInvalidToken(self::METHOD, $uri);
     }
 
     protected function baseTestGetWithoutToken($uri = self::BASE_URI)
