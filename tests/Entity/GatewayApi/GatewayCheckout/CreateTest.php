@@ -46,15 +46,18 @@ class CreateTest extends BaseTest
 
     // Auxiliary tests
 
-    private function baseTestCreateWithEmptyMandatoryField(string $field)
+    private function baseTestCreateWithOverride(array $override, int $expectedCode = Response::HTTP_CREATED)
     {
-        $data = array_merge(self::DATA, [
-            $field => '',
-        ]);
+        $data = array_merge(self::DATA, $override);
 
         $this->makeRequest($data);
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame($expectedCode);
+    }
+
+    private function baseTestCreateWithEmptyMandatoryField(string $field)
+    {
+        $this->baseTestCreateWithOverride([$field => ''], Response::HTTP_BAD_REQUEST);
     }
 
     // Runable tests
@@ -84,15 +87,15 @@ class CreateTest extends BaseTest
         $this->baseTestCreateWithEmptyMandatoryField('charges');
     }
 
+    public function testCreateWithNullGateway()
+    {
+        $this->baseTestCreateWithOverride(['gateway' => null], Response::HTTP_BAD_REQUEST);
+    }
+
     public function testCreateWithInvalidURL()
     {
-        $data = array_merge(self::DATA, [
-            'returnUrl' => 'invalid-url',
-        ]);
-
-        $this->makeRequest($data);
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $expectedCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+        $this->baseTestCreateWithOverride(['returnUrl' => 'invalid-url'], $expectedCode);
     }
 
     public function testCreateWithInvalidCharge()
@@ -105,9 +108,7 @@ class CreateTest extends BaseTest
             ],
         ];
 
-        $data = array_merge(self::DATA, $override);
-        $this->makeRequest($data);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->baseTestCreateWithOverride($override, Response::HTTP_BAD_REQUEST);
     }
 
     public function testCreateWithInvalidToken()
