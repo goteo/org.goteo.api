@@ -107,4 +107,11 @@ class GetOneTest extends ApiTestCase
     {
         $this->testInvalidToken(self::METHOD, $this->getUri(1));
     }
+
+    public function testGetOneWithoutAccessToken()
+    {
+        static::createClient()->request(self::METHOD, $this->getUri(1));
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
 }
