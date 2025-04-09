@@ -10,7 +10,7 @@
         "api-platform/doctrine-orm": "^4.0",
         "api-platform/symfony": "^4.0",
         "beberlei/doctrineextensions": "^1.4",
-        "brick/math": "^0.12.1",
+        "brick/math": "^0.13.1",
         "brick/money": "^0.10.0",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.13",
