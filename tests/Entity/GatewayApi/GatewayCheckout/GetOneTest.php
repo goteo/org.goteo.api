@@ -4,8 +4,10 @@ namespace App\Tests\Entity\GatewayApi\GatewayCheckout;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class GetOneTest extends GetBaseTest
+class GetOneTest extends BaseTest
 {
+    protected const METHOD = 'GET';
+
     // Auxiliary functions
 
     private function getUri(int|string $id = 1): string
