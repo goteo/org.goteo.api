@@ -28,8 +28,10 @@ class Link
      */
     public LinkType $type;
 
-    public static function tryFrom(array $value): Link
+    public static function tryFrom($value): Link
     {
+        if ($value instanceof Link) return $value;
+
         $link = new Link();
         $link->href = $value['href'];
         $link->rel = $value['rel'];

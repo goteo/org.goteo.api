@@ -239,7 +239,7 @@ class Checkout
     public function removeLink(Link $link): static
     {
         $this->links = \array_filter(
-            $this->links,
+            \array_map(fn($l) => Link::tryFrom($l), $this->links),
             function (Link $existingLink) use ($link) {
                 return $existingLink->href !== $link->href;
             }
@@ -278,7 +278,7 @@ class Checkout
     public function removeTracking(Tracking $tracking): static
     {
         $this->trackings = \array_filter(
-            $this->trackings,
+            \array_map(fn($t) => Tracking::tryFrom($t), $this->trackings),
             function (Tracking $existingTracking) use ($tracking) {
                 return $existingTracking->title !== $tracking->title
                     && $existingTracking->value !== $tracking->value;
