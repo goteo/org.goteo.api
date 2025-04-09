@@ -16,7 +16,7 @@ final class ResourceVersionResourceFilter extends AbstractFilter
 {
     public function __construct(
         private VersionedResourceService $versionedResourceService,
-        protected ManagerRegistry $managerRegistry,
+        protected ?ManagerRegistry $managerRegistry,
         ?LoggerInterface $logger = null,
         protected ?array $properties = null,
         protected ?NameConverterInterface $nameConverter = null,
