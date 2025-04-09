@@ -30,7 +30,9 @@ class Link
 
     public static function tryFrom($value): Link
     {
-        if ($value instanceof Link) return $value;
+        if ($value instanceof Link) {
+            return $value;
+        }
 
         $link = new Link();
         $link->href = $value['href'];
