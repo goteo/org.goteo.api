@@ -23,16 +23,16 @@ class MatchCall implements AccountingOwnerInterface
     private ?Accounting $accounting = null;
 
     /**
+     * @var Collection<int, MatchCallSubmission>
+     */
+    #[ORM\OneToMany(mappedBy: 'matchCall', targetEntity: MatchCallSubmission::class)]
+    private Collection $submissions;
+
+    /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class)]
     private Collection $managers;
-
-    /**
-     * @var Collection<int, MatchCallSubmission>
-     */
-    #[ORM\OneToMany(mappedBy: 'matchCall', targetEntity: MatchCallSubmission::class)]
-    private Collection $matchCallSubmissions;
 
     #[ORM\Column(length: 255)]
     private ?string $strategyName = null;
@@ -41,7 +41,7 @@ class MatchCall implements AccountingOwnerInterface
     {
         $this->accounting = Accounting::of($this);
         $this->managers = new ArrayCollection();
-        $this->matchCallSubmissions = new ArrayCollection();
+        $this->submissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -57,6 +57,36 @@ class MatchCall implements AccountingOwnerInterface
     public function setAccounting(Accounting $accounting): static
     {
         $this->accounting = $accounting;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MatchCallSubmission>
+     */
+    public function getSubmissions(): Collection
+    {
+        return $this->submissions;
+    }
+
+    public function addSubmission(MatchCallSubmission $submission): static
+    {
+        if (!$this->submissions->contains($submission)) {
+            $this->submissions->add($submission);
+            $submission->setCall($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubmission(MatchCallSubmission $submission): static
+    {
+        if ($this->submissions->removeElement($submission)) {
+            // set the owning side to null (unless already changed)
+            if ($submission->getCall() === $this) {
+                $submission->setCall(null);
+            }
+        }
 
         return $this;
     }
@@ -81,36 +111,6 @@ class MatchCall implements AccountingOwnerInterface
     public function removeManager(User $manager): static
     {
         $this->managers->removeElement($manager);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, MatchCallSubmission>
-     */
-    public function getMatchCallSubmissions(): Collection
-    {
-        return $this->matchCallSubmissions;
-    }
-
-    public function addMatchCallSubmission(MatchCallSubmission $submission): static
-    {
-        if (!$this->matchCallSubmissions->contains($submission)) {
-            $this->matchCallSubmissions->add($submission);
-            $submission->setMatchCall($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMatchCallSubmission(MatchCallSubmission $submission): static
-    {
-        if ($this->matchCallSubmissions->removeElement($submission)) {
-            // set the owning side to null (unless already changed)
-            if ($submission->getMatchCall() === $this) {
-                $submission->setMatchCall(null);
-            }
-        }
 
         return $this;
     }

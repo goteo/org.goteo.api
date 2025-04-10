@@ -36,17 +36,18 @@ class MatchCallApiResource
     public AccountingApiResource $accounting;
 
     /**
-     * A list of Users who can modify this MatchCall.
-     *
-     * @var UserApiResource[]
-     */
-    #[API\ApiProperty(securityPostDenormalize: 'is_granted("MATCHCALL_EDIT", object)')]
-    public array $managers;
-
-    /**
      * A list of the MatchCallSubmissions received by this MatchCall.
      *
      * @var MatchCallSubmissionApiResource[]
      */
-    public array $matchCallSubmissions;
+    #[API\ApiProperty(writable: false)]
+    public array $submissions;
+
+    /**
+     * A list of Users who can modify this MatchCall.
+     *
+     * @var UserApiResource[]
+     */
+    #[API\ApiProperty()]
+    public array $managers;
 }

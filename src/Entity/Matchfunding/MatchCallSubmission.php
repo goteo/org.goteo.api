@@ -14,11 +14,11 @@ class MatchCallSubmission
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'matchCallSubmissions')]
+    #[ORM\ManyToOne(inversedBy: 'submissions')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?MatchCall $matchCall = null;
+    private ?MatchCall $call = null;
 
-    #[ORM\ManyToOne(inversedBy: 'matchCallSubmissions')]
+    #[ORM\ManyToOne(inversedBy: 'submissions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Project $project = null;
 
@@ -30,14 +30,14 @@ class MatchCallSubmission
         return $this->id;
     }
 
-    public function getMatchCall(): ?MatchCall
+    public function getCall(): ?MatchCall
     {
-        return $this->matchCall;
+        return $this->call;
     }
 
-    public function setMatchCall(?MatchCall $matchCall): static
+    public function setCall(?MatchCall $call): static
     {
-        $this->matchCall = $matchCall;
+        $this->call = $call;
 
         return $this;
     }

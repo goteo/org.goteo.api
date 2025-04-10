@@ -27,7 +27,7 @@ class MatchCallSubmissionApiResource
     /**
      * The MatchCall to which this MatchCallSubmission belongs to.
      */
-    public MatchCallApiResource $matchCall;
+    public MatchCallApiResource $call;
 
     /**
      * The Project that applied for the MatchCall.
