@@ -6,6 +6,7 @@ use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
+use App\Entity\Trait\UserOwnedTrait;
 use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\AccountingRepository;
@@ -20,6 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AccountingRepository::class)]
 class Accounting
 {
+    use UserOwnedTrait;
+
     public const OWNER_CHANGE_NOT_ALLOWED = 'Are you trying to commit fraud? Cannot change ownership of an Accounting.';
 
     #[ORM\Id]

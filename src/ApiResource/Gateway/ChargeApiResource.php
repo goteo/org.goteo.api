@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Gateway;
 
+use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -20,10 +21,17 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class
 )]
 #[API\Get()]
+#[API\GetCollection(security: "is_granted('IS_AUTHENTICATED_FULLY')")]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
     public ?int $id = null;
+
+    /**
+     * The Checkout to which this Charge item belongs to.
+     */
+    #[API\ApiProperty(writable: false)]
+    public CheckoutApiResource $checkout;
 
     /**
      * How this item should be processed by the Gateway.\
@@ -59,5 +67,7 @@ class ChargeApiResource
      * It is money before fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.amount' => 'exact'])]
     public Money $money;
 }

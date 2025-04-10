@@ -27,4 +27,19 @@ class Link
      * `payment` links are for end-users who must visit this link to complete the checkout.
      */
     public LinkType $type;
+
+    public static function tryFrom($value): Link
+    {
+        if ($value instanceof Link) {
+            return $value;
+        }
+
+        $link = new Link();
+        $link->href = $value['href'];
+        $link->rel = $value['rel'];
+        $link->method = $value['method'];
+        $link->type = LinkType::tryFrom($value['type']);
+
+        return $link;
+    }
 }

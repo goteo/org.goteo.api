@@ -5,6 +5,7 @@ namespace App\Entity\Gateway;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
+use App\Entity\Project\Support;
 use App\Gateway\ChargeType;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\ChargeRepository;
@@ -72,6 +73,9 @@ class Charge
     #[ORM\JoinTable(name: 'checkout_charge_transaction')]
     #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
+
+    #[ORM\ManyToOne(inversedBy: 'charges')]
+    private ?Support $support = null;
 
     public function __construct()
     {
@@ -175,6 +179,18 @@ class Charge
     public function removeTransaction(Transaction $transaction): static
     {
         $this->transactions->removeElement($transaction);
+
+        return $this;
+    }
+
+    public function getSupport(): ?Support
+    {
+        return $this->support;
+    }
+
+    public function setSupport(?Support $support): static
+    {
+        $this->support = $support;
 
         return $this;
     }

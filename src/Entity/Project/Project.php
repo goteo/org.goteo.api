@@ -51,8 +51,14 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[Gedmo\Translatable()]
     private ?string $subtitle = null;
 
-    #[ORM\Column(enumType: Category::class)]
-    private ?Category $category = null;
+    #[ORM\Column(enumType: ProjectDeadline::class)]
+    private ?ProjectDeadline $deadline = null;
+
+    #[ORM\Embedded(class: ProjectCalendar::class)]
+    private ?ProjectCalendar $calendar = null;
+
+    #[ORM\Column(enumType: ProjectCategory::class)]
+    private ?ProjectCategory $category = null;
 
     /**
      * Project's territory of interest.
@@ -91,7 +97,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
      */
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
-    private ProjectStatus $status;
+    private ProjectStatus $status = ProjectStatus::InEditing;
 
     /**
      * @var Collection<int, Reward>
@@ -117,6 +123,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project', cascade: ['persist'])]
     private Collection $updates;
 
+    /**
+     * @var Collection<int, Support>
+     */
+    #[ORM\OneToMany(targetEntity: Support::class, mappedBy: 'project')]
+    private Collection $supports;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -124,6 +136,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         $this->matchCallSubmissions = new ArrayCollection();
         $this->budgetItems = new ArrayCollection();
         $this->updates = new ArrayCollection();
+        $this->supports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,12 +175,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getCategory(): ?Category
+    public function getDeadline(): ?ProjectDeadline
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(ProjectDeadline $deadline): static
+    {
+        $this->deadline = $deadline;
+
+        return $this;
+    }
+
+    public function getCalendar(): ?ProjectCalendar
+    {
+        return $this->calendar;
+    }
+
+    public function setCalendar(ProjectCalendar $calendar): static
+    {
+        $this->calendar = $calendar;
+
+        return $this;
+    }
+
+    public function getCategory(): ?ProjectCategory
     {
         return $this->category;
     }
 
-    public function setCategory(Category $category): static
+    public function setCategory(ProjectCategory $category): static
     {
         $this->category = $category;
 
@@ -348,6 +385,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($update->getProject() === $this) {
                 $update->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Support>
+     */
+    public function getSupports(): Collection
+    {
+        return $this->supports;
+    }
+
+    public function addSupport(Support $support): static
+    {
+        if (!$this->supports->contains($support)) {
+            $this->supports->add($support);
+            $support->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupport(Support $support): static
+    {
+        if ($this->supports->removeElement($support)) {
+            // set the owning side to null (unless already changed)
+            if ($support->getProject() === $this) {
+                $support->setProject(null);
             }
         }
 

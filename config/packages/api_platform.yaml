@@ -3,7 +3,7 @@ api_platform:
     version: 4.0.0
     show_webby: false
     collection:
-        order: 'DESC'
+        order: "DESC"
     openapi:
         contact:
             name: Fundación Platoniq
@@ -16,20 +16,24 @@ api_platform:
         swagger_ui_extra_configuration:
             filter: true
     formats:
-        json: ['application/json']
-        jsonld: ['application/ld+json']
-        csv: ['text/csv']
+        json: ["application/json"]
+        jsonld: ["application/ld+json"]
+        csv: ["text/csv"]
     docs_formats:
-        html: ['text/html']
-        json: ['application/json']
-        jsonld: ['application/ld+json']
-        jsonopenapi: ['application/vnd.openapi+json']
+        html: ["text/html"]
+        json: ["application/json"]
+        jsonld: ["application/ld+json"]
+        jsonopenapi: ["application/vnd.openapi+json"]
     defaults:
         stateless: true
         cache_headers:
-            vary: ['Content-Type', 'Authorization', 'Origin']
+            vary: ["Content-Type", "Authorization", "Origin"]
         extra_properties:
             standard_put: true
+            pagination_enabled: true
+        pagination_items_per_page: 30
+        pagination_client_enabled: true
+        pagination_client_items_per_page: true
     use_symfony_listeners: true
     swagger:
         api_keys:

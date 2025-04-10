@@ -5,6 +5,7 @@ namespace App\Entity\User;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Project\Project;
+use App\Entity\Project\Support;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -111,6 +112,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $avatar = null;
 
+    /**
+     * @var Collection<int, Support>
+     */
+    #[ORM\OneToMany(targetEntity: Support::class, mappedBy: 'owner')]
+    private Collection $supports;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -121,6 +128,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
 
         $this->emailConfirmed = false;
         $this->active = false;
+        $this->supports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -366,6 +374,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setAvatar(?string $avatar): static
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Support>
+     */
+    public function getSupports(): Collection
+    {
+        return $this->supports;
+    }
+
+    public function addSupport(Support $support): static
+    {
+        if (!$this->supports->contains($support)) {
+            $this->supports->add($support);
+            $support->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupport(Support $support): static
+    {
+        if ($this->supports->removeElement($support)) {
+            // set the owning side to null (unless already changed)
+            if ($support->getOwner() === $this) {
+                $support->setOwner(null);
+            }
+        }
 
         return $this;
     }

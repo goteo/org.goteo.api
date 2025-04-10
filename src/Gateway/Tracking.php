@@ -17,4 +17,17 @@ class Tracking
      */
     #[Assert\NotBlank()]
     public string $value;
+
+    public static function tryFrom($value): Tracking
+    {
+        if ($value instanceof Tracking) {
+            return $value;
+        }
+
+        $tracking = new Tracking();
+        $tracking->title = $value['title'];
+        $tracking->value = $value['value'];
+
+        return $tracking;
+    }
 }

@@ -2,8 +2,9 @@
 
 namespace App\Benzina;
 
-use App\Entity\Project\Category;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCategory;
+use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
 use App\Entity\Project\ProjectVideo;
@@ -11,6 +12,7 @@ use App\Entity\Project\Update;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
+use App\Service\Project\CalendarService;
 use App\Service\Project\TerritoryService;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -27,6 +29,7 @@ class ProjectsPump implements PumpInterface
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
         private EmbedService $embedService,
+        private CalendarService $calendarService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -74,6 +77,16 @@ class ProjectsPump implements PumpInterface
             $project->addUpdate($update);
         }
 
+        $conf = $this->getProjectConf($project, $context);
+
+        $project->setDeadline($this->getProjectDeadline($conf));
+        $project->setCalendar($this->calendarService->makeCalendar(
+            $project->getDeadline(),
+            new \DateTimeImmutable($record['published']),
+            $conf['days_round1'],
+            $conf['days_round2'],
+        ));
+
         $this->persist($project, $context);
     }
 
@@ -94,44 +107,43 @@ class ProjectsPump implements PumpInterface
             case 6:
                 return ProjectStatus::Unfunded;
             case 4:
-                return ProjectStatus::InFunding;
             case 5:
-                return ProjectStatus::Fulfilled;
+                return ProjectStatus::Funded;
             case 0:
             default:
                 return ProjectStatus::Rejected;
         }
     }
 
-    private function getProjectCategory(array $record): Category
+    private function getProjectCategory(array $record): ProjectCategory
     {
         switch ($record['social_commitment']) {
             case 1:
-                return Category::Solidary;
+                return ProjectCategory::Solidary;
             case 2:
-                return Category::LibreSoftware;
+                return ProjectCategory::LibreSoftware;
             case 3:
             case 16:
-                return Category::Employment;
+                return ProjectCategory::Employment;
             case 5:
-                return Category::Journalism;
+                return ProjectCategory::Journalism;
             case 6:
-                return Category::Education;
+                return ProjectCategory::Education;
             case 7:
-                return Category::Culture;
+                return ProjectCategory::Culture;
             case 8:
             case 15:
-                return Category::Ecology;
+                return ProjectCategory::Ecology;
             case 11:
             case 12:
-                return Category::Democracy;
+                return ProjectCategory::Democracy;
             case 13:
-                return Category::Equity;
+                return ProjectCategory::Equity;
             case 14:
-                return Category::HealthCares;
+                return ProjectCategory::HealthCares;
             case 10:
             default:
-                return Category::OpenData;
+                return ProjectCategory::OpenData;
         }
     }
 
@@ -225,7 +237,7 @@ class ProjectsPump implements PumpInterface
     {
         $query = $this->getDbConnection($context)->prepare(
             "SELECT * FROM `post` p
-                INNER JOIN `blog` b ON b.id = p.id
+                INNER JOIN `blog` b ON b.id = p.blog
                 WHERE b.type = 'project'
                     AND b.owner = :project
             "
@@ -234,5 +246,35 @@ class ProjectsPump implements PumpInterface
         $query->execute(['project' => $project->getMigratedId()]);
 
         return $query->fetchAll();
+    }
+
+    private function getProjectConf(Project $project, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `project_conf` WHERE `project` = :project'
+        );
+
+        $query->execute(['project' => $project->getMigratedId()]);
+
+        $conf = $query->fetch();
+
+        if (!\is_array($conf)) {
+            return [
+                'one_round' => 0,
+                'days_round1' => 40,
+                'days_round2' => 40,
+            ];
+        }
+
+        return $conf;
+    }
+
+    private function getProjectDeadline(array $conf): ProjectDeadline
+    {
+        if ($conf['one_round'] < 1) {
+            return ProjectDeadline::Optimum;
+        }
+
+        return ProjectDeadline::Minimum;
     }
 }

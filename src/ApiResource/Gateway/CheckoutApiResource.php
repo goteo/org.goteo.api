@@ -8,7 +8,6 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
-use App\Gateway\LinkType;
 use App\Gateway\Tracking;
 use App\Mapping\Transformer\GatewayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
@@ -26,7 +25,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: CheckoutStateProcessor::class,
 )]
-#[API\GetCollection()]
+#[API\GetCollection(
+    security: "is_granted('IS_AUTHENTICATED_FULLY')"
+)]
 #[API\Post()]
 #[API\Get()]
 class CheckoutApiResource
@@ -78,7 +79,8 @@ class CheckoutApiResource
      * @var Link[]
      */
     #[API\ApiProperty(writable: false)]
-    #[MapFrom(transformer: [self::class, 'parseLinks'])]
+    #[MapTo(Checkout::class, transformer: [self::class, 'parseLinks'])]
+    #[MapFrom(Checkout::class, transformer: [self::class, 'parseLinks'])]
     public array $links = [];
 
     /**
@@ -87,30 +89,17 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
-    #[MapFrom(transformer: [self::class, 'parseTrackings'])]
+    #[MapTo(Checkout::class, transformer: 'parseTrackings')]
+    #[MapFrom(Checkout::class, transformer: 'parseTrackings')]
     public array $trackings = [];
 
     public static function parseLinks(array $values)
     {
-        return \array_map(function ($value) {
-            $link = new Link();
-            $link->href = $value['href'];
-            $link->rel = $value['rel'];
-            $link->method = $value['method'];
-            $link->type = LinkType::tryFrom($value['type']);
-
-            return $link;
-        }, $values);
+        return \array_map(fn($value) => Link::tryFrom($value), $values);
     }
 
     public static function parseTrackings(array $values)
     {
-        return \array_map(function ($value) {
-            $tracking = new Tracking();
-            $tracking->title = $value['title'];
-            $tracking->value = $value['value'];
-
-            return $tracking;
-        }, $values);
+        return \array_map(fn($value) => Tracking::tryFrom($value), $values);
     }
 }

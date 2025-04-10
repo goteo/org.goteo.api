@@ -192,6 +192,11 @@ class Checkout
         return $this;
     }
 
+    public function isCharged(): bool
+    {
+        return $this->status === CheckoutStatus::Charged;
+    }
+
     public function getStatus(): ?CheckoutStatus
     {
         return $this->status;
@@ -224,6 +229,8 @@ class Checkout
 
     public function addLink(Link $link): static
     {
+        $this->removeLink($link);
+
         $this->links = [...$this->links, $link];
 
         return $this;
@@ -232,7 +239,7 @@ class Checkout
     public function removeLink(Link $link): static
     {
         $this->links = \array_filter(
-            $this->links,
+            \array_map(fn($l) => Link::tryFrom($l), $this->links),
             function (Link $existingLink) use ($link) {
                 return $existingLink->href !== $link->href;
             }
@@ -261,6 +268,8 @@ class Checkout
 
     public function addTracking(Tracking $tracking): static
     {
+        $this->removeTracking($tracking);
+
         $this->trackings = [...$this->trackings, $tracking];
 
         return $this;
@@ -269,7 +278,7 @@ class Checkout
     public function removeTracking(Tracking $tracking): static
     {
         $this->trackings = \array_filter(
-            $this->trackings,
+            \array_map(fn($t) => Tracking::tryFrom($t), $this->trackings),
             function (Tracking $existingTracking) use ($tracking) {
                 return $existingTracking->title !== $tracking->title
                     && $existingTracking->value !== $tracking->value;
