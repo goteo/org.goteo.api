@@ -1,30 +1,39 @@
 <?php
 
-namespace App\Entity\Project;
+namespace App\Entity;
 
+use App\Validator\CountrySubdivision;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Represents the territory of interest for a Project.
- */
 #[ORM\Embeddable]
-class ProjectTerritory
+class Territory
 {
     public const COUNTRY_UNKNOWN_CODE = 'ZZ';
 
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    #[Assert\NotBlank()]
+    #[Assert\Country(alpha3: false)]
     #[ORM\Column(type: Types::STRING, nullable: false)]
     public readonly string $country;
 
     /**
-     * First-level sub-division of the country.
+     * ISO 3166-2 first level subdivision code.\
+     * e.g: ES-AN (Andalucía, Spain).
      */
+    #[CountrySubdivision()]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     public readonly ?string $subLvl1;
 
     /**
-     * Second-level sub-division of the country.
+     * ISO 3166-2 second level subdivision code.\
+     * e.g: ES-GR (Granada, Andalucía, Spain).
      */
+    #[CountrySubdivision()]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     public readonly ?string $subLvl2;
 
@@ -38,8 +47,8 @@ class ProjectTerritory
         $this->subLvl2 = $subLvl2 ?? null;
     }
 
-    public static function unknown(): ProjectTerritory
+    public static function unknown(): Territory
     {
-        return new ProjectTerritory(self::COUNTRY_UNKNOWN_CODE);
+        return new Territory(self::COUNTRY_UNKNOWN_CODE);
     }
 }

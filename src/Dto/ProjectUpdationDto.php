@@ -3,11 +3,11 @@
 namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
-use App\ApiResource\Project\ProjectTerritoryApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Territory;
 use App\Mapping\Transformer\ProjectVideoMapTransformer;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -36,7 +36,7 @@ class ProjectUpdationDto
      * ISO 3166 data about the Project's territory of interest.
      */
     #[Assert\Valid()]
-    public ProjectTerritoryApiResource $territory;
+    public Territory $territory;
 
     /**
      * Free-form rich text description for the Project.

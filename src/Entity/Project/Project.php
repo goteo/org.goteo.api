@@ -7,6 +7,7 @@ use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Matchfunding\MatchCallSubmission;
+use App\Entity\Territory;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
@@ -63,8 +64,8 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * Project's territory of interest.
      */
-    #[ORM\Embedded(class: ProjectTerritory::class)]
-    private ?ProjectTerritory $territory;
+    #[ORM\Embedded(class: Territory::class)]
+    private ?Territory $territory;
 
     /**
      * The description body for the Project.
@@ -211,12 +212,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getTerritory(): ?ProjectTerritory
+    public function getTerritory(): ?Territory
     {
         return $this->territory;
     }
 
-    public function setTerritory(ProjectTerritory $territory): static
+    public function setTerritory(Territory $territory): static
     {
         $this->territory = $territory;
 
