@@ -4,10 +4,12 @@ namespace App\Entity\Matchfunding;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\Matchfunding\MatchCallRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MatchCallRepository::class)]
@@ -36,6 +38,15 @@ class MatchCall implements AccountingOwnerInterface
 
     #[ORM\Column(length: 255)]
     private ?string $strategyName = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Embedded(class: Territory::class)]
+    private ?Territory $territory = null;
 
     public function __construct()
     {
@@ -123,6 +134,42 @@ class MatchCall implements AccountingOwnerInterface
     public function setStrategyName(string $strategyName): static
     {
         $this->strategyName = $strategyName;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getTerritory(): ?Territory
+    {
+        return $this->territory;
+    }
+
+    public function setTerritory(Territory $territory): static
+    {
+        $this->territory = $territory;
 
         return $this;
     }

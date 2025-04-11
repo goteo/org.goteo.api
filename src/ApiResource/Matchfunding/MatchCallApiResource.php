@@ -7,8 +7,10 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Matchfunding\MatchCall;
+use App\Entity\Territory;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A MatchCall is an owned and managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
@@ -48,6 +50,23 @@ class MatchCallApiResource
      *
      * @var UserApiResource[]
      */
-    #[API\ApiProperty()]
     public array $managers;
+
+    /**
+     * Main display title.
+     */
+    #[Assert\NotBlank()]
+    public string $title;
+
+    /**
+     * Long-form secondary display text.
+     */
+    public string $description;
+
+    /**
+     * Codes for the territory of interest in this MatchCall.
+     */
+    #[Assert\NotBlank()]
+    #[Assert\Valid]
+    public Territory $territory;
 }
