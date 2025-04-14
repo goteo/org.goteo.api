@@ -64,4 +64,12 @@ interface GatewayInterface
      * @return Response A Response object to send back to the gateway
      */
     public function handleWebhook(Request $request): Response;
+
+    /**
+     * Process a partial refund based on failed project charges in a checkout.
+     * The method should use the refund strategy defined in the Checkout.
+     *
+     * @param Checkout $checkout the checkout containing refund strategy and charges
+     */
+    public function processRefund(Checkout $checkout): void;
 }

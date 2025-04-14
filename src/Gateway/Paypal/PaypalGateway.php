@@ -148,7 +148,7 @@ class PaypalGateway extends AbstractGateway
         return new Response();
     }
 
-    private function handleOrderCompleted(array $event)
+    private function handleOrderCompleted(array $event): Response
     {
         $orderId = $event['resource']['id'];
 
@@ -167,6 +167,8 @@ class PaypalGateway extends AbstractGateway
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
+
+        return new JsonResponse(['checkout' => $checkout]);
     }
 
     private function getPaypalMoney(Charge $charge): array

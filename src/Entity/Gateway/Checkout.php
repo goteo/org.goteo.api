@@ -8,6 +8,7 @@ use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
+use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\CheckoutRepository;
@@ -66,6 +67,12 @@ class Checkout
     #[SupportedChargeTypes()]
     #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: Charge::class, cascade: ['persist'])]
     private Collection $charges;
+
+    /**
+     * The strategy to refund the payment.
+     */
+    #[ORM\Column(enumType: RefundStrategy::class)]
+    private ?RefundStrategy $refundStrategy = null;
 
     /**
      * The address to where the user must be redirected to.
@@ -180,6 +187,18 @@ class Checkout
         return $this;
     }
 
+    public function getRefundStrategy(): ?RefundStrategy
+    {
+        return $this->refundStrategy;
+    }
+
+    public function setRefundStrategy(?RefundStrategy $refundStrategy): static
+    {
+        $this->refundStrategy = $refundStrategy;
+
+        return $this;
+    }
+
     public function getReturnUrl(): ?string
     {
         return $this->returnUrl;
@@ -239,7 +258,7 @@ class Checkout
     public function removeLink(Link $link): static
     {
         $this->links = \array_filter(
-            $this->links,
+            \array_map(fn($l) => Link::tryFrom($l), $this->links),
             function (Link $existingLink) use ($link) {
                 return $existingLink->href !== $link->href;
             }
@@ -278,7 +297,7 @@ class Checkout
     public function removeTracking(Tracking $tracking): static
     {
         $this->trackings = \array_filter(
-            $this->trackings,
+            \array_map(fn($t) => Tracking::tryFrom($t), $this->trackings),
             function (Tracking $existingTracking) use ($tracking) {
                 return $existingTracking->title !== $tracking->title
                     && $existingTracking->value !== $tracking->value;
