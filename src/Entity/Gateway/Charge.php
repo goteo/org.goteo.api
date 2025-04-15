@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * A GatewayCharge represents a monetary payment that can be done by an issuer at checkout with the Gateway.
  */
 #[MapProvider(EntityMapProvider::class)]
+#[Gedmo\Loggable()]
 #[ORM\Table(name: 'checkout_charge')]
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
