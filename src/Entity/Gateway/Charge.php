@@ -7,6 +7,7 @@ use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Project\Support;
 use App\Gateway\ChargeType;
+use App\Gateway\RefundStrategy;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\ChargeRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -193,5 +194,10 @@ class Charge
         $this->support = $support;
 
         return $this;
+    }
+
+    public function getRefundStrategy(): ?RefundStrategy
+    {
+        return $this->checkout->getRefundStrategy();
     }
 }
