@@ -6,8 +6,8 @@ use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Project\Support;
+use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
-use App\Gateway\CheckoutStatus;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\ChargeRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -84,11 +84,12 @@ class Charge
      */
     #[Gedmo\Versioned]
     #[ORM\Column()]
-    private ?CheckoutStatus $status = null;
+    private ?ChargeStatus $status = null;
 
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
+        $this->status = ChargeStatus::Pending;
     }
 
     public function getId(): ?int
@@ -204,12 +205,12 @@ class Charge
         return $this;
     }
 
-    public function getStatus(): ?CheckoutStatus
+    public function getStatus(): ?ChargeStatus
     {
         return $this->status;
     }
 
-    public function setStatus(CheckoutStatus $status): static
+    public function setStatus(ChargeStatus $status): static
     {
         $this->status = $status;
 

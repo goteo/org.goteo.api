@@ -234,7 +234,5 @@ class StripeGateway extends AbstractGateway
             'payment_intent' => $paymentIntent->id,
             'amount' => $charge->getMoney()->amount,
         ]);
-
-        $charge->setStatus(CheckoutStatus::Refunded);
     }
 }

@@ -6,6 +6,7 @@ use App\Controller\GatewaysController;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Gateway\ChargeStatus;
 use App\Gateway\CheckoutStatus;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -101,6 +102,7 @@ class CheckoutService
             $transaction->setTarget($charge->getTarget());
 
             $charge->addTransaction($transaction);
+            $charge->setStatus(ChargeStatus::Charged);
         }
 
         return $checkout;

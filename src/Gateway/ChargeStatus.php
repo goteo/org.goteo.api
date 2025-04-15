@@ -2,9 +2,13 @@
 
 namespace App\Gateway;
 
-enum CheckoutStatus: string
+enum ChargeStatus: string
 {
     case Pending = 'pending';
 
     case Charged = 'charged';
+
+    case ToRefund = 'to_refund';
+
+    case Refunded = 'refunded';
 }
