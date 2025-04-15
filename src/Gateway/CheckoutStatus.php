@@ -9,4 +9,6 @@ enum CheckoutStatus: string
     case Charged = 'charged';
 
     case ToRefund = 'to_refund';
+
+    case Refunded = 'refunded';
 }

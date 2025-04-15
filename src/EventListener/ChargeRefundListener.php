@@ -6,16 +6,21 @@ use App\Entity\Gateway\Charge;
 use App\Gateway\AbstractGateway;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\RefundStrategy;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Events;
 
+#[AsEntityListener(
+    event: Events::preUpdate,
+    method: 'preUpdate',
+    entity: Charge::class
+)]
 class ChargeRefundListener
 {
     public function __construct(
         private AbstractGateway $gateway,
     ) {}
 
-    #[ORM\PreUpdate]
     public function preUpdate(Charge $charge, PreUpdateEventArgs $args): void
     {
         $status = 'status';
@@ -29,7 +34,7 @@ class ChargeRefundListener
         $charged = CheckoutStatus::Charged->value;
         $toRefund = CheckoutStatus::ToRefund->value;
         if ($oldStatus === $charged && $newStatus === $toRefund) {
-            if ($charge->getRefundStrategy() != RefundStrategy::ToWallet) {
+            if ($charge->getCheckout()->getRefundStrategy() != RefundStrategy::ToWallet) {
                 $this->gateway->processRefund($charge);
             }
         }

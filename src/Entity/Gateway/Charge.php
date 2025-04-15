@@ -7,7 +7,7 @@ use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Project\Support;
 use App\Gateway\ChargeType;
-use App\Gateway\RefundStrategy;
+use App\Gateway\CheckoutStatus;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\ChargeRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -77,6 +78,13 @@ class Charge
 
     #[ORM\ManyToOne(inversedBy: 'charges')]
     private ?Support $support = null;
+
+    /**
+     * The status of the checkout with the Gateway.
+     */
+    #[Gedmo\Versioned]
+    #[ORM\Column()]
+    private ?CheckoutStatus $status = null;
 
     public function __construct()
     {
@@ -196,8 +204,15 @@ class Charge
         return $this;
     }
 
-    public function getRefundStrategy(): ?RefundStrategy
+    public function getStatus(): ?CheckoutStatus
     {
-        return $this->checkout->getRefundStrategy();
+        return $this->status;
+    }
+
+    public function setStatus(CheckoutStatus $status): static
+    {
+        $this->status = $status;
+
+        return $this;
     }
 }
