@@ -72,7 +72,7 @@ class Checkout
      * The strategy to refund the payment.
      */
     #[ORM\Column(enumType: RefundStrategy::class)]
-    private ?RefundStrategy $refundStrategy = null;
+    private ?RefundStrategy $refundStrategy = RefundStrategy::ToWallet;
 
     /**
      * The address to where the user must be redirected to.
