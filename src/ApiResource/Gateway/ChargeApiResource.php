@@ -8,6 +8,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Entity\Gateway\Charge;
 use App\Entity\Money;
+use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -22,6 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\Get()]
 #[API\GetCollection(security: "is_granted('IS_AUTHENTICATED_FULLY')")]
+#[API\Patch()]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
@@ -70,4 +72,11 @@ class ChargeApiResource
     #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
     #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.amount' => 'exact'])]
     public Money $money;
+
+    /**
+     * The status of the charge item with the Gateway.
+     */
+    #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['status' => 'exact'])]
+    public ChargeStatus $status;
 }
