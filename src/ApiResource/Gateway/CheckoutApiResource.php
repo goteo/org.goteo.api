@@ -34,6 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Get()]
 #[API\Patch(
     input: CheckoutUpdationDto::class,
+    security: 'is_granted("CHECKOUT_EDIT", object)'
 )]
 class CheckoutApiResource
 {
