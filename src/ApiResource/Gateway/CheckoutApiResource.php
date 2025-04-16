@@ -5,9 +5,11 @@ namespace App\ApiResource\Gateway;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
+use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
 use App\Mapping\Transformer\GatewayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
@@ -26,10 +28,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: CheckoutStateProcessor::class,
 )]
 #[API\GetCollection(
-    security: "is_granted('IS_AUTHENTICATED_FULLY')"
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")'
 )]
 #[API\Post()]
 #[API\Get()]
+#[API\Patch(
+    input: CheckoutUpdationDto::class,
+)]
 class CheckoutApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
@@ -66,6 +71,14 @@ class CheckoutApiResource
     #[Assert\NotBlank()]
     #[Assert\Url()]
     public string $returnUrl;
+
+    /**
+     * The strategy chosen by the User to decide where the money will go to
+     * in the event that one Charge needs to be returned.
+     */
+    #[MapTo(Checkout::class, property: 'refundStrategy')]
+    #[MapFrom(Checkout::class, property: 'refundStrategy')]
+    public RefundStrategy $refund = RefundStrategy::ToWallet;
 
     /**
      * The status of this Checkout, as confirmed by the Gateway.
