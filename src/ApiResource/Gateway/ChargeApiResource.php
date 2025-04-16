@@ -6,11 +6,13 @@ use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\Gateway\ChargeUpdateDto;
 use App\Entity\Gateway\Charge;
 use App\Entity\Money;
 use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\State\ApiResourceStateProvider;
+use App\State\Gateway\ChargeStateProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -23,7 +25,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\Get()]
 #[API\GetCollection(security: "is_granted('IS_AUTHENTICATED_FULLY')")]
-#[API\Patch()]
+#[API\Patch(
+    input: ChargeUpdateDto::class,
+    processor: ChargeStateProcessor::class,
+)]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
@@ -78,5 +83,5 @@ class ChargeApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\SearchFilter::class, properties: ['status' => 'exact'])]
-    public ChargeStatus $status;
+    public ChargeStatus $status = ChargeStatus::Pending;
 }
