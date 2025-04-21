@@ -67,7 +67,10 @@ class CheckoutApiResource
 
     /**
      * Gateways will redirect the user back to the v4 API,
-     * which will then redirect the user to this address.
+     * which will then redirect the user to this address.\
+     * \
+     * An URL query param `checkoutId` with the Checkout ID value
+     * will be appended on the redirection.
      */
     #[Assert\NotBlank()]
     #[Assert\Url()]

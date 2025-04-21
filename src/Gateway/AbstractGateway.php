@@ -44,7 +44,13 @@ abstract class AbstractGateway implements GatewayInterface
     public function getRedirectResponse(Checkout $checkout): RedirectResponse
     {
         return new RedirectResponse(
-            $checkout->getReturnUrl(),
+            \sprintf(
+                '%s?%s',
+                $checkout->getReturnUrl(),
+                \http_build_query([
+                    'checkoutId' => $checkout->getId()
+                ])
+            ),
             Response::HTTP_FOUND
         );
     }
