@@ -48,7 +48,7 @@ abstract class AbstractGateway implements GatewayInterface
                 '%s?%s',
                 $checkout->getReturnUrl(),
                 \http_build_query([
-                    'checkoutId' => $checkout->getId()
+                    'checkoutId' => $checkout->getId(),
                 ])
             ),
             Response::HTTP_FOUND
