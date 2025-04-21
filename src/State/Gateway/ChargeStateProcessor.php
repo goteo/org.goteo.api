@@ -6,16 +6,14 @@ use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Gateway\ChargeApiResource;
-use App\Dto\Gateway\ChargeUpdateDto;
+use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Mapping\AutoMapper;
-use App\State\EntityStateProcessor;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ChargeStateProcessor implements ProcessorInterface
 {
     public function __construct(
-        private EntityStateProcessor $entityStateProcessor,
         #[Autowire(service: PersistProcessor::class)]
         private ProcessorInterface $innerProcessor,
         #[Autowire(service: AutoMapper::class)]
@@ -23,25 +21,23 @@ class ChargeStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param ChargeUpdateDto $data
-     * @param array{id: int}  $uriVariables
+     * @param ChargeApiResource|ChargeUpdationDto $data
+     *
+     * @return Charge
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?ChargeApiResource
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        // if ($data instanceof ChargeUpdateDto) {
-        //     $data = $this->autoMapper->map($uriVariables, $data);
-
-        //     /** @var Charge */
-        //     $charge = $this->autoMapper->map($data, Charge::class);
-        // }
-
-        // $charge  = $this->entityStateProcessor->process($charge, $operation, $uriVariables, $context);
-        $charge = $this->entityStateProcessor->process($data, $operation, $uriVariables, $context);
-
-        if ($charge === null) {
-            return null;
+        if ($data instanceof ChargeUpdationDto) {
+            $data = $this->autoMapper->map($uriVariables, $data);
         }
 
-        return $this->autoMapper->map($charge, ChargeApiResource::class);
+        $entity = $this->autoMapper->map($data, Charge::class);
+        $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
+
+        if ($data instanceof ChargeApiResource) {
+            $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
+        }
+
+        return $this->autoMapper->map($entity, ChargeApiResource::class);
     }
 }

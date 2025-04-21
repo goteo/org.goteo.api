@@ -5,8 +5,9 @@ namespace App\Dto\Gateway;
 use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 
-class ChargeUpdateDto
+class ChargeUpdationDto
 {
+    public int $id;
     public ChargeType $type;
 
     public string $title;

@@ -6,7 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\Dto\Gateway\ChargeUpdateDto;
+use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Entity\Money;
 use App\Gateway\ChargeStatus;
@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Get()]
 #[API\GetCollection(security: "is_granted('IS_AUTHENTICATED_FULLY')")]
 #[API\Patch(
-    input: ChargeUpdateDto::class,
+    input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
 )]
 class ChargeApiResource
