@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Matchfunding\MatchStrategy\Exception;
+namespace App\Matchfunding\Formula\Exception;
 
-class MatchStrategyDuplicatedException extends \Exception
+class FormulaDuplicatedException extends \Exception
 {
-    public const DUPLICATED_NAME = "Duplicate MatchStrategy name '%s' by class '%s', value already in use by class '%s'";
+    public const DUPLICATED_NAME = "Duplicate Formula name '%s' by class '%s', value already in use by class '%s'";
 
     public function __construct(
         string $duplicatedName,
         string $duplicatedClass,
-        string $strategyClass,
+        string $formulaClass,
         string $message = self::DUPLICATED_NAME,
     ) {
         parent::__construct(\sprintf(
             $message,
             $duplicatedName,
             $duplicatedClass,
-            $strategyClass
+            $formulaClass
         ));
     }
 }

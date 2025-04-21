@@ -16,8 +16,8 @@ services:
             tags: ['app.gateway.gateway']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
-        App\Matchfunding\MatchStrategy\MatchStrategyInterface:
-            tags: ['app.matchfunding.strategy.strategy']
+        App\Matchfunding\Formula\FormulaInterface:
+            tags: ['app.matchfunding.formula.formula']
         App\Service\Embed\Filter\EmbedFilterInterface:
             tags: ['app.embed.embed_filter']
         App\Service\Embed\Provider\EmbedProviderFactoryInterface:
@@ -61,9 +61,9 @@ services:
             - '%env(STRIPE_API_KEY)%'
             - '%env(STRIPE_WEBHOOK_SECRET)%'
 
-    App\Matchfunding\MatchStrategy\MatchStrategyLocator:
+    App\Matchfunding\Formula\FormulaLocator:
         arguments:
-            - !tagged 'app.matchfunding.strategy.strategy'
+            - !tagged 'app.matchfunding.formula.formula'
 
     App\Service\Auth\AuthService:
         arguments:

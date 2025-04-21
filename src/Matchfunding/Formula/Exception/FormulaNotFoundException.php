@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Matchfunding\MatchStrategy\Exception;
+namespace App\Matchfunding\Formula\Exception;
 
-class MatchStrategyNotFoundException extends \Exception
+class FormulaNotFoundException extends \Exception
 {
-    public const MISSING_NAME = "Could not find a MatchStrategy by the name '%s', value does not exist";
+    public const MISSING_NAME = "Could not find a Formula by the name '%s', value does not exist";
 
     public function __construct(
         string $name,

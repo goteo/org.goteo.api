@@ -5,7 +5,7 @@ namespace App\EventListener;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\Entity\Project\Project;
-use App\Matchfunding\MatchStrategy\MatchStrategyLocator;
+use App\Matchfunding\Formula\FormulaLocator;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Events;
@@ -18,7 +18,7 @@ use Doctrine\ORM\Events;
 final class MatchfundingTransactionsListener
 {
     public function __construct(
-        private MatchStrategyLocator $matchStrategyLocator,
+        private FormulaLocator $formulaLocator,
     ) {}
 
     /**
@@ -41,16 +41,16 @@ final class MatchfundingTransactionsListener
                 continue;
             }
 
-            $call = $submission->getMatchCall();
-            $strategy = $this->matchStrategyLocator->getForCall($call);
-            $match = $strategy->match($transaction);
+            // $call = $submission->getCall();
+            // $strategy = $this->formulaLocator->get($call->getFormulaName());
+            // $match = $strategy->match($transaction->getMoney());
 
-            if ($match->getId() !== null) {
-                return;
-            }
+            // if ($match->getId() !== null) {
+            //     return;
+            // }
 
-            $event->getObjectManager()->persist($match);
-            $event->getObjectManager()->flush();
+            // $event->getObjectManager()->persist($match);
+            // $event->getObjectManager()->flush();
         }
     }
 }
