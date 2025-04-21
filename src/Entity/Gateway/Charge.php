@@ -81,7 +81,7 @@ class Charge
     private ?Support $support = null;
 
     /**
-     * The status of the checkout with the Gateway.
+     * The status of the charge with the Gateway.
      */
     #[Gedmo\Versioned]
     #[ORM\Column()]

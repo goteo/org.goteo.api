@@ -8,6 +8,7 @@ use App\Gateway\ChargeType;
 class ChargeUpdationDto
 {
     public int $id;
+
     public ChargeType $type;
 
     public string $title;
