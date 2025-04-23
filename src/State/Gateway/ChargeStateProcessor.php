@@ -34,10 +34,6 @@ class ChargeStateProcessor implements ProcessorInterface
         $entity = $this->autoMapper->map($data, Charge::class);
         $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
 
-        if ($data instanceof ChargeApiResource) {
-            $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
-        }
-
         return $this->autoMapper->map($entity, ChargeApiResource::class);
     }
 }
