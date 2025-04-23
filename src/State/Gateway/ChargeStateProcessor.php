@@ -23,7 +23,7 @@ class ChargeStateProcessor implements ProcessorInterface
     /**
      * @param ChargeApiResource|ChargeUpdationDto $data
      *
-     * @return Charge
+     * @return ChargeApiResource
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
