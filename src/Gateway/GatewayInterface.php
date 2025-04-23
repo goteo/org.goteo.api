@@ -2,6 +2,7 @@
 
 namespace App\Gateway;
 
+use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,8 +69,6 @@ interface GatewayInterface
     /**
      * Process a partial refund based on failed project charges in a checkout.
      * The method should use the refund strategy defined in the Checkout.
-     *
-     * @param Checkout $checkout the checkout containing refund strategy and charges
      */
-    public function processRefund(Checkout $checkout): void;
+    public function processRefund(Charge $charge): void;
 }
