@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Gateway\ChargeStatus;
@@ -17,6 +18,19 @@ class TransactionService
 
         $charge->addTransaction($transaction);
         $charge->setStatus(ChargeStatus::Refunded);
+
+        return $charge;
+    }
+
+    public function addChargeTransaction(Charge $charge, Accounting $origin): Charge
+    {
+        $transaction = new Transaction();
+        $transaction->setMoney($charge->getMoney());
+        $transaction->setOrigin($origin);
+        $transaction->setTarget($charge->getTarget());
+
+        $charge->addTransaction($transaction);
+        $charge->setStatus(ChargeStatus::Charged);
 
         return $charge;
     }
