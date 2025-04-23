@@ -4,8 +4,8 @@ namespace App\EventListener;
 
 use App\Entity\Gateway\Charge;
 use App\Gateway\ChargeStatus;
+use App\Gateway\GatewayLocator;
 use App\Gateway\RefundStrategy;
-use App\Gateway\Stripe\StripeGateway;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
@@ -18,7 +18,7 @@ use Doctrine\ORM\Events;
 class ChargeRefundListener
 {
     public function __construct(
-        private StripeGateway $gateway,
+        private GatewayLocator $gatewayLocator,
     ) {}
 
     public function preUpdate(Charge $charge, PreUpdateEventArgs $args): void
@@ -35,7 +35,8 @@ class ChargeRefundListener
         $toRefund = ChargeStatus::ToRefund->value;
         if ($oldStatus === $charged && $newStatus === $toRefund) {
             if ($charge->getCheckout()->getRefundStrategy() != RefundStrategy::ToWallet) {
-                $this->gateway->processRefund($charge);
+                $gateway = $this->gatewayLocator->getForCheckout($charge->getCheckout());
+                $gateway->processRefund($charge);
                 $charge->setStatus(ChargeStatus::Refunded);
             }
         }
