@@ -4,6 +4,7 @@ namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\Gateway\ChargeUpdationDto;
@@ -33,16 +34,17 @@ use Symfony\Component\Validator\Constraints as Assert;
     'money.amount' => 'exact',
     'type' => 'exact',
     'target' => 'exact',
+    'status' => 'exact',
 ])]
 class ChargeApiResource
 {
-    #[API\ApiProperty(writable: false, identifier: true)]
+    #[ApiProperty(writable: false, identifier: true)]
     public ?int $id = null;
 
     /**
      * The Checkout to which this Charge item belongs to.
      */
-    #[API\ApiProperty(writable: false)]
+    #[ApiProperty(writable: false)]
     public CheckoutApiResource $checkout;
 
     /**
