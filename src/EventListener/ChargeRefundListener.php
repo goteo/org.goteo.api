@@ -35,12 +35,10 @@ class ChargeRefundListener
             return;
         }
 
-        $oldStatus = $args->getOldValue(self::FIELD_STATUS);
-        $newStatus = $args->getNewValue(self::FIELD_STATUS);
-
-        $charged = ChargeStatus::Charged->value;
-        $toRefund = ChargeStatus::ToRefund->value;
-        if ($oldStatus === $charged && $newStatus === $toRefund) {
+        if (
+            $args->getOldValue(self::FIELD_STATUS) === ChargeStatus::Charged
+            && $args->getNewValue(self::FIELD_STATUS) === ChargeStatus::ToRefund
+        ) {
             $refundStrategy = $charge->getCheckout()->getRefundStrategy();
             match ($refundStrategy) {
                 RefundStrategy::ToGateway => $this->processGatewayRefund($charge),
