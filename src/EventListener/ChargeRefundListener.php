@@ -17,6 +17,8 @@ use Doctrine\ORM\Events;
 )]
 class ChargeRefundListener
 {
+    private const FIELD_STATUS = 'status';
+
     public function __construct(
         private GatewayLocator $gatewayLocator,
     ) {}
@@ -29,13 +31,12 @@ class ChargeRefundListener
 
     public function preUpdate(Charge $charge, PreUpdateEventArgs $args): void
     {
-        $status = 'status';
-        if (!$args->hasChangedField($status)) {
+        if (!$args->hasChangedField(self::FIELD_STATUS)) {
             return;
         }
 
-        $oldStatus = $args->getOldValue($status);
-        $newStatus = $args->getNewValue($status);
+        $oldStatus = $args->getOldValue(self::FIELD_STATUS);
+        $newStatus = $args->getNewValue(self::FIELD_STATUS);
 
         $charged = ChargeStatus::Charged->value;
         $toRefund = ChargeStatus::ToRefund->value;
