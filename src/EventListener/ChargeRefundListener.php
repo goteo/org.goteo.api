@@ -6,6 +6,7 @@ use App\Entity\Gateway\Charge;
 use App\Gateway\ChargeStatus;
 use App\Gateway\GatewayLocator;
 use App\Gateway\RefundStrategy;
+use App\Service\TransactionService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
@@ -21,6 +22,7 @@ class ChargeRefundListener
 
     public function __construct(
         private GatewayLocator $gatewayLocator,
+        private TransactionService $transactionService,
     ) {}
 
     private function processGatewayRefund(Charge $charge): void
@@ -48,7 +50,7 @@ class ChargeRefundListener
                 )),
             };
 
-            $charge->setStatus(ChargeStatus::Refunded);
+            $this->transactionService->addRefundTransaction($charge);
         }
     }
 }
