@@ -21,6 +21,12 @@ class ChargeRefundListener
         private GatewayLocator $gatewayLocator,
     ) {}
 
+    private function processGatewayRefund(Charge $charge): void
+    {
+        $gateway = $this->gatewayLocator->getForCheckout($charge->getCheckout());
+        $gateway->processRefund($charge);
+    }
+
     public function preUpdate(Charge $charge, PreUpdateEventArgs $args): void
     {
         $status = 'status';
@@ -34,11 +40,16 @@ class ChargeRefundListener
         $charged = ChargeStatus::Charged->value;
         $toRefund = ChargeStatus::ToRefund->value;
         if ($oldStatus === $charged && $newStatus === $toRefund) {
-            if ($charge->getCheckout()->getRefundStrategy() != RefundStrategy::ToWallet) {
-                $gateway = $this->gatewayLocator->getForCheckout($charge->getCheckout());
-                $gateway->processRefund($charge);
-                $charge->setStatus(ChargeStatus::Refunded);
-            }
+            $refundStrategy = $charge->getCheckout()->getRefundStrategy();
+            match ($refundStrategy) {
+                RefundStrategy::ToGateway => $this->processGatewayRefund($charge),
+                default => throw new \LogicException(sprintf(
+                    'Refund strategy "%s" is not implemented.',
+                    $refundStrategy->name
+                )),
+            };
+
+            $charge->setStatus(ChargeStatus::Refunded);
         }
     }
 }
