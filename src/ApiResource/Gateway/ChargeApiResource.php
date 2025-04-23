@@ -22,6 +22,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\Get()]
 #[API\GetCollection(security: "is_granted('IS_AUTHENTICATED_FULLY')")]
+#[API\ApiFilter(Filter\SearchFilter::class, properties: [
+    'money.amount' => 'exact',
+    'type' => 'exact',
+    'target' => 'exact',
+])]
 class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
@@ -68,6 +73,5 @@ class ChargeApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
-    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.amount' => 'exact'])]
     public Money $money;
 }
