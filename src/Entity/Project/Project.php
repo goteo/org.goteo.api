@@ -7,6 +7,7 @@ use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Matchfunding\MatchCallSubmission;
+use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\Entity\Territory;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
@@ -308,6 +309,14 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function getMatchCallSubmissions(): Collection
     {
         return $this->matchCallSubmissions;
+    }
+
+    /**
+     * @return Collection<int, MatchCallSubmission>
+     */
+    public function getMatchCallSubmissionsBy(MatchCallSubmissionStatus $status): Collection
+    {
+        return $this->matchCallSubmissions->filter(fn($s) => $s->getStatus() === $status);
     }
 
     public function addMatchCallSubmission(MatchCallSubmission $MatchCallSubmission): static
