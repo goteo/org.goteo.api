@@ -2,8 +2,8 @@
 
 namespace App\Matchfunding\Formula;
 
-use App\Matchfunding\Formula\Exception\FormulaDuplicatedException;
-use App\Matchfunding\Formula\Exception\FormulaNotFoundException;
+use App\Matchfunding\Exception\FormulaDuplicatedException;
+use App\Matchfunding\Exception\FormulaNotFoundException;
 
 class FormulaLocator
 {

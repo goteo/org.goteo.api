@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Matchfunding\Formula\Exception;
+namespace App\Matchfunding\Exception;
 
 class FormulaNotFoundException extends \Exception
 {
