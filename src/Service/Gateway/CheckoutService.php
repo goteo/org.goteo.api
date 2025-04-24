@@ -6,7 +6,6 @@ use App\Controller\GatewaysController;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
-use App\Service\TransactionService;
 use Symfony\Component\Routing\RouterInterface;
 
 class CheckoutService
@@ -16,7 +15,7 @@ class CheckoutService
 
     public function __construct(
         private RouterInterface $router,
-        private TransactionService $transactionService,
+        private ChargeService $transactionService,
     ) {}
 
     /**
@@ -96,7 +95,7 @@ class CheckoutService
         $checkout->setStatus(CheckoutStatus::Charged);
 
         foreach ($checkout->getCharges() as $charge) {
-            $this->transactionService->addChargeTransaction($charge, $checkout->getOrigin());
+            $this->transactionService->addChargeTransaction($charge);
         }
 
         return $checkout;

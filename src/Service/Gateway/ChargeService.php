@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Gateway;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Gateway\ChargeStatus;
 
-class TransactionService
+class ChargeService
 {
     private function addTransaction(
         Charge $charge,
