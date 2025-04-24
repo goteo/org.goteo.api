@@ -9,29 +9,44 @@ use App\Gateway\ChargeStatus;
 
 class TransactionService
 {
-    public function addRefundTransaction(Charge $charge): Charge
-    {
+    private function addTransaction(
+        Charge $charge,
+        Accounting $origin,
+        Accounting $target,
+        ChargeStatus $status,
+    ): Charge {
         $transaction = new Transaction();
         $transaction->setMoney($charge->getMoney());
-        $transaction->setOrigin($charge->getTarget());
-        $transaction->setTarget($charge->getCheckout()->getOrigin());
+        $transaction->setOrigin($origin);
+        $transaction->setTarget($target);
 
         $charge->addTransaction($transaction);
-        $charge->setStatus(ChargeStatus::Refunded);
+        $charge->setStatus($status);
 
         return $charge;
     }
 
-    public function addChargeTransaction(Charge $charge, Accounting $origin): Charge
+    private function addTransactionByStatus(Charge $charge, ChargeStatus $status): Charge
     {
-        $transaction = new Transaction();
-        $transaction->setMoney($charge->getMoney());
-        $transaction->setOrigin($origin);
-        $transaction->setTarget($charge->getTarget());
+        $checkoutOrigin = $charge->getCheckout()->getOrigin();
+        $chargeTarget = $charge->getTarget();
 
-        $charge->addTransaction($transaction);
-        $charge->setStatus(ChargeStatus::Charged);
+        [$origin, $target] = match ($status) {
+            ChargeStatus::Charged => [$checkoutOrigin, $chargeTarget],
+            ChargeStatus::Refunded => [$chargeTarget, $checkoutOrigin],
+            default => throw new \InvalidArgumentException('Invalid charge status'),
+        };
 
-        return $charge;
+        return $this->addTransaction($charge, $origin, $target, $status);
+    }
+
+    public function addRefundTransaction(Charge $charge): Charge
+    {
+        return $this->addTransactionByStatus($charge, ChargeStatus::Refunded);
+    }
+
+    public function addChargeTransaction(Charge $charge): Charge
+    {
+        return $this->addTransactionByStatus($charge, ChargeStatus::Charged);
     }
 }
