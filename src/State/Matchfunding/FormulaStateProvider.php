@@ -41,6 +41,7 @@ class FormulaStateProvider implements ProviderInterface
     {
         $resource = new FormulaApiResource();
         $resource->name = $formula::getName();
+        $resource->expression = $formula::getAsExpression();
 
         return $resource;
     }

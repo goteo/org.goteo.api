@@ -19,4 +19,10 @@ class FormulaApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public string $name;
+
+    /**
+     * The underlying math expressed as a common-notation formula.
+     */
+    #[API\ApiProperty(writable: false)]
+    public string $expression;
 }
