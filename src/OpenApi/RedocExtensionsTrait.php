@@ -44,7 +44,7 @@ trait RedocExtensionsTrait
                 'tags' => [
                     'MatchCall',
                     'MatchCallSubmission',
-                    'MatchStrategy',
+                    'MatchFormula',
                 ],
             ],
             [

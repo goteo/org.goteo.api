@@ -13,18 +13,18 @@ class FormulaLocator
     public function __construct(
         iterable $strategies,
     ) {
-        foreach ($strategies as $Formula) {
-            $FormulaName = $Formula::getName();
+        foreach ($strategies as $formula) {
+            $formulaName = $formula::getName();
 
-            if (\array_key_exists($FormulaName, $this->strategiesByName)) {
+            if (\array_key_exists($formulaName, $this->strategiesByName)) {
                 throw new FormulaDuplicatedException(
-                    $FormulaName,
-                    $Formula::class,
-                    $this->strategiesByName[$FormulaName]::class
+                    $formulaName,
+                    $formula::class,
+                    $this->strategiesByName[$formulaName]::class
                 );
             }
 
-            $this->strategiesByName[$FormulaName] = $Formula;
+            $this->strategiesByName[$formulaName] = $formula;
         }
     }
 
@@ -36,12 +36,12 @@ class FormulaLocator
         return $this->strategiesByName;
     }
 
-    public function get(string $FormulaName): ?FormulaInterface
+    public function get(string $formulaName): ?FormulaInterface
     {
-        if (!array_key_exists($FormulaName, $this->strategiesByName)) {
-            throw new FormulaNotFoundException($FormulaName);
+        if (!array_key_exists($formulaName, $this->strategiesByName)) {
+            throw new FormulaNotFoundException($formulaName);
         }
 
-        return $this->strategiesByName[$FormulaName];
+        return $this->strategiesByName[$formulaName];
     }
 }
