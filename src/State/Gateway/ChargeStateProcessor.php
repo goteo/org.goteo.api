@@ -23,7 +23,7 @@ class ChargeStateProcessor implements ProcessorInterface
     /**
      * @param ChargeApiResource|ChargeUpdationDto $data
      *
-     * @return Charge
+     * @return ChargeApiResource
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
@@ -33,10 +33,6 @@ class ChargeStateProcessor implements ProcessorInterface
 
         $entity = $this->autoMapper->map($data, Charge::class);
         $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
-
-        if ($data instanceof ChargeApiResource) {
-            $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
-        }
 
         return $this->autoMapper->map($entity, ChargeApiResource::class);
     }

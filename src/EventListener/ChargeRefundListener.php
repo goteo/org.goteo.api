@@ -4,8 +4,9 @@ namespace App\EventListener;
 
 use App\Entity\Gateway\Charge;
 use App\Gateway\ChargeStatus;
+use App\Gateway\GatewayLocator;
 use App\Gateway\RefundStrategy;
-use App\Gateway\Stripe\StripeGateway;
+use App\Service\Gateway\ChargeService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
@@ -17,27 +18,39 @@ use Doctrine\ORM\Events;
 )]
 class ChargeRefundListener
 {
+    private const FIELD_STATUS = 'status';
+
     public function __construct(
-        private StripeGateway $gateway,
+        private GatewayLocator $gatewayLocator,
+        private ChargeService $transactionService,
     ) {}
+
+    private function processGatewayRefund(Charge $charge): void
+    {
+        $gateway = $this->gatewayLocator->getForCheckout($charge->getCheckout());
+        $gateway->processRefund($charge);
+    }
 
     public function preUpdate(Charge $charge, PreUpdateEventArgs $args): void
     {
-        $status = 'status';
-        if (!$args->hasChangedField($status)) {
+        if (!$args->hasChangedField(self::FIELD_STATUS)) {
             return;
         }
 
-        $oldStatus = $args->getOldValue($status);
-        $newStatus = $args->getNewValue($status);
+        if (
+            $args->getOldValue(self::FIELD_STATUS) === ChargeStatus::Charged
+            && $args->getNewValue(self::FIELD_STATUS) === ChargeStatus::ToRefund
+        ) {
+            $refundStrategy = $charge->getCheckout()->getRefundStrategy();
+            match ($refundStrategy) {
+                RefundStrategy::ToGateway => $this->processGatewayRefund($charge),
+                default => throw new \LogicException(sprintf(
+                    'Refund strategy "%s" is not implemented.',
+                    $refundStrategy->name
+                )),
+            };
 
-        $charged = ChargeStatus::Charged->value;
-        $toRefund = ChargeStatus::ToRefund->value;
-        if ($oldStatus === $charged && $newStatus === $toRefund) {
-            if ($charge->getCheckout()->getRefundStrategy() != RefundStrategy::ToWallet) {
-                $this->gateway->processRefund($charge);
-                $charge->setStatus(ChargeStatus::Refunded);
-            }
+            $this->transactionService->addRefundTransaction($charge);
         }
     }
 }
