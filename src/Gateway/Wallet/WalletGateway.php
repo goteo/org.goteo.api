@@ -3,6 +3,7 @@
 namespace App\Gateway\Wallet;
 
 use App\Entity\Accounting\Transaction;
+use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Money;
 use App\Gateway\ChargeType;
@@ -84,7 +85,7 @@ class WalletGateway implements GatewayInterface
         return $total;
     }
 
-    public function processRefund(Checkout $checkout): void
+    public function processRefund(Charge $charge): void
     {
         throw new \LogicException(sprintf(
             'The refund operation is not implemented for the %s gateway.',

@@ -272,7 +272,7 @@ class Checkout
      */
     public function getTrackings(): array
     {
-        return $this->trackings;
+        return array_map(fn($t) => Tracking::tryFrom($t), $this->trackings);
     }
 
     /**
