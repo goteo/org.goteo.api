@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         'interval' => new QueryParameter(
             schema: ['type' => 'string', 'default' => '24h'],
             constraints: [new Assert\Regex([
-                'pattern' => '/^\d+h$/',
-                'message' => 'Interval must be a number followed by "h" (e.g. 24h)',
+                'pattern' => '/^\d+(h|d|w)$/',
+                'message' => 'The interval must be in the format like 1h, 24h, 1d, or 1w.',
             ])],
         ),
         'end' => new QueryParameter(

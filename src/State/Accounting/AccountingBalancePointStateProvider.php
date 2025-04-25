@@ -39,14 +39,29 @@ class AccountingBalancePointStateProvider implements ProviderInterface
         return $accounting;
     }
 
+    private function parseInterval(string $input): \DateInterval
+    {
+        if (!preg_match('/^(\d+)([hdw])$/i', $input, $matches)) {
+            throw new \InvalidArgumentException('Interval format must be like 1h, 2d, or 1w.');
+        }
+
+        [$_, $amount, $unit] = $matches;
+
+        return match (strtolower($unit)) {
+            'h' => new \DateInterval(sprintf('PT%dH', $amount)),
+            'd' => new \DateInterval(sprintf('P%dD', $amount)),
+            'w' => new \DateInterval(sprintf('P%dD', $amount * 7)),
+            default => throw new \LogicException("Unsupported interval unit: $unit"),
+        };
+    }
+
     private function buildPeriod(Parameters $parameters): \DatePeriod
     {
         $start = new \DateTimeImmutable($parameters->get('start')->getValue());
+        $rawInterval = $parameters->get('interval')->getValue() ?? '24h';
+        $end = new \DateTimeImmutable($parameters->get('end')->getValue() ?? 'now');
 
-        $interval = $parameters->get('interval')->getValue();
-        $interval = new \DateInterval(\sprintf('PT%s', \strtoupper($interval)));
-
-        $end = new \DateTimeImmutable($parameters->get('end')->getValue());
+        $interval = $this->parseInterval($rawInterval);
 
         return new \DatePeriod($start, $interval, $end);
     }
