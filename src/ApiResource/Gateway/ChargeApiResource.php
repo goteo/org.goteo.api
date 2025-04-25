@@ -4,7 +4,6 @@ namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\Gateway\ChargeUpdationDto;
@@ -30,21 +29,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
 )]
-#[API\ApiFilter(Filter\SearchFilter::class, properties: [
-    'money.amount' => 'exact',
-    'type' => 'exact',
-    'target' => 'exact',
-    'status' => 'exact',
-])]
 class ChargeApiResource
 {
-    #[ApiProperty(writable: false, identifier: true)]
+    #[API\ApiProperty(writable: false, identifier: true)]
     public ?int $id = null;
 
     /**
      * The Checkout to which this Charge item belongs to.
      */
-    #[ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false)]
     public CheckoutApiResource $checkout;
 
     /**
@@ -54,6 +47,7 @@ class ChargeApiResource
      * `recurring` is for payments repeated over time.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public ChargeType $type = ChargeType::Single;
 
     /**
@@ -73,6 +67,7 @@ class ChargeApiResource
      * The Accounting receiving the money after a successful payment.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public AccountingApiResource $target;
 
     /**
@@ -81,6 +76,7 @@ class ChargeApiResource
      * It is money before fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.amount' => 'exact'])]
     #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
     public Money $money;
 
@@ -88,6 +84,6 @@ class ChargeApiResource
      * The status of the charge item with the Gateway.
      */
     #[Assert\NotBlank()]
-    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['status' => 'exact'])]
+    #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public ChargeStatus $status = ChargeStatus::Pending;
 }
