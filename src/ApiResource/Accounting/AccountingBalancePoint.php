@@ -5,6 +5,7 @@ namespace App\ApiResource\Accounting;
 use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Entity\Money;
+use App\Filter\AccountingBalancePointAggregationFilter;
 use App\State\Accounting\AccountingBalancePointStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -38,6 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
 )]
+#[API\ApiFilter(AccountingBalancePointAggregationFilter::class, properties: ['aggregate'])]
 class AccountingBalancePoint
 {
     /**
