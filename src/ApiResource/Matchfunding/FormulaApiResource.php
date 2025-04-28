@@ -3,6 +3,7 @@
 namespace App\ApiResource\Matchfunding;
 
 use ApiPlatform\Metadata as API;
+use App\Matchfunding\Formula\FormulaInterface;
 use App\State\Matchfunding\FormulaStateProvider;
 
 /**
@@ -25,4 +26,13 @@ class FormulaApiResource
      */
     #[API\ApiProperty(writable: false)]
     public string $expression;
+
+    public static function from(FormulaInterface $interface): FormulaApiResource
+    {
+        $resource = new FormulaApiResource();
+        $resource->name = $interface::getName();
+        $resource->expression = $interface::getAsExpression();
+
+        return $resource;
+    }
 }

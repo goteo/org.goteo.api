@@ -6,7 +6,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Matchfunding\FormulaApiResource;
 use App\Matchfunding\Exception\FormulaNotFoundException;
-use App\Matchfunding\Formula\FormulaInterface;
 use App\Matchfunding\Formula\FormulaLocator;
 
 class FormulaStateProvider implements ProviderInterface
@@ -21,7 +20,7 @@ class FormulaStateProvider implements ProviderInterface
             try {
                 $formula = $this->formulaLocator->get($uriVariables['name']);
 
-                return $this->getApiResource($formula);
+                return FormulaApiResource::from($formula);
             } catch (FormulaNotFoundException $e) {
                 return null;
             }
@@ -31,18 +30,9 @@ class FormulaStateProvider implements ProviderInterface
 
         $resources = [];
         foreach ($strategies as $formula) {
-            $resources[] = $this->getApiResource($formula);
+            $resources[] = FormulaApiResource::from($formula);
         }
 
         return $resources;
-    }
-
-    private function getApiResource(FormulaInterface $formula): FormulaApiResource
-    {
-        $resource = new FormulaApiResource();
-        $resource->name = $formula::getName();
-        $resource->expression = $formula::getAsExpression();
-
-        return $resource;
     }
 }
