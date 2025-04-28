@@ -5,7 +5,7 @@ namespace App\State\Matchfunding;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Matchfunding\FormulaApiResource;
-use App\Matchfunding\Formula\Exception\FormulaNotFoundException;
+use App\Matchfunding\Exception\FormulaNotFoundException;
 use App\Matchfunding\Formula\FormulaInterface;
 use App\Matchfunding\Formula\FormulaLocator;
 
