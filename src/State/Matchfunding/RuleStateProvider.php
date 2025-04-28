@@ -5,7 +5,6 @@ namespace App\State\Matchfunding;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Matchfunding\RuleApiResource;
-use App\Matchfunding\Rule\RuleInterface;
 use App\Matchfunding\Rule\RuleLocator;
 use Symfony\Component\VarExporter\Exception\ClassNotFoundException;
 

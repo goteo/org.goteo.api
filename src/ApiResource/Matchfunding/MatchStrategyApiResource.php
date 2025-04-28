@@ -38,7 +38,7 @@ class MatchStrategyApiResource
 
     /**
      * The MatchRules used to validate the match making strategy.
-     * 
+     *
      * @var RuleApiResource[]
      */
     #[MapTo(MatchStrategy::class, property: 'ruleNames', transformer: [self::class, 'rulesToNames'])]
@@ -77,7 +77,7 @@ class MatchStrategyApiResource
 
     /**
      * @param array<int, RuleApiResource>
-     * 
+     *
      * @return array<string>
      */
     public static function rulesToNames(array $values)
