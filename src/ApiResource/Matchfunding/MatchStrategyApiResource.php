@@ -41,8 +41,8 @@ class MatchStrategyApiResource
      * 
      * @var RuleApiResource[]
      */
-    #[MapTo(MatchStrategy::class, property: 'ruleClasses', transformer: [self::class, 'rulesToNames'])]
-    #[MapFrom(MatchStrategy::class, property: 'ruleClasses', transformer: MatchRulesMapTransformer::class)]
+    #[MapTo(MatchStrategy::class, property: 'ruleNames', transformer: [self::class, 'rulesToNames'])]
+    #[MapFrom(MatchStrategy::class, property: 'ruleNames', transformer: MatchRulesMapTransformer::class)]
     public array $rules;
 
     /**

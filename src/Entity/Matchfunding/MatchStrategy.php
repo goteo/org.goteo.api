@@ -19,7 +19,7 @@ class MatchStrategy
     private ?MatchCall $call = null;
 
     #[ORM\Column(type: Types::ARRAY)]
-    private array $ruleClasses = [];
+    private array $ruleNames = [];
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $formulaName = null;
@@ -53,14 +53,14 @@ class MatchStrategy
         return $this;
     }
 
-    public function getRuleClasses(): array
+    public function getRuleNames(): array
     {
-        return $this->ruleClasses;
+        return $this->ruleNames;
     }
 
-    public function setRuleClasses(array $ruleClasses): static
+    public function setRuleNames(array $ruleNames): static
     {
-        $this->ruleClasses = $ruleClasses;
+        $this->ruleNames = $ruleNames;
 
         return $this;
     }

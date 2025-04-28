@@ -34,7 +34,7 @@ class RuleLocator
      */
     public function getFrom(MatchStrategy $strategy): array
     {
-        $rules = $strategy->getRuleClasses();
+        $rules = $strategy->getRuleNames();
 
         return \array_filter(
             $this->rulesByName,
