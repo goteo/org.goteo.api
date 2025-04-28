@@ -8,6 +8,7 @@ use App\ApiResource\Money;
 use App\Entity\Matchfunding\MatchAgainst;
 use App\Entity\Matchfunding\MatchStrategy;
 use App\Mapping\Transformer\MatchFormulaMapTransformer;
+use App\Mapping\Transformer\MatchRulesMapTransformer;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use AutoMapper\Attribute\MapFrom;
@@ -40,6 +41,8 @@ class MatchStrategyApiResource
      * 
      * @var RuleApiResource[]
      */
+    #[MapTo(MatchStrategy::class, property: 'ruleClasses', transformer: [self::class, 'rulesToNames'])]
+    #[MapFrom(MatchStrategy::class, property: 'ruleClasses', transformer: MatchRulesMapTransformer::class)]
     public array $rules;
 
     /**
@@ -71,4 +74,14 @@ class MatchStrategyApiResource
      * - `budget_opt` the optimum in the Project's budget.
      */
     public MatchAgainst $match = MatchAgainst::DEFAULT;
+
+    /**
+     * @param array<int, RuleApiResource>
+     * 
+     * @return array<string>
+     */
+    public static function rulesToNames(array $values)
+    {
+        return \array_map(fn($r) => $r->name, $values);
+    }
 }
