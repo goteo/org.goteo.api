@@ -6,13 +6,15 @@ use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Territory;
 use App\Entity\User\User;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Matchfunding\MatchCallRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Tree\Strategy;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: MatchCallRepository::class)]
 class MatchCall implements AccountingOwnerInterface
 {

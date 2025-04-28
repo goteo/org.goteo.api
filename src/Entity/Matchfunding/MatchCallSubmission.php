@@ -3,9 +3,12 @@
 namespace App\Entity\Matchfunding;
 
 use App\Entity\Project\Project;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Matchfunding\MatchCallSubmissionRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: MatchCallSubmissionRepository::class)]
 class MatchCallSubmission
 {
