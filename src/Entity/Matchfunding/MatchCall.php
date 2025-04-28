@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Tree\Strategy;
 
 #[ORM\Entity(repositoryClass: MatchCallRepository::class)]
 class MatchCall implements AccountingOwnerInterface
@@ -24,13 +25,13 @@ class MatchCall implements AccountingOwnerInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
-    #[ORM\OneToOne(mappedBy: 'matchCall', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'call', cascade: ['persist', 'remove'])]
     private ?MatchStrategy $strategy = null;
 
     /**
      * @var Collection<int, MatchCallSubmission>
      */
-    #[ORM\OneToMany(mappedBy: 'matchCall', targetEntity: MatchCallSubmission::class)]
+    #[ORM\OneToMany(mappedBy: 'call', targetEntity: MatchCallSubmission::class)]
     private Collection $submissions;
 
     /**
@@ -38,9 +39,6 @@ class MatchCall implements AccountingOwnerInterface
      */
     #[ORM\ManyToMany(targetEntity: User::class)]
     private Collection $managers;
-
-    #[ORM\Column(length: 255)]
-    private ?string $strategyName = null;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
@@ -54,6 +52,7 @@ class MatchCall implements AccountingOwnerInterface
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
+        $this->strategy = MatchStrategy::of($this);
         $this->managers = new ArrayCollection();
         $this->submissions = new ArrayCollection();
     }
@@ -142,18 +141,6 @@ class MatchCall implements AccountingOwnerInterface
     public function removeManager(User $manager): static
     {
         $this->managers->removeElement($manager);
-
-        return $this;
-    }
-
-    public function getStrategyName(): ?string
-    {
-        return $this->strategyName;
-    }
-
-    public function setStrategyName(string $strategyName): static
-    {
-        $this->strategyName = $strategyName;
 
         return $this;
     }

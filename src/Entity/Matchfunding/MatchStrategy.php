@@ -36,6 +36,14 @@ class MatchStrategy
     #[ORM\Column(enumType: MatchAgainst::class)]
     private ?MatchAgainst $against = MatchAgainst::DEFAULT;
 
+    public static function of(MatchCall $call): MatchStrategy
+    {
+        $strategy = new MatchStrategy();
+        $strategy->setCall($call);
+
+        return $strategy;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
