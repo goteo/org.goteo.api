@@ -4,7 +4,6 @@ namespace App\Matchfunding\Formula;
 
 use App\Entity\Money;
 use App\Library\Economy\MoneyService;
-use Brick\Math\BigNumber;
 
 class MultiplicationFormula implements FormulaInterface
 {
@@ -18,7 +17,7 @@ class MultiplicationFormula implements FormulaInterface
         return 'min(factor * money, limit)';
     }
 
-    public function match(BigNumber $factor, Money $money, Money $limit): Money
+    public function match(float $factor, Money $money, Money $limit): Money
     {
         $delta = \Brick\Money\Money::min(
             MoneyService::toBrick($limit),
