@@ -30,12 +30,9 @@ class MatchfundingService
         }
 
         foreach ($target->getMatchCallSubmissionsBy(self::SUBMISSION_ACCEPTED) as $submission) {
-            $call = $submission->getCall();
-            $strategy = $call->getStrategy();
+            $strategy = $submission->getCall()->getStrategy();
 
-            foreach ($strategy->getRuleClasses() as $ruleClass) {
-                $rule = $this->ruleLocator->get($ruleClass);
-
+            foreach ($this->ruleLocator->getFrom($strategy) as $rule) {
                 if (!$rule->validate($charge, $target)) {
                     return;
                 }
