@@ -2,19 +2,22 @@
 
 namespace App\Matchfunding\Rule;
 
+use App\ApiResource\Matchfunding\RuleApiResource;
 use App\Entity\Matchfunding\MatchStrategy;
 use Symfony\Component\VarExporter\Exception\ClassNotFoundException;
 
 class RuleLocator
 {
     /** @var array<string, RuleInterface> */
-    private array $rulesByClassName = [];
+    private array $rulesByName = [];
 
     public function __construct(
         iterable $rules,
     ) {
         foreach ($rules as $rule) {
-            $this->rulesByClassName[$rule::class] = $rule;
+            $name = RuleApiResource::from($rule)->name;
+
+            $this->rulesByName[$name] = $rule;
         }
     }
 
@@ -23,7 +26,7 @@ class RuleLocator
      */
     public function getAll(): array
     {
-        return $this->rulesByClassName;
+        return $this->rulesByName;
     }
 
     /**
@@ -34,17 +37,18 @@ class RuleLocator
         $rules = $strategy->getRuleClasses();
 
         return \array_filter(
-            $this->rulesByClassName,
-            fn($r, $k) => \in_array($k, $rules)
+            $this->rulesByName,
+            fn($v, $k) => \in_array($k, $rules),
+            ARRAY_FILTER_USE_BOTH
         );
     }
 
     public function getOne(string $className): ?RuleInterface
     {
-        if (!array_key_exists($className, $this->rulesByClassName)) {
+        if (!array_key_exists($className, $this->rulesByName)) {
             throw new ClassNotFoundException($className);
         }
 
-        return $this->rulesByClassName[$className];
+        return $this->rulesByName[$className];
     }
 }
