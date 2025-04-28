@@ -8,23 +8,23 @@ use App\Matchfunding\Exception\FormulaNotFoundException;
 class FormulaLocator
 {
     /** @var array<string, FormulaInterface> */
-    private array $strategiesByName = [];
+    private array $formulasByName = [];
 
     public function __construct(
-        iterable $strategies,
+        iterable $formulas,
     ) {
-        foreach ($strategies as $formula) {
+        foreach ($formulas as $formula) {
             $formulaName = $formula::getName();
 
-            if (\array_key_exists($formulaName, $this->strategiesByName)) {
+            if (\array_key_exists($formulaName, $this->formulasByName)) {
                 throw new FormulaDuplicatedException(
                     $formulaName,
                     $formula::class,
-                    $this->strategiesByName[$formulaName]::class
+                    $this->formulasByName[$formulaName]::class
                 );
             }
 
-            $this->strategiesByName[$formulaName] = $formula;
+            $this->formulasByName[$formulaName] = $formula;
         }
     }
 
@@ -33,15 +33,15 @@ class FormulaLocator
      */
     public function getAll(): array
     {
-        return $this->strategiesByName;
+        return $this->formulasByName;
     }
 
     public function get(string $formulaName): ?FormulaInterface
     {
-        if (!array_key_exists($formulaName, $this->strategiesByName)) {
+        if (!array_key_exists($formulaName, $this->formulasByName)) {
             throw new FormulaNotFoundException($formulaName);
         }
 
-        return $this->strategiesByName[$formulaName];
+        return $this->formulasByName[$formulaName];
     }
 }
