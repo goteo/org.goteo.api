@@ -8,6 +8,7 @@ use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Matchfunding\Formula\FormulaLocator;
+use App\Matchfunding\Rule\RuleLocator;
 use App\Service\Project\BudgetService;
 
 class MatchfundingService
@@ -15,6 +16,7 @@ class MatchfundingService
     public const SUBMISSION_ACCEPTED = MatchCallSubmissionStatus::Accepted;
 
     public function __construct(
+        private RuleLocator $ruleLocator,
         private FormulaLocator $formulaLocator,
         private BudgetService $budgetService,
     ) {}
@@ -30,6 +32,14 @@ class MatchfundingService
         foreach ($target->getMatchCallSubmissionsBy(self::SUBMISSION_ACCEPTED) as $submission) {
             $call = $submission->getCall();
             $strategy = $call->getStrategy();
+
+            foreach ($strategy->getRuleClasses() as $ruleClass) {
+                $rule = $this->ruleLocator->get($ruleClass);
+
+                if (!$rule->validate($charge, $target)) {
+                    return;
+                }
+            }
 
             $toBeMatched = match ($strategy->getAgainst()) {
                 MatchAgainst::Charge => $charge->getMoney(),
