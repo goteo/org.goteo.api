@@ -3,20 +3,17 @@
 namespace App\Entity\Matchfunding;
 
 use App\Entity\Money;
+use App\Mapping\Provider\MatchStrategyMapProvider;
 use App\Repository\Matchfunding\MatchStrategyRepository;
-use Brick\Math\BigNumber;
-use Brick\Math\BigRational;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(MatchStrategyMapProvider::class)]
 #[ORM\Entity(repositoryClass: MatchStrategyRepository::class)]
 class MatchStrategy
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\OneToOne(inversedBy: 'strategy', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?MatchCall $call = null;
@@ -30,8 +27,8 @@ class MatchStrategy
     #[ORM\Embedded(class: Money::class)]
     private ?object $limit = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $factor = null;
+    #[ORM\Column(nullable: true)]
+    private ?float $factor = null;
 
     #[ORM\Column(enumType: MatchAgainst::class)]
     private ?MatchAgainst $against = MatchAgainst::DEFAULT;
@@ -42,11 +39,6 @@ class MatchStrategy
         $strategy->setCall($call);
 
         return $strategy;
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getCall(): ?MatchCall
@@ -97,14 +89,14 @@ class MatchStrategy
         return $this;
     }
 
-    public function getFactor(): ?BigNumber
+    public function getFactor(): ?float
     {
-        return BigRational::of($this->factor);
+        return $this->factor;
     }
 
-    public function setFactor(BigNumber $factor): static
+    public function setFactor(float $factor): static
     {
-        $this->factor = (string) $factor->toBigRational();
+        $this->factor = $factor;
 
         return $this;
     }
