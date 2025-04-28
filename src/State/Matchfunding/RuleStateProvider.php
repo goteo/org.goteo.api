@@ -19,12 +19,9 @@ class RuleStateProvider implements ProviderInterface
     {
         if (\array_key_exists('name', $uriVariables)) {
             try {
-                $rule = $this->ruleLocator->getOne(\sprintf(
-                    'App\\Matchfunding\\Rule\\%s',
-                    $uriVariables['name']
-                ));
+                $rule = $this->ruleLocator->getOne($uriVariables['name']);
 
-                return $this->getApiResource($rule);
+                return RuleApiResource::from($rule);
             } catch (ClassNotFoundException $e) {
                 return null;
             }
@@ -34,23 +31,9 @@ class RuleStateProvider implements ProviderInterface
 
         $resources = [];
         foreach ($strategies as $rule) {
-            $resources[] = $this->getApiResource($rule);
+            $resources[] = RuleApiResource::from($rule);
         }
 
         return $resources;
-    }
-
-    private function getApiResource(RuleInterface $rule): RuleApiResource
-    {
-        $resource = new RuleApiResource();
-        $resource->name = self::getName($rule::class);
-        $resource->description = $rule::getDescription();
-
-        return $resource;
-    }
-
-    private static function getName(string $class): string
-    {
-        return \array_slice(\explode('\\', $class), -1, 1)[0];
     }
 }

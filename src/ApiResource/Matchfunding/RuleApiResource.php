@@ -3,6 +3,7 @@
 namespace App\ApiResource\Matchfunding;
 
 use ApiPlatform\Metadata as API;
+use App\Matchfunding\Rule\RuleInterface;
 use App\State\Matchfunding\RuleStateProvider;
 
 /**
@@ -25,4 +26,13 @@ class RuleApiResource
      */
     #[API\ApiProperty(writable: false)]
     public string $description;
+
+    public static function from(RuleInterface $interface): RuleApiResource
+    {
+        $resource = new RuleApiResource();
+        $resource->name = \array_slice(\explode('\\', $interface::class), -1, 1)[0];
+        $resource->description = $interface::getDescription();
+
+        return $resource;
+    }
 }
