@@ -8,6 +8,7 @@ use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
+use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\CheckoutRepository;
@@ -66,6 +67,12 @@ class Checkout
     #[SupportedChargeTypes()]
     #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: Charge::class, cascade: ['persist'])]
     private Collection $charges;
+
+    /**
+     * The strategy to refund the payment.
+     */
+    #[ORM\Column(enumType: RefundStrategy::class)]
+    private ?RefundStrategy $refundStrategy = RefundStrategy::ToWallet;
 
     /**
      * The address to where the user must be redirected to.
@@ -180,6 +187,18 @@ class Checkout
         return $this;
     }
 
+    public function getRefundStrategy(): ?RefundStrategy
+    {
+        return $this->refundStrategy;
+    }
+
+    public function setRefundStrategy(?RefundStrategy $refundStrategy): static
+    {
+        $this->refundStrategy = $refundStrategy;
+
+        return $this;
+    }
+
     public function getReturnUrl(): ?string
     {
         return $this->returnUrl;
@@ -253,7 +272,7 @@ class Checkout
      */
     public function getTrackings(): array
     {
-        return $this->trackings;
+        return array_map(fn($t) => Tracking::tryFrom($t), $this->trackings);
     }
 
     /**
