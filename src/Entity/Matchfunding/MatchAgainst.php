@@ -7,6 +7,8 @@ namespace App\Entity\Matchfunding;
  */
 enum MatchAgainst: string
 {
+    public const DEFAULT = self::Charge;
+
     /**
      * The money to be matched will be extracted from a Charge item.
      */
