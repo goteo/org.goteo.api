@@ -24,6 +24,9 @@ class MatchCall implements AccountingOwnerInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
+    #[ORM\OneToOne(mappedBy: 'matchCall', cascade: ['persist', 'remove'])]
+    private ?MatchStrategy $strategy = null;
+
     /**
      * @var Collection<int, MatchCallSubmission>
      */
@@ -68,6 +71,23 @@ class MatchCall implements AccountingOwnerInterface
     public function setAccounting(Accounting $accounting): static
     {
         $this->accounting = $accounting;
+
+        return $this;
+    }
+
+    public function getStrategy(): ?MatchStrategy
+    {
+        return $this->strategy;
+    }
+
+    public function setStrategy(MatchStrategy $strategy): static
+    {
+        // set the owning side of the relation if necessary
+        if ($strategy->getCall() !== $this) {
+            $strategy->setCall($this);
+        }
+
+        $this->strategy = $strategy;
 
         return $this;
     }

@@ -13,12 +13,19 @@ use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A MatchCall is an owned and managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
- * This means any money inside a Transaction going to a Project in a MatchCall will be matched with funds from the MatchCall accounting.
+ * A MatchCall is a managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
+ * This means money going to a Project in a MatchCall can be matched with funds from the MatchCall accounting.
  * \
  * \
  * MatchCallSubmissions from Projects can be accepted or rejected by the managers.
- * They can also choose from predefined strategies and tune them to perform the matching.
+ * \
+ * \
+ * How and when does a MatchCall match funds is determined by the MatchStrategy.
+ * Everytime there is a Charge item going to a Project accepted in a MatchCall the strategy is evaluated for matching.
+ * The strategy defines a series of rules that determine if the Charge is eligible for triggering the matching of funds.
+ * When a Charge is to be matched the strategy uses a MatchFormula,
+ * which is a predefined implementation for common mathematical operations used to match money.
+ * The formula is fine-tuned in the strategy by defining the variables in the formula.
  */
 #[API\ApiResource(
     shortName: 'MatchCall',
@@ -51,6 +58,13 @@ class MatchCallApiResource
      * @var UserApiResource[]
      */
     public array $managers;
+
+    /**
+     * The MatchStrategy defines the match behaviour for this MatchCall. 
+     */
+    #[Assert\NotBlank()]
+    #[Assert\Valid()]
+    public MatchStrategyApiResource $strategy;
 
     /**
      * Main display title.
