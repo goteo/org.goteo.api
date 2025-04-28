@@ -15,7 +15,7 @@ class PercentageFormula implements FormulaInterface
 
     public static function getAsExpression(): string
     {
-        return 'min(limit, factor / 100 * money)';
+        return 'min(factor * money / 100, limit)';
     }
 
     public function match(BigNumber $factor, Money $money, Money $limit): Money

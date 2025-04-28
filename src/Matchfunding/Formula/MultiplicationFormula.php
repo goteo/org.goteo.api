@@ -15,7 +15,7 @@ class MultiplicationFormula implements FormulaInterface
 
     public static function getAsExpression(): string
     {
-        return 'min(limit, factor * money)';
+        return 'min(factor * money, limit)';
     }
 
     public function match(BigNumber $factor, Money $money, Money $limit): Money
