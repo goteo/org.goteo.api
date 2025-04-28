@@ -60,7 +60,7 @@ class MatchCallApiResource
     public array $managers;
 
     /**
-     * The MatchStrategy defines the match behaviour for this MatchCall. 
+     * The MatchStrategy defines the match behaviour for this MatchCall.
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]

@@ -2,7 +2,6 @@
 
 namespace App\ApiResource\Matchfunding;
 
-use ApiPlatform\Metadata as API;
 use App\ApiResource\Money;
 use App\Entity\Matchfunding\MatchAgainst;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -33,7 +32,7 @@ class MatchStrategyApiResource
      * The money to be matched by the formula is
      * - `charge` the money in the Charge item
      * - `budget_min` the minimum in the Project's budget
-     * - `budget_opt` the optimum in the Project's budget
+     * - `budget_opt` the optimum in the Project's budget.
      */
     #[Assert\NotBlank()]
     public MatchAgainst $match = MatchAgainst::Charge;
