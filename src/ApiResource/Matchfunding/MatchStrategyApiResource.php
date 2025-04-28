@@ -7,8 +7,11 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Money;
 use App\Entity\Matchfunding\MatchAgainst;
 use App\Entity\Matchfunding\MatchStrategy;
+use App\Mapping\Transformer\MatchFormulaMapTransformer;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use AutoMapper\Attribute\MapFrom;
+use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[API\ApiResource(
@@ -43,6 +46,8 @@ class MatchStrategyApiResource
      * The MatchFormula used to calculate matched funds.
      */
     #[Assert\NotBlank()]
+    #[MapTo(MatchStrategy::class, property: 'formulaName', transformer: 'source.formula.name')]
+    #[MapFrom(MatchStrategy::class, property: 'formulaName', transformer: MatchFormulaMapTransformer::class)]
     public FormulaApiResource $formula;
 
     /**
