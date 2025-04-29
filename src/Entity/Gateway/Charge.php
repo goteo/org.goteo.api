@@ -6,6 +6,7 @@ use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Project\Support;
+use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\ChargeRepository;
@@ -14,12 +15,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A GatewayCharge represents a monetary payment that can be done by an issuer at checkout with the Gateway.
  */
 #[MapProvider(EntityMapProvider::class)]
+#[Gedmo\Loggable()]
 #[ORM\Table(name: 'checkout_charge')]
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
@@ -77,9 +80,17 @@ class Charge
     #[ORM\ManyToOne(inversedBy: 'charges')]
     private ?Support $support = null;
 
+    /**
+     * The status of the charge with the Gateway.
+     */
+    #[Gedmo\Versioned]
+    #[ORM\Column()]
+    private ?ChargeStatus $status = null;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
+        $this->status = ChargeStatus::Pending;
     }
 
     public function getId(): ?int
@@ -191,6 +202,18 @@ class Charge
     public function setSupport(?Support $support): static
     {
         $this->support = $support;
+
+        return $this;
+    }
+
+    public function getStatus(): ?ChargeStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(ChargeStatus $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
