@@ -81,8 +81,7 @@ class AccountingService
             $period->getEndDate(),
         );
         $points = [];
-
-        $totalBalance = new Money(0, $accounting->getCurrency());
+        $balance = new Money(0, $accounting->getCurrency());
 
         foreach ($period as $lowerBound) {
             $upperBound = \DateTime::createFromInterface($lowerBound);
@@ -94,14 +93,14 @@ class AccountingService
                     && $trx->getDateCreated() < $upperBound;
             })];
 
-            $balance = $aggregate ? $totalBalance : new Money(0, $accounting->getCurrency());
+            $periodBalance = $aggregate ? $balance : new Money(0, $accounting->getCurrency());
 
             foreach ($periodTrxs as $trx) {
-                $balance = $this->applyTransactionToBalance($balance, $trx, $accounting);
+                $periodBalance = $this->applyTransactionToBalance($periodBalance, $trx, $accounting);
             }
 
             if ($aggregate) {
-                $totalBalance = $balance;
+                $balance = $periodBalance;
             }
 
             $point = new AccountingBalancePoint();
