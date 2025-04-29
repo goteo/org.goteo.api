@@ -5,7 +5,6 @@ namespace App\ApiResource\Accounting;
 use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Entity\Money;
-use App\Filter\AccountingBalancePointAggregationFilter;
 use App\State\Accounting\AccountingBalancePointStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -37,9 +36,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         'end' => new QueryParameter(
             schema: ['type' => 'string', 'format' => 'date-time', 'default' => 'now'],
         ),
+        'aggregate' => new QueryParameter(
+            schema: ['type' => 'boolean'],
+            description: 'If true, the balance points are cumulative over time.',
+        ),
     ],
 )]
-#[API\ApiFilter(AccountingBalancePointAggregationFilter::class, properties: ['aggregate'])]
 class AccountingBalancePoint
 {
     /**
