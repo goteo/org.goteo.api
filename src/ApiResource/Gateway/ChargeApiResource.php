@@ -37,7 +37,7 @@ class ChargeApiResource
     /**
      * The Checkout to which this Charge item belongs to.
      */
-    #[API\ApiProperty(writable: false, security: "is_granted('ROLE_USER')")]
+    #[API\ApiProperty(writable: false, security: 'is_granted("IS_AUTHENTICATED_FULLY")')]
     public CheckoutApiResource $checkout;
 
     /**
