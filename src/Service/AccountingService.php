@@ -58,24 +58,6 @@ class AccountingService
         return \array_filter($transactions, fn(Transaction $trx) => $trx->getDateCreated() >= $start && $trx->getDateCreated() < $end);
     }
 
-    /**
-     * Applies a transaction to a given balance depending on its origin/target.
-     */
-    private function applyTransactionToBalance(Money $balance, Transaction $trx, Accounting $accounting): Money
-    {
-        $trxMoney = $trx->getMoney();
-
-        if ($trx->getTarget() === $accounting) {
-            return $this->money->add($trxMoney, $balance);
-        }
-
-        if ($trx->getOrigin() === $accounting) {
-            return $this->money->substract($trxMoney, $balance);
-        }
-
-        return $balance;
-    }
-
     private function createPoint(
         \DateTimeInterface $lowerBound,
         \DateTimeInterface $upperBound,
@@ -119,7 +101,15 @@ class AccountingService
 
             $balance = $aggregate ? $totalBalance : new Money(0, $accounting->getCurrency());
             foreach ($periodTrxs as $trx) {
-                $balance = $this->applyTransactionToBalance($balance, $trx, $accounting);
+                $trxMoney = $trx->getMoney();
+
+                if ($trx->getTarget() === $accounting) {
+                    $balance = $this->money->add($trxMoney, $balance);
+                }
+
+                if ($trx->getOrigin() === $accounting) {
+                    $balance = $this->money->substract($trxMoney, $balance);
+                }
             }
 
             if ($aggregate) {
