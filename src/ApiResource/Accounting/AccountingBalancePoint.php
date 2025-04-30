@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             schema: ['type' => 'string', 'format' => 'date-time', 'default' => 'now'],
         ),
         'aggregate' => new QueryParameter(
-            schema: ['type' => 'boolean'],
+            schema: ['type' => 'boolean', 'default' => false],
             description: 'If true, the balance points are cumulative over time.',
         ),
     ],
