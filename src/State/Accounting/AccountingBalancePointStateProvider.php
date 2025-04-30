@@ -24,7 +24,10 @@ class AccountingBalancePointStateProvider implements ProviderInterface
 
         $accounting = $this->getAccounting($parameters);
         $period = $this->buildPeriod($parameters);
-        $aggregate = $parameters->get('aggregate')->getValue() ?? false;
+        $aggregate = filter_var(
+            $parameters->get('aggregate')->getValue(false),
+            FILTER_VALIDATE_BOOL
+        );
 
         return $this->accountingService->calcBalancePoints($accounting, $period, $aggregate);
     }
