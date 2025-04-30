@@ -23,6 +23,10 @@ trait UserOwnedVoterTrait
             return false;
         }
 
+        if ($subject instanceof UserApiResource) {
+            return $subject->id === $user->getId();
+        }
+
         if ($subject instanceof AccountingApiResource) {
             return $subject->getOwner() instanceof UserApiResource
                 && $subject->getOwner()->id === $user->getId();
