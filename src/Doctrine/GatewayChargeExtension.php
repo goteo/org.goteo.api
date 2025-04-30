@@ -10,6 +10,8 @@ final class GatewayChargeExtension extends AbstractQueryResourceExtensionInterfa
 {
     use UserTrait;
 
+    private const ARE_PUBLIC = true;
+
     protected function supports(string $resourceClass): bool
     {
         return $resourceClass === Charge::class;
@@ -17,6 +19,10 @@ final class GatewayChargeExtension extends AbstractQueryResourceExtensionInterfa
 
     protected function applyFilters(QueryBuilder $queryBuilder, string $rootAlias): void
     {
+        if (self::ARE_PUBLIC) {
+            return;
+        }
+
         $user = $this->getAuthenticatedUser();
 
         if ($this->isAdmin($user)) {
