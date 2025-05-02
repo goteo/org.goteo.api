@@ -15,6 +15,16 @@ use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * A MatchStrategy defines how will a MatchCall perform the match-making process.
+ * \
+ * The match-making flow is:
+ * 1. A Project accepted in a MatchCall receives a successful Charge.
+ * 2. The match-making loads the MatchCall's MatchStrategy.
+ * 3. The MatchStrategy rules are executed, if one rule fails the match-making is cancelled for the Charge.
+ * 3. The MatchStrategy formula function is passed the respective limit, factor and money of the MatchAgainst.
+ * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
+ */
 #[API\ApiResource(
     shortName: 'MatchStrategy',
     stateOptions: new Options(entityClass: MatchStrategy::class),
@@ -37,7 +47,7 @@ class MatchStrategyApiResource
     public MatchCallApiResource $call;
 
     /**
-     * The MatchRules used to validate the match making strategy.
+     * The MatchRules used to decide if the match making strategy should be executed or not.
      *
      * @var RuleApiResource[]
      */
