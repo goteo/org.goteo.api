@@ -28,7 +28,7 @@ use App\State\ApiResourceStateProvider;
 )]
 #[API\Get()]
 #[API\Patch(
-    security: 'is_granted("MATCHCALLSUBMISSION_EDIT", object)',
+    security: 'is_granted("MATCHCALL_EDIT", object.call)',
     securityMessage: 'You do not have permission to edit this MatchCallSubmission'
 )]
 class MatchCallSubmissionApiResource
