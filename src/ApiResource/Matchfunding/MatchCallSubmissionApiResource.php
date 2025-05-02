@@ -5,6 +5,7 @@ namespace App\ApiResource\Matchfunding;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Project\ProjectApiResource;
+use App\Dto\Matchfunding\MatchCallSubmissionCreationDto;
 use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\State\ApiResourceStateProvider;
@@ -19,6 +20,11 @@ use App\State\Matchfunding\MatchCallSubmissionStateProcessor;
     provider: ApiResourceStateProvider::class,
     processor: MatchCallSubmissionStateProcessor::class
 )]
+#[API\Post(
+    input: MatchCallSubmissionCreationDto::class,
+    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
+    securityPostDenormalizeMessage: 'You do not have permission to submit that Project to a MatchCall'
+)]
 class MatchCallSubmissionApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
@@ -27,11 +33,13 @@ class MatchCallSubmissionApiResource
     /**
      * The MatchCall to which this MatchCallSubmission belongs to.
      */
+    #[API\ApiProperty(writable: false)]
     public MatchCallApiResource $call;
 
     /**
      * The Project that applied for the MatchCall.
      */
+    #[API\ApiProperty(writable: false)]
     public ProjectApiResource $project;
 
     /**
