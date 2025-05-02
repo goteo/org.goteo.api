@@ -5,7 +5,7 @@ namespace App\Tests\Entity\GatewayApi\GatewayCheckout;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use Symfony\Component\HttpFoundation\Response;
 
-class CreateTest extends BaseTest
+class CreateTest extends BaseTestCase
 {
     protected const METHOD = 'POST';
 

@@ -4,7 +4,7 @@ namespace App\Tests\Entity\GatewayApi\GatewayCheckout;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class GetAllTest extends BaseTest
+class GetAllTest extends BaseTestCase
 {
     protected const METHOD = 'GET';
 

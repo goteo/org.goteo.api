@@ -8,7 +8,7 @@ use App\Entity\Project\ProjectTerritory;
 use App\Factory\Project\ProjectFactory;
 use Symfony\Component\HttpFoundation\Response;
 
-class GetAllTest extends BaseTest
+class GetAllTest extends BaseTestCase
 {
     private const PAGE_SIZE = 30;
 

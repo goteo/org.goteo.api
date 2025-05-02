@@ -5,7 +5,7 @@ namespace App\Tests\Entity\ProjectApi;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 
-class GetOneTest extends BaseTest
+class GetOneTest extends BaseTestCase
 {
     // Auxiliary functions
 

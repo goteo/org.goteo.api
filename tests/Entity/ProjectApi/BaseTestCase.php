@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-abstract class BaseTest extends ApiTestCase
+abstract class BaseTestCase extends ApiTestCase
 {
     use ResetDatabase;
     use Factories;

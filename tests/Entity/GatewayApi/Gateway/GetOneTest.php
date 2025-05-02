@@ -4,7 +4,7 @@ namespace App\Tests\Entity\GatewayApi\Gateway;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class GetOneTest extends BaseGetTest
+class GetOneTest extends BaseGetTestCase
 {
     private const VALID_NAME = 'paypal';
 

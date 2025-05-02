@@ -2,7 +2,7 @@
 
 namespace App\Tests\Entity\GatewayApi\Gateway;
 
-class GetAllTest extends BaseGetTest
+class GetAllTest extends BaseGetTestCase
 {
     // Auxiliary Tests
 

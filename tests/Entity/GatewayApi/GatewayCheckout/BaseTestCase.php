@@ -12,7 +12,7 @@ use App\Tests\Traits\TestHelperTrait;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-abstract class BaseTest extends ApiTestCase
+abstract class BaseTestCase extends ApiTestCase
 {
     use TestHelperTrait;
     use ResetDatabase;

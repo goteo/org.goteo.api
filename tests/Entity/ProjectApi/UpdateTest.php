@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateTest extends BaseTest
+class UpdateTest extends BaseTestCase
 {
     // Auxiliary functions
 

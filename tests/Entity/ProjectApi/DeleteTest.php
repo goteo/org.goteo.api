@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class DeleteTest extends BaseTest
+class DeleteTest extends BaseTestCase
 {
     protected function getMethod(): string
     {
