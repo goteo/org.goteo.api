@@ -3,7 +3,6 @@
 namespace App\Service\Gateway;
 
 use App\Controller\GatewaysController;
-use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
@@ -16,6 +15,7 @@ class CheckoutService
 
     public function __construct(
         private RouterInterface $router,
+        private ChargeService $transactionService,
     ) {}
 
     /**
@@ -95,12 +95,7 @@ class CheckoutService
         $checkout->setStatus(CheckoutStatus::Charged);
 
         foreach ($checkout->getCharges() as $charge) {
-            $transaction = new Transaction();
-            $transaction->setMoney($charge->getMoney());
-            $transaction->setOrigin($checkout->getOrigin());
-            $transaction->setTarget($charge->getTarget());
-
-            $charge->addTransaction($transaction);
+            $this->transactionService->addChargeTransaction($charge);
         }
 
         return $checkout;

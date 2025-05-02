@@ -2,6 +2,7 @@
 
 namespace App\Gateway;
 
+use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Repository\Gateway\CheckoutRepository;
 use App\Service\Gateway\CheckoutService;
@@ -44,7 +45,13 @@ abstract class AbstractGateway implements GatewayInterface
     public function getRedirectResponse(Checkout $checkout): RedirectResponse
     {
         return new RedirectResponse(
-            $checkout->getReturnUrl(),
+            \sprintf(
+                '%s?%s',
+                $checkout->getReturnUrl(),
+                \http_build_query([
+                    'checkoutId' => $checkout->getId(),
+                ])
+            ),
             Response::HTTP_FOUND
         );
     }
@@ -72,7 +79,7 @@ abstract class AbstractGateway implements GatewayInterface
         return $checkout;
     }
 
-    public function processRefund(Checkout $checkout): void
+    public function processRefund(Charge $charge): void
     {
         throw new \LogicException(sprintf(
             'The refund operation is not implemented for the %s gateway.',
