@@ -5,6 +5,11 @@ namespace App\Entity\Matchfunding;
 enum MatchCallSubmissionStatus: string
 {
     /**
+     * The MatchCallSubmission is pending review.
+     */
+    case ToReview = 'to_review';
+
+    /**
      * The MatchCallSubmission is under review for the MatchCall.
      */
     case InReview = 'in_review';

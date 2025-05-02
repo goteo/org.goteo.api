@@ -7,8 +7,8 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Project\ProjectApiResource;
 use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\State\Matchfunding\MatchCallSubmissionStateProcessor;
 
 /**
  * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
@@ -17,7 +17,7 @@ use App\State\ApiResourceStateProvider;
     shortName: 'MatchCallSubmission',
     stateOptions: new Options(entityClass: MatchCallSubmission::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class
+    processor: MatchCallSubmissionStateProcessor::class
 )]
 class MatchCallSubmissionApiResource
 {
@@ -39,5 +39,5 @@ class MatchCallSubmissionApiResource
      * Only MatchCallSubmissions with an status `accepted` will receive matchfunding.
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("MATCHCALLSUBMISSION_EDIT", object)')]
-    public MatchCallSubmissionStatus $status;
+    public MatchCallSubmissionStatus $status = MatchCallSubmissionStatus::ToReview;
 }
