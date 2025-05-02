@@ -73,7 +73,7 @@ class MatchStrategyApiResource
      * - `budget_min` the minimum in the Project's budget
      * - `budget_opt` the optimum in the Project's budget.
      */
-    public MatchAgainst $match = MatchAgainst::DEFAULT;
+    public MatchAgainst $against = MatchAgainst::DEFAULT;
 
     /**
      * @param array<int, RuleApiResource>
