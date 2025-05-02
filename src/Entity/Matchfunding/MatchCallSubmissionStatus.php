@@ -4,6 +4,8 @@ namespace App\Entity\Matchfunding;
 
 enum MatchCallSubmissionStatus: string
 {
+    public const DEFAULT = self::ToReview;
+
     /**
      * The MatchCallSubmission is pending review.
      */

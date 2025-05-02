@@ -26,7 +26,7 @@ class MatchCallSubmission
     private ?Project $project = null;
 
     #[ORM\Column(enumType: MatchCallSubmissionStatus::class)]
-    private ?MatchCallSubmissionStatus $status = null;
+    private ?MatchCallSubmissionStatus $status = MatchCallSubmissionStatus::DEFAULT;
 
     public function getId(): ?int
     {
