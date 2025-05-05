@@ -6,7 +6,6 @@ use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Entity\Matchfunding\MatchAgainst;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
-use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Matchfunding\Formula\FormulaLocator;
@@ -25,7 +24,7 @@ class MatchfundingService
 
     /**
      * Perform the match-making logic for a Charge.
-     * 
+     *
      * @return Transaction[] The Transactions from the MatchCalls that should be made for a matcheable Charge
      */
     public function match(Charge $charge): array

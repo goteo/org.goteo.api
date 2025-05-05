@@ -22,9 +22,6 @@ use Doctrine\ORM\Events;
 )]
 final class MatchfundingListener
 {
-    /**
-     * @var Charge|null
-     */
     private ?Charge $charge = null;
 
     public function __construct(
