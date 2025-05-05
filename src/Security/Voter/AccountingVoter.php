@@ -3,7 +3,6 @@
 namespace App\Security\Voter;
 
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\ApiResource\Project\ProjectApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -31,21 +30,21 @@ class AccountingVoter extends Voter
         $owner = $subject->getOwner();
 
         switch ($owner::class) {
-            case ProjectApiResource::class:
-                return $this->voteOnProject($attribute, $owner, $user);
             case UserApiResource::class:
                 return $this->voteOnUser($attribute, $owner, $user);
+            default:
+                return $this->voteOn($attribute, $subject, $user);
         }
 
         return false;
     }
 
-    private function voteOnProject(string $attribute, ProjectApiResource $project, ?User $user): bool
+    private function voteOn(string $attribute, mixed $subject, ?User $user): bool
     {
         switch ($attribute) {
             case self::EDIT:
                 return $user->hasRoles(['ROLE_ADMIN'])
-                    || $this->isOwnerOf($project, $user);
+                    || $this->isOwnerOf($subject, $user);
             case self::VIEW:
                 return true;
         }

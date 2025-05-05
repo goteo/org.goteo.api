@@ -2,7 +2,7 @@
 
 namespace App\Service\Project;
 
-use App\Entity\Project\ProjectTerritory;
+use App\Entity\Territory;
 use App\Service\Nominatim\NominatimService;
 
 class TerritoryService
@@ -11,12 +11,12 @@ class TerritoryService
         private NominatimService $nominatimService,
     ) {}
 
-    public function search(string $query): ProjectTerritory
+    public function search(string $query): Territory
     {
         $search = $this->nominatimService->search($query);
 
         if (empty($search)) {
-            return ProjectTerritory::unknown();
+            return Territory::unknown();
         }
 
         $result = $search[0];
@@ -28,13 +28,13 @@ class TerritoryService
         $address = $result['address'];
 
         if (!\array_key_exists('country_code', $address)) {
-            return ProjectTerritory::unknown();
+            return Territory::unknown();
         }
 
         return $this->processResultAddress($address);
     }
 
-    private function processResultAddress(array $address): ProjectTerritory
+    private function processResultAddress(array $address): Territory
     {
         $country = \strtoupper($address['country_code']);
 
@@ -56,6 +56,6 @@ class TerritoryService
             }
         }
 
-        return new ProjectTerritory($country, $subLvl1, $subLvl2);
+        return new Territory($country, $subLvl1, $subLvl2);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Dto;
 
-use App\ApiResource\Project\ProjectTerritoryApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
+use App\Entity\Territory;
 use App\Mapping\Transformer\ProjectVideoMapTransformer;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -35,7 +35,7 @@ class ProjectCreationDto
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public ProjectTerritoryApiResource $territory;
+    public Territory $territory;
 
     /**
      * Free-form rich text description for the Project.

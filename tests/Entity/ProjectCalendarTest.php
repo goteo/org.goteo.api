@@ -7,7 +7,7 @@ use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
-use App\Entity\Project\ProjectTerritory;
+use App\Entity\Territory;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -47,7 +47,7 @@ class ProjectCalendarTest extends ApiTestCase
         $project->setDeadline($deadline);
         $project->setCategory(ProjectCategory::LibreSoftware);
         $project->setDescription('Test Project Description');
-        $project->setTerritory(new ProjectTerritory('ES'));
+        $project->setTerritory(new Territory('ES'));
         $project->setOwner($this->owner);
         $project->setStatus(ProjectStatus::InReview);
 

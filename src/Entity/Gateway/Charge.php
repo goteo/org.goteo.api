@@ -85,12 +85,11 @@ class Charge
      */
     #[Gedmo\Versioned]
     #[ORM\Column()]
-    private ?ChargeStatus $status = null;
+    private ?ChargeStatus $status = ChargeStatus::Pending;
 
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
-        $this->status = ChargeStatus::Pending;
     }
 
     public function getId(): ?int

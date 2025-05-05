@@ -6,7 +6,7 @@ use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
-use App\Entity\Project\ProjectTerritory;
+use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Factory\User\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
@@ -44,7 +44,7 @@ final class ProjectFactory extends PersistentProxyObjectFactory
             'category' => ProjectCategory::Design,
             'deadline' => ProjectDeadline::Minimum,
             'description' => '',
-            'territory' => new ProjectTerritory('ES'),
+            'territory' => new Territory('ES'),
             'owner' => new User(),
             'status' => ProjectStatus::InEditing,
             'subtitle' => 'Subtitle',
@@ -58,7 +58,7 @@ final class ProjectFactory extends PersistentProxyObjectFactory
             'category' => self::faker()->randomElement(ProjectCategory::cases()),
             'deadline' => self::faker()->randomElement(ProjectDeadline::cases()),
             'description' => self::faker()->text(),
-            'territory' => new ProjectTerritory('ES'),
+            'territory' => new Territory('ES'),
             'owner' => UserFactory::createWithMode(),
             'status' => self::faker()->randomElement(ProjectStatus::cases()),
             'subtitle' => self::faker()->text(255),
