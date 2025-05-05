@@ -4,8 +4,10 @@ namespace App\Dto\Matchfunding;
 
 use App\ApiResource\Matchfunding\MatchCallApiResource;
 use App\ApiResource\Project\ProjectApiResource;
+use App\Validator\SingleProjectSubmissionPerCall;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[SingleProjectSubmissionPerCall()]
 class MatchCallSubmissionCreationDto
 {
     /**
