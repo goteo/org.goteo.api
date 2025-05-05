@@ -8,8 +8,8 @@ use App\ApiResource\Project\ProjectApiResource;
 use App\Dto\Matchfunding\MatchCallSubmissionCreationDto;
 use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\State\Matchfunding\MatchCallSubmissionStateProcessor;
 
 /**
  * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
@@ -18,7 +18,7 @@ use App\State\ApiResourceStateProvider;
     shortName: 'MatchCallSubmission',
     stateOptions: new Options(entityClass: MatchCallSubmission::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class
+    processor: MatchCallSubmissionStateProcessor::class
 )]
 #[API\GetCollection()]
 #[API\Post(
