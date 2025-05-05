@@ -33,7 +33,7 @@ class MatchfundingService
             $strategy = $submission->getCall()->getStrategy();
 
             foreach ($this->ruleLocator->getFrom($strategy) as $rule) {
-                if (!$rule->validate($charge, $target)) {
+                if (!$rule->validate($charge, $submission)) {
                     return;
                 }
             }
