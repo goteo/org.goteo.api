@@ -10,7 +10,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 final class SingleProjectSubmissionPerCallValidator extends ConstraintValidator
 {
     public function __construct(
-        private MatchCallSubmissionRepository $matchCallSubmissionRepository
+        private MatchCallSubmissionRepository $matchCallSubmissionRepository,
     ) {}
 
     /**
@@ -20,7 +20,7 @@ final class SingleProjectSubmissionPerCallValidator extends ConstraintValidator
     {
         $submission = $this->matchCallSubmissionRepository->findOneBy([
             'call' => $value->call->id,
-            'project' => $value->project->id
+            'project' => $value->project->id,
         ]);
 
         if ($submission === null) {
