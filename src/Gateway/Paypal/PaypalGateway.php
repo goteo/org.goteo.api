@@ -229,4 +229,31 @@ class PaypalGateway extends AbstractGateway
             ],
         ];
     }
+
+    public function processRefund(Charge $charge): void
+    {
+        $trackings = $charge->getCheckout()->getTrackings();
+        $captureTracking = current(array_filter(
+            $trackings,
+            fn(Tracking $tracking) => $tracking->title === self::TRACKING_TITLE_TRANSACTION && $tracking->value
+        ));
+
+        if (!$captureTracking) {
+            throw new \Exception('PayPal capture ID not found in tracking.');
+        }
+
+        $captureId = $captureTracking->value;
+        $money = $charge->getMoney();
+
+        $response = $this->paypal->refundCapture($captureId, [
+            'amount' => [
+                'value' => number_format($money->amount / 100, 2, '.', ''),
+                'currency_code' => strtoupper($money->currency),
+            ],
+        ]);
+
+        if (!in_array($response['status'], ['COMPLETED', 'PENDING'], true)) {
+            throw new \Exception(sprintf('Refund failed. PayPal status: %s', $response['status']));
+        }
+    }
 }
