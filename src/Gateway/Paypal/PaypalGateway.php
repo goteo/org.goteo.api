@@ -243,13 +243,9 @@ class PaypalGateway extends AbstractGateway
         }
 
         $captureId = $captureTracking->value;
-        $money = $charge->getMoney();
 
         $response = $this->paypal->refundCapture($captureId, [
-            'amount' => [
-                'value' => number_format($money->amount / 100, 2, '.', ''),
-                'currency_code' => strtoupper($money->currency),
-            ],
+            'amount' => $this->getPaypalMoney($charge),
         ]);
 
         if (!in_array($response['status'], ['COMPLETED', 'PENDING'], true)) {
