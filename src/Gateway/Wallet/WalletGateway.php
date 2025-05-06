@@ -3,12 +3,14 @@
 namespace App\Gateway\Wallet;
 
 use App\Entity\Accounting\Transaction;
+use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Money;
+use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
+use App\Gateway\CheckoutStatus;
 use App\Gateway\GatewayInterface;
 use App\Library\Economy\MoneyService;
-use App\Service\Gateway\CheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +33,6 @@ class WalletGateway implements GatewayInterface
     public function __construct(
         private WalletService $wallet,
         private MoneyService $money,
-        private CheckoutService $checkoutService,
         private EntityManagerInterface $entityManager,
     ) {}
 
@@ -55,9 +56,15 @@ class WalletGateway implements GatewayInterface
 
             $this->entityManager->persist($expenditure);
             $this->entityManager->flush();
+
+            $charge->setStatus(ChargeStatus::Charged);
+            $charge->addTransaction($transaction);
         }
 
-        $checkout = $this->checkoutService->chargeCheckout($checkout);
+        $checkout->setStatus(CheckoutStatus::Charged);
+
+        $this->entityManager->persist($checkout);
+        $this->entityManager->flush();
 
         return $checkout;
     }
@@ -82,5 +89,13 @@ class WalletGateway implements GatewayInterface
         }
 
         return $total;
+    }
+
+    public function processRefund(Charge $charge): void
+    {
+        throw new \LogicException(sprintf(
+            'The refund operation is not implemented for the %s gateway.',
+            static::getName()
+        ));
     }
 }

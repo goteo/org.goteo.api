@@ -44,16 +44,48 @@ class AccountingService
     }
 
     /**
+     * Returns a list of transactions that are in the given period.
+     *
+     * @param Transaction[] $transactions
+     *
+     * @return Transaction[]
+     */
+    private function getTransactionsInPeriod(
+        array $transactions,
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+    ): array {
+        return \array_filter($transactions, fn(Transaction $trx) => $trx->getDateCreated() >= $start && $trx->getDateCreated() < $end);
+    }
+
+    private function createPoint(
+        \DateTimeInterface $lowerBound,
+        \DateTimeInterface $upperBound,
+        Money $balance,
+        array $transactions,
+    ): AccountingBalancePoint {
+        $point = new AccountingBalancePoint();
+        $point->start = $lowerBound;
+        $point->end = $upperBound;
+        $point->balance = $balance;
+        $point->length = count($transactions);
+
+        return $point;
+    }
+
+    /**
      * Calculates an AccountingBalancePoint series for a given Accounting over a period of time.
      *
      * @param Accounting  $accounting The Accounting to calc the data series for
      * @param \DatePeriod $period     A period of time for the desired transactions and time unit of the serie
+     * @param bool        $aggregate  if true, balances accumulate over time; otherwise, they are interval-specific
      *
      * @return array<int, AccountingBalancePoint> One AccountingBalancePoint for each interval inside the date period range
      */
     public function calcBalancePoints(
         Accounting $accounting,
         \DatePeriod $period,
+        bool $aggregate = false,
     ): array {
         $trxs = $this->transactionRepository->findByAccounting(
             $accounting,
@@ -61,36 +93,30 @@ class AccountingService
             $period->getEndDate(),
         );
         $points = [];
+        $totalBalance = new Money(0, $accounting->getCurrency());
 
-        foreach ($period as $lowerBound) {
-            $upperBound = \DateTime::createFromInterface($lowerBound);
-            $upperBound->add($period->getDateInterval());
+        foreach ($period as $start) {
+            $end = \DateTime::createFromInterface($start)->add($period->getDateInterval());
+            $periodTrxs = $this->getTransactionsInPeriod($trxs, $start, $end);
 
-            /** @var Transactions[] */
-            $periodTrxs = [...\array_filter($trxs, function (Transaction $trx) use ($lowerBound, $upperBound) {
-                return $trx->getDateCreated() >= $lowerBound
-                    && $trx->getDateCreated() < $upperBound;
-            })];
-
-            $balance = new Money(0, $accounting->getCurrency());
-
+            $balance = $aggregate ? $totalBalance : new Money(0, $accounting->getCurrency());
             foreach ($periodTrxs as $trx) {
+                $trxMoney = $trx->getMoney();
+
                 if ($trx->getTarget() === $accounting) {
-                    $balance = $this->money->add($trx->getMoney(), $balance);
+                    $balance = $this->money->add($trxMoney, $balance);
                 }
 
                 if ($trx->getOrigin() === $accounting) {
-                    $balance = $this->money->substract($trx->getMoney(), $balance);
+                    $balance = $this->money->substract($trxMoney, $balance);
                 }
             }
 
-            $point = new AccountingBalancePoint();
-            $point->start = $lowerBound;
-            $point->end = $upperBound;
-            $point->balance = $balance;
-            $point->length = \count($periodTrxs);
+            if ($aggregate) {
+                $totalBalance = $balance;
+            }
 
-            $points[] = $point;
+            $points[] = $this->createPoint($start, $end, $balance, $periodTrxs);
         }
 
         return $points;

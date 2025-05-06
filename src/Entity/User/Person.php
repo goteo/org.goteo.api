@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Sensitive personal data is encrypted before being stored on the database.
  */
 #[MapProvider(PersonMapProvider::class)]
+#[ORM\Table(name: 'user_person')]
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
 class Person
 {
