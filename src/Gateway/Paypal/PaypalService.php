@@ -157,22 +157,31 @@ class PaypalService
     public function verifyWebhook(Request $request): array
     {
         $headers = $request->headers;
+        $webhookData = \json_decode($request->getContent(), true);
 
-        $isSignatureValid = \openssl_verify(
-            implode('|', [
-                $headers->get('paypal-transmission-id'),
-                $headers->get('paypal-transmission-time'),
-                $this->paypalWebhookId,
-                \crc32($request->getContent()),
-            ]),
-            \base64_decode($headers->get('paypal-transmission-sig')),
-            \openssl_pkey_get_public(\file_get_contents($headers->get('paypal-cert-url')))
-        ) === 1;
+        $response = $this->httpClient->request(
+            'POST',
+            '/v1/notifications/verify-webhook-signature',
+            [
+                'auth_bearer' => $this->getAuthToken()['access_token'],
+                'json' => [
+                    'auth_algo' => $headers->get('paypal-auth-algo'),
+                    'cert_url' => $headers->get('paypal-cert-url'),
+                    'transmission_id' => $headers->get('paypal-transmission-id'),
+                    'transmission_sig' => $headers->get('paypal-transmission-sig'),
+                    'transmission_time' => $headers->get('paypal-transmission-time'),
+                    'webhook_id' => $this->paypalWebhookId,
+                    'webhook_event' => $webhookData,
+                ],
+            ]
+        );
 
-        if (!$isSignatureValid) {
+        $data = $response->toArray();
+
+        if (($data['verification_status'] ?? '') !== 'SUCCESS') {
             throw new \Exception('Could not verify PayPal webhook signature.');
         }
 
-        return \json_decode($request->getContent(), true);
+        return $webhookData;
     }
 }

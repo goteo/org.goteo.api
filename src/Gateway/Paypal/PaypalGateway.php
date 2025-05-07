@@ -138,14 +138,10 @@ class PaypalGateway extends AbstractGateway
             ], Response::HTTP_ACCEPTED);
         }
 
-        switch ($event['event_type']) {
-            case self::PAYPAL_EVENT_ORDER_COMPLETED:
-                return $this->handleOrderCompleted($event);
-            default:
-                return new Response('Event not supported', Response::HTTP_ACCEPTED);
-        }
-
-        return new Response();
+        return match ($event['event_type']) {
+            self::PAYPAL_EVENT_ORDER_COMPLETED => $this->handleOrderCompleted($event),
+            default => new Response('Event not supported', Response::HTTP_ACCEPTED),
+        };
     }
 
     private function handleOrderCompleted(array $event): Response
