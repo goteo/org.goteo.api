@@ -251,5 +251,7 @@ class PaypalGateway extends AbstractGateway
         if (!in_array($response['status'], ['COMPLETED', 'PENDING'], true)) {
             throw new \Exception(sprintf('Refund failed. PayPal status: %s', $response['status']));
         }
+
+        $this->chargeService->addRefundTransaction($charge);
     }
 }
