@@ -175,4 +175,26 @@ class PaypalService
 
         return \json_decode($request->getContent(), true);
     }
+
+    public function refundCapture(string $captureId, array $payload): array
+    {
+        $response = $this->httpClient->request(
+            'POST',
+            "/v2/payments/captures/{$captureId}/refund",
+            [
+                'auth_bearer' => $this->getAuthToken()['access_token'],
+                'json' => $payload,
+            ]
+        );
+
+        if ($response->getStatusCode() !== Response::HTTP_CREATED) {
+            throw new \Exception(sprintf(
+                "Refund for capture '%s' failed with status %d.",
+                $captureId,
+                $response->getStatusCode()
+            ));
+        }
+
+        return $response->toArray();
+    }
 }
