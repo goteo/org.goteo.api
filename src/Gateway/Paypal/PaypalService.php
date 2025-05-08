@@ -145,6 +145,19 @@ class PaypalService
         return \json_decode($request->getContent(), true);
     }
 
+    public function getWebhookVerificationPayload(mixed $headers, mixed $rawBody): string|false
+    {
+        return json_encode([
+            'auth_algo' => $headers->get('paypal-auth-algo'),
+            'cert_url' => $headers->get('paypal-cert-url'),
+            'transmission_id' => $headers->get('paypal-transmission-id'),
+            'transmission_sig' => $headers->get('paypal-transmission-sig'),
+            'transmission_time' => $headers->get('paypal-transmission-time'),
+            'webhook_id' => $this->paypalWebhookId,
+            'webhook_event' => json_decode($rawBody),
+        ]);
+    }
+
     /**
      * Verifies a PayPal webhook request.
      *
@@ -161,15 +174,7 @@ class PaypalService
         $headers = $request->headers;
         $rawBody = $request->getContent();
 
-        $payload = json_encode([
-            'auth_algo' => $headers->get('paypal-auth-algo'),
-            'cert_url' => $headers->get('paypal-cert-url'),
-            'transmission_id' => $headers->get('paypal-transmission-id'),
-            'transmission_sig' => $headers->get('paypal-transmission-sig'),
-            'transmission_time' => $headers->get('paypal-transmission-time'),
-            'webhook_id' => $this->paypalWebhookId,
-            'webhook_event' => json_decode($rawBody),
-        ]);
+        $payload = $this->getWebhookVerificationPayload($headers, $rawBody);
 
         $response = $this->httpClient->request(
             'POST',
