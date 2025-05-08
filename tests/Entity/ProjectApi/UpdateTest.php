@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateTest extends BaseTest
+class UpdateTest extends BaseTestCase
 {
     // Auxiliary functions
 
@@ -38,7 +38,7 @@ class UpdateTest extends BaseTest
 
     public function testUpdateWithInvalidToken(): void
     {
-        $this->testInvalidToken($this->getUri(1), 'application/merge-patch+json');
+        $this->testWithInvalidToken($this->getUri(1), 'application/merge-patch+json');
     }
 
     public function testUpdateNotFound(): void

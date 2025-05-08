@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class DeleteTest extends BaseTest
+class DeleteTest extends BaseTestCase
 {
     protected function getMethod(): string
     {
@@ -34,7 +34,7 @@ class DeleteTest extends BaseTest
 
     public function testDeleteWithInvalidToken(): void
     {
-        $this->testInvalidToken($this->getUri(1));
+        $this->testWithInvalidToken($this->getUri(1));
     }
 
     public function testDeleteNotFound(): void

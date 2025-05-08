@@ -7,6 +7,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait TestHelperTrait
 {
+    protected function getResponseData(Client $client)
+    {
+        return json_decode($client->getResponse()->getContent(), true);
+    }
+
     protected function getValidToken(Client $client, string $email, string $password): string
     {
         $client->request(
@@ -38,12 +43,13 @@ trait TestHelperTrait
     }
 
     protected function testInvalidToken(
+        string $method,
         string $uri,
         string $contentType = 'application/json',
         int $expectedToken = Response::HTTP_UNAUTHORIZED,
     ): void {
         static::createClient()->request(
-            $this->getMethod(),
+            $method,
             $uri,
             ['headers' => [
                 'Authorization' => 'Bearer invalid_token',

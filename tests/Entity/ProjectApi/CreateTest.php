@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class CreateTest extends BaseTest
+class CreateTest extends BaseTestCase
 {
     // Auxiliary functions
 
@@ -156,6 +156,6 @@ class CreateTest extends BaseTest
 
     public function testPostWithInvalidToken()
     {
-        $this->testInvalidToken($this->getUri());
+        $this->testWithInvalidToken($this->getUri());
     }
 }

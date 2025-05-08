@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-abstract class BaseTest extends ApiTestCase
+abstract class BaseTestCase extends ApiTestCase
 {
     use ResetDatabase;
     use Factories;
@@ -113,21 +113,12 @@ abstract class BaseTest extends ApiTestCase
         $this->testRequestHelper([], $this->getUri(999), Response::HTTP_NOT_FOUND);
     }
 
-    protected function testInvalidToken(
+    protected function testWithInvalidToken(
         string $uri,
         string $contentType = 'application/json',
         int $expectedToken = Response::HTTP_UNAUTHORIZED,
     ): void {
-        static::createClient()->request(
-            $this->getMethod(),
-            $uri,
-            ['headers' => [
-                'Authorization' => 'Bearer invalid_token',
-                'Content-Type' => $contentType,
-            ]]
-        );
-
-        $this->assertResponseStatusCodeSame($expectedToken);
+        $this->testInvalidToken($this->getMethod(), $uri, $contentType, $expectedToken);
     }
 
     protected function testForbidden(): void

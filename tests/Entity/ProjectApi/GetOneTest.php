@@ -5,7 +5,7 @@ namespace App\Tests\Entity\ProjectApi;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 
-class GetOneTest extends BaseTest
+class GetOneTest extends BaseTestCase
 {
     // Auxiliary functions
 
@@ -87,7 +87,7 @@ class GetOneTest extends BaseTest
 
     public function testGetOneWithInvalidToken(): void
     {
-        $this->testInvalidToken($this->getUri(1));
+        $this->testWithInvalidToken($this->getUri(1));
     }
 
     public function testGetOneNotFound(): void
