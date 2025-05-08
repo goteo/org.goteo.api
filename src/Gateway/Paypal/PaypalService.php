@@ -148,6 +148,8 @@ class PaypalService
     /**
      * Verifies a PayPal webhook request.
      *
+     * @see https://developer.paypal.com/community/blog/paypal-has-updated-its-webhook-verification-endpoint/
+     *
      * @param Request $request The webhook request
      *
      * @return array The webhook event data
@@ -157,31 +159,34 @@ class PaypalService
     public function verifyWebhook(Request $request): array
     {
         $headers = $request->headers;
-        $webhookData = \json_decode($request->getContent(), true);
+        $rawBody = $request->getContent();
+
+        $payload = json_encode([
+            'auth_algo' => $headers->get('paypal-auth-algo'),
+            'cert_url' => $headers->get('paypal-cert-url'),
+            'transmission_id' => $headers->get('paypal-transmission-id'),
+            'transmission_sig' => $headers->get('paypal-transmission-sig'),
+            'transmission_time' => $headers->get('paypal-transmission-time'),
+            'webhook_id' => $this->paypalWebhookId,
+            'webhook_event' => json_decode($rawBody),
+        ]);
 
         $response = $this->httpClient->request(
             'POST',
             '/v1/notifications/verify-webhook-signature',
             [
                 'auth_bearer' => $this->getAuthToken()['access_token'],
-                'json' => [
-                    'auth_algo' => $headers->get('paypal-auth-algo'),
-                    'cert_url' => $headers->get('paypal-cert-url'),
-                    'transmission_id' => $headers->get('paypal-transmission-id'),
-                    'transmission_sig' => $headers->get('paypal-transmission-sig'),
-                    'transmission_time' => $headers->get('paypal-transmission-time'),
-                    'webhook_id' => $this->paypalWebhookId,
-                    'webhook_event' => $webhookData,
-                ],
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => $payload,
             ]
         );
 
-        $data = $response->toArray();
+        $data = $response->toArray(false);
 
         if (($data['verification_status'] ?? '') !== 'SUCCESS') {
             throw new \Exception('Could not verify PayPal webhook signature.');
         }
 
-        return $webhookData;
+        return json_decode($rawBody, true);
     }
 }
