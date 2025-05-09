@@ -90,7 +90,7 @@ class Charge
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
-        $this->status = ChargeStatus::Pending;
+        $this->status = ChargeStatus::InPending;
     }
 
     public function getId(): ?int

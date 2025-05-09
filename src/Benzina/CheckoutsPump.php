@@ -182,7 +182,7 @@ class CheckoutsPump implements PumpInterface
     private function getCheckoutStatus(array $record): CheckoutStatus
     {
         if ($record['status'] < 1) {
-            return CheckoutStatus::Pending;
+            return CheckoutStatus::InPending;
         }
 
         return CheckoutStatus::Charged;
