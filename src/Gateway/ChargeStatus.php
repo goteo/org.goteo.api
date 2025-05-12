@@ -4,7 +4,7 @@ namespace App\Gateway;
 
 enum ChargeStatus: string
 {
-    case Pending = 'pending';
+    case InPending = 'in_pending';
 
     case Charged = 'charged';
 
