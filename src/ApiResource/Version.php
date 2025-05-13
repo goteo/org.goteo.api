@@ -34,14 +34,6 @@ class Version
     }
 
     /**
-     * The ID of the version for this specific resource.
-     */
-    public function getVersion(): ?int
-    {
-        return $this->log->getVersion();
-    }
-
-    /**
      * The type of action that performed the recorded changes.
      */
     public function getAction(): ?string
@@ -63,6 +55,14 @@ class Version
     public function getResourceId(): int
     {
         return $this->log->getObjectId();
+    }
+
+    /**
+     * The version number for this specific resource.
+     */
+    public function getResourceVersion(): ?int
+    {
+        return $this->log->getVersion();
     }
 
     /**
