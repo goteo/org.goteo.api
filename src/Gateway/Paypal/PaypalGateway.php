@@ -30,6 +30,7 @@ class PaypalGateway extends AbstractGateway
 
     /** @see https://developer.paypal.com/api/rest/webhooks/event-names/#orders */
     public const PAYPAL_EVENT_ORDER_COMPLETED = 'CHECKOUT.ORDER.COMPLETED';
+    public const PAYPAL_PAYMENT_CAPTURE_COMPLETED = 'PAYMENT.CAPTURE.COMPLETED';
 
     /**
      * @see https://developer.paypal.com/docs/api/orders/v2/
@@ -170,6 +171,7 @@ class PaypalGateway extends AbstractGateway
 
         return match ($eventType ?? null) {
             self::PAYPAL_EVENT_ORDER_COMPLETED => $this->handleOrderCompleted($event),
+            self::PAYPAL_PAYMENT_CAPTURE_COMPLETED => $this->handleOrderCompleted($event),
             default => $this->createErrorResponse(
                 sprintf('Unsupported webhook event type "%s".', $eventType ?? 'undefined'),
                 $request,
@@ -180,12 +182,15 @@ class PaypalGateway extends AbstractGateway
 
     private function handleOrderCompleted(array $event): Response
     {
-        $orderId = $event['resource']['id'];
+        $orderId = $event['resource']['supplementary_data']['related_ids']['order_id'] ?? null;
 
         $checkout = $this->checkoutRepository->findOneByTracking(self::TRACKING_TITLE_ORDER, $orderId);
 
         if ($checkout === null) {
-            throw new \Exception(sprintf("Could not find any Checkout by the Tracking '%s'", $orderId), 1);
+            throw new \Exception(sprintf(
+                "Could not find any Checkout by the Tracking '%s'",
+                $orderId
+            ), 1);
         }
 
         foreach ($event['resource']['purchase_units'] as $purchaseUnit) {
