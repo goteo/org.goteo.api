@@ -128,16 +128,11 @@ class PaypalGateway extends AbstractGateway
 
     private function getWebhookSource(?string $userAgent): string
     {
-        if (!$userAgent) {
-            return 'Unknown (no User-Agent)';
+        if (!$userAgent || !str_contains(strtolower($userAgent), 'paypal')) {
+            return 'Unknown or custom client';
         }
 
-        $lowerUserAgent = strtolower($userAgent);
-
-        return match (true) {
-            str_contains($lowerUserAgent, 'paypal') => 'PayPal',
-            default => 'Unknown or custom client',
-        };
+        return 'PayPal';
     }
 
     private function createErrorResponse(string $message, Request $request, array $event = []): JsonResponse
