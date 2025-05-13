@@ -5,7 +5,6 @@ namespace App\ApiResource;
 use ApiPlatform\Metadata as API;
 use App\Filter\ResourceVersionResourceFilter;
 use App\Filter\ResourceVersionResourceIdFilter;
-use App\Service\ApiService;
 use App\State\ResourceVersionStateProvider;
 use Gedmo\Loggable\Entity\LogEntry;
 
@@ -23,7 +22,7 @@ class Version
 {
     public function __construct(
         private readonly LogEntry $log,
-        private readonly object $entity,
+        private readonly string $shortName,
     ) {}
 
     /**
@@ -32,14 +31,6 @@ class Version
     public function getId(): ?int
     {
         return $this->log->getId();
-    }
-
-    /**
-     * The ID of the version for this specific resource.
-     */
-    public function getVersion(): ?int
-    {
-        return $this->log->getVersion();
     }
 
     /**
@@ -55,7 +46,7 @@ class Version
      */
     public function getResource(): string
     {
-        return ApiService::toResource($this->log->getObjectClass());
+        return $this->shortName;
     }
 
     /**
@@ -64,6 +55,14 @@ class Version
     public function getResourceId(): int
     {
         return $this->log->getObjectId();
+    }
+
+    /**
+     * The version number for this specific resource.
+     */
+    public function getResourceVersion(): ?int
+    {
+        return $this->log->getVersion();
     }
 
     /**
