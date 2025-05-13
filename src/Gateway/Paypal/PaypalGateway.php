@@ -170,7 +170,7 @@ class PaypalGateway extends AbstractGateway
         $eventType = $event['event_type'];
 
         return match ($eventType ?? null) {
-            self::PAYPAL_EVENT_ORDER_COMPLETED => $this->handleOrderCompleted($event),
+            self::PAYPAL_EVENT_ORDER_COMPLETED,
             self::PAYPAL_PAYMENT_CAPTURE_COMPLETED => $this->handleOrderCompleted($event),
             default => $this->createErrorResponse(
                 sprintf('Unsupported webhook event type "%s".', $eventType ?? 'undefined'),
