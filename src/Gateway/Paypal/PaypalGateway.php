@@ -162,7 +162,7 @@ class PaypalGateway extends AbstractGateway
             $event = $this->paypal->verifyWebhook($request);
         } catch (\Throwable $e) {
             return $this->createErrorResponse(
-                'Webhook verification failed: '.$e->getMessage(),
+                sprintf('Webhook verification failed: %s', $e->getMessage()),
                 $request
             );
         }
