@@ -110,6 +110,9 @@ class CheckoutApiResource
     #[MapFrom(Checkout::class, transformer: 'parseTrackings')]
     public array $trackings = [];
 
+    public \DateTimeInterface $dateCreated;
+    public \DateTimeInterface $dateUpdated;
+
     public static function parseLinks(array $values)
     {
         return \array_map(fn($value) => Link::tryFrom($value), $values);
