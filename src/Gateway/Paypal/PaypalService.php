@@ -171,10 +171,7 @@ class PaypalService
      */
     public function verifyWebhook(Request $request): array
     {
-        $headers = $request->headers;
         $rawBody = $request->getContent();
-
-        $payload = $this->getWebhookVerificationPayload($headers, $rawBody);
 
         $response = $this->httpClient->request(
             'POST',
@@ -182,7 +179,7 @@ class PaypalService
             [
                 'auth_bearer' => $this->getAuthToken()['access_token'],
                 'headers' => ['Content-Type' => 'application/json'],
-                'body' => $payload,
+                'body' => $this->getWebhookVerificationPayload($request->headers, $rawBody),
             ]
         );
 
