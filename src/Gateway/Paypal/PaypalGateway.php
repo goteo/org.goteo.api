@@ -125,22 +125,56 @@ class PaypalGateway extends AbstractGateway
         return $redirection;
     }
 
+    private function getWebhookSource(?string $userAgent): string
+    {
+        if (!$userAgent) {
+            return 'Unknown (no User-Agent)';
+        }
+
+        $lowerUserAgent = strtolower($userAgent);
+
+        return match (true) {
+            str_contains($lowerUserAgent, 'paypal') => 'PayPal',
+            default => 'Unknown or custom client',
+        };
+    }
+
+    private function createErrorResponse(string $message, Request $request, array $event = []): JsonResponse
+    {
+        $userAgent = $request->headers->get('User-Agent');
+
+        return new JsonResponse([
+            'status' => 'ERROR',
+            'message' => $message,
+            'eventId' => $event['id'] ?? 'N/A',
+            'eventType' => $event['event_type'] ?? 'N/A',
+            'source' => $this->getWebhookSource($userAgent),
+            'userAgent' => $userAgent,
+            'requestBody' => $request->getContent(),
+            'requestHeaders' => $request->headers->all(),
+        ], Response::HTTP_ACCEPTED);
+    }
+
     public function handleWebhook(Request $request): Response
     {
         try {
             $event = $this->paypal->verifyWebhook($request);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'status' => 'ERROR',
-                'message' => $e->getMessage(),
-                'requestBody' => $request->getContent(),
-                'requestHeaders' => $request->headers->all(),
-            ], Response::HTTP_ACCEPTED);
+        } catch (\Throwable $e) {
+            return $this->createErrorResponse(
+                'Webhook verification failed: '.$e->getMessage(),
+                $request
+            );
         }
 
-        return match ($event['event_type']) {
+        $eventType = $event['event_type'];
+
+        return match ($eventType ?? null) {
             self::PAYPAL_EVENT_ORDER_COMPLETED => $this->handleOrderCompleted($event),
-            default => new Response('Event not supported', Response::HTTP_ACCEPTED),
+            default => $this->createErrorResponse(
+                sprintf('Unsupported webhook event type "%s".', $eventType ?? 'undefined'),
+                $request,
+                $event
+            ),
         };
     }
 
@@ -164,7 +198,7 @@ class PaypalGateway extends AbstractGateway
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
 
-        return new JsonResponse(['checkout' => $checkout]);
+        return new JsonResponse(['checkout' => $checkout], Response::HTTP_NO_CONTENT);
     }
 
     private function getPaypalMoney(Charge $charge): array
