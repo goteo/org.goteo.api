@@ -6,6 +6,8 @@ use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Project\Support;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\Mapping\Provider\EntityMapProvider;
@@ -27,6 +29,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
 {
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
