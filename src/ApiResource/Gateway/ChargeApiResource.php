@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class
 )]
 #[API\Get()]
-#[API\GetCollection(security: "is_granted('IS_AUTHENTICATED_FULLY')")]
+#[API\GetCollection()]
 #[API\Patch(
     input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
@@ -37,7 +37,7 @@ class ChargeApiResource
     /**
      * The Checkout to which this Charge item belongs to.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("IS_AUTHENTICATED_FULLY")')]
     public CheckoutApiResource $checkout;
 
     /**
@@ -85,5 +85,5 @@ class ChargeApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    public ChargeStatus $status = ChargeStatus::Pending;
+    public ChargeStatus $status = ChargeStatus::InPending;
 }

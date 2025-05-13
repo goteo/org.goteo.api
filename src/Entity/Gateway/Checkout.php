@@ -109,7 +109,7 @@ class Checkout
 
     public function __construct()
     {
-        $this->status = CheckoutStatus::Pending;
+        $this->status = CheckoutStatus::InPending;
         $this->charges = new ArrayCollection();
     }
 

@@ -85,7 +85,7 @@ class Charge
      */
     #[Gedmo\Versioned]
     #[ORM\Column()]
-    private ?ChargeStatus $status = ChargeStatus::Pending;
+    private ?ChargeStatus $status = ChargeStatus::InPending;
 
     public function __construct()
     {

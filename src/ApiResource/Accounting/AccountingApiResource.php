@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Matchfunding\MatchCallApiResource;
 use App\ApiResource\Project\ProjectApiResource;
+use App\ApiResource\TipjarApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Matchfunding\MatchCall;
@@ -58,7 +59,7 @@ class AccountingApiResource
     /**
      * The resource owning this Accounting.
      *
-     * @return UserApiResource|ProjectApiResource|Tipjar
+     * @return UserApiResource|ProjectApiResource|TipjarApiResource
      */
     public function getOwner(): ?object
     {
@@ -83,7 +84,7 @@ class AccountingApiResource
     public ?ProjectApiResource $project = null;
 
     #[API\ApiProperty(readable: false, writable: false)]
-    public ?Tipjar $tipjar = null;
+    public ?TipjarApiResource $tipjar = null;
 
     #[API\ApiProperty(readable: false, writable: false)]
     public ?MatchCallApiResource $matchCall;
