@@ -86,4 +86,24 @@ class ChargeApiResource
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public ChargeStatus $status = ChargeStatus::InPending;
+
+    #[API\ApiProperty(
+        readable: true,
+        writable: false,
+        types: ['https://schema.org/totalContributions'],
+        jsonldContext: [
+            '@type' => 'http://www.w3.org/2001/XMLSchema#integer',
+        ]
+    )]
+    public ?int $totalContributions = null;
+
+    #[API\ApiProperty(
+        readable: true,
+        writable: false,
+        types: ['https://schema.org/totalTips'],
+        jsonldContext: [
+            '@type' => 'http://www.w3.org/2001/XMLSchema#integer',
+        ]
+    )]
+    public ?int $totalTips = null;
 }
