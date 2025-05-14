@@ -50,6 +50,10 @@ class ProjectApiResource
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
+    public string $slug;
+
     /**
      * The Accounting holding the funds raised by this Project.
      */
