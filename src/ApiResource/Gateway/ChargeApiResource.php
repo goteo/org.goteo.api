@@ -6,7 +6,6 @@ use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\Dto\Gateway\ChargeGetCollectionDto;
 use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Entity\Money;
@@ -14,7 +13,6 @@ use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\ChargeStateProcessor;
-use App\State\Gateway\ChargeStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -23,11 +21,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\ApiResource(
     shortName: 'GatewayCharge',
     stateOptions: new Options(entityClass: Charge::class),
-    // provider: ApiResourceStateProvider::class
-    provider: ChargeStateProvider::class,
+    provider: ApiResourceStateProvider::class,
 )]
-#[API\Get()]
-#[API\GetCollection(output: ChargeGetCollectionDto::class)]
+#[API\Get]
+#[API\GetCollection]
 #[API\Patch(
     input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
@@ -89,24 +86,4 @@ class ChargeApiResource
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public ChargeStatus $status = ChargeStatus::InPending;
-
-    #[API\ApiProperty(
-        readable: true,
-        writable: false,
-        types: ['https://schema.org/totalContributions'],
-        jsonldContext: [
-            '@type' => 'http://www.w3.org/2001/XMLSchema#integer',
-        ]
-    )]
-    public ?int $totalContributions = null;
-
-    #[API\ApiProperty(
-        readable: true,
-        writable: false,
-        types: ['https://schema.org/totalTips'],
-        jsonldContext: [
-            '@type' => 'http://www.w3.org/2001/XMLSchema#integer',
-        ]
-    )]
-    public ?int $totalTips = null;
 }
