@@ -5,6 +5,7 @@ namespace App\Gateway;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Repository\Gateway\CheckoutRepository;
+use App\Service\Gateway\ChargeService;
 use App\Service\Gateway\CheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -19,6 +20,7 @@ abstract class AbstractGateway implements GatewayInterface
 
     protected CheckoutService $checkoutService;
     protected CheckoutRepository $checkoutRepository;
+    protected ChargeService $chargeService;
     protected EntityManagerInterface $entityManager;
 
     #[Required]
@@ -31,6 +33,12 @@ abstract class AbstractGateway implements GatewayInterface
     public function setCheckoutRepository(CheckoutRepository $checkoutRepository)
     {
         $this->checkoutRepository = $checkoutRepository;
+    }
+
+    #[Required]
+    public function setChargeService(ChargeService $chargeService)
+    {
+        $this->chargeService = $chargeService;
     }
 
     #[Required]

@@ -88,7 +88,7 @@ class CheckoutApiResource
      * The status of this Checkout, as confirmed by the Gateway.
      */
     #[API\ApiProperty(writable: false)]
-    public CheckoutStatus $status = CheckoutStatus::Pending;
+    public CheckoutStatus $status = CheckoutStatus::InPending;
 
     /**
      * A list of related hyperlinks, as provided by the Gateway.
@@ -109,6 +109,9 @@ class CheckoutApiResource
     #[MapTo(Checkout::class, transformer: 'parseTrackings')]
     #[MapFrom(Checkout::class, transformer: 'parseTrackings')]
     public array $trackings = [];
+
+    public \DateTimeInterface $dateCreated;
+    public \DateTimeInterface $dateUpdated;
 
     public static function parseLinks(array $values)
     {

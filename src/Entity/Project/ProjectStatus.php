@@ -15,7 +15,7 @@ enum ProjectStatus: string
     /**
      * Owner finished editing and Project is ready for review.
      */
-    case InPending = 'in_pending';
+    case ToReview = 'to_review';
 
     /**
      * An admin is reviewing the Project.

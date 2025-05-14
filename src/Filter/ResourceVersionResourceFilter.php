@@ -47,7 +47,7 @@ final class ResourceVersionResourceFilter extends AbstractFilter
                 'description' => 'The name of the resource.',
                 'schema' => [
                     'type' => Type::BUILTIN_TYPE_STRING,
-                    'enum' => $this->versionedResourceService->getNames(),
+                    'enum' => \array_keys($this->versionedResourceService->getNames()),
                 ],
                 'openapi' => [
                     'allowEmptyValue' => false,

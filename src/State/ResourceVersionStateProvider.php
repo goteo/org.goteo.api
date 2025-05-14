@@ -6,7 +6,7 @@ use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Version;
-use App\Service\ApiResourceNormalizer;
+use App\Service\VersionedResourceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\Mapping\MappingException;
 use Gedmo\Loggable\Entity\LogEntry;
@@ -33,6 +33,8 @@ class ResourceVersionStateProvider implements ProviderInterface
                     $context['request']->query->get('resource'),
                     $context['request']->query->get('resourceId')
                 );
+            default:
+                throw new \Exception('Operation not supported for Version resource', 1);
         }
     }
 
@@ -48,8 +50,9 @@ class ResourceVersionStateProvider implements ProviderInterface
         }
 
         $entity = $this->entityManager->find($log->getObjectClass(), $log->getObjectId());
+        $resourceName = VersionedResourceService::getResourceFromEntity($entity::class);
 
-        return new Version($log, $entity);
+        return new Version($log, $resourceName);
     }
 
     /**
@@ -57,10 +60,10 @@ class ResourceVersionStateProvider implements ProviderInterface
      */
     private function getVersions(string $resourceName, int $resourceId): array
     {
-        $resourceClass = ApiResourceNormalizer::toEntity($resourceName);
+        $entityClass = VersionedResourceService::getEntityFromResource($resourceName);
 
         try {
-            $entity = $this->entityManager->find($resourceClass, $resourceId);
+            $entity = $this->entityManager->find($entityClass, $resourceId);
         } catch (MappingException $e) {
             throw new NotFoundHttpException(sprintf("Resource '%s' does not exist", $resourceName));
         }
@@ -73,7 +76,7 @@ class ResourceVersionStateProvider implements ProviderInterface
 
         $versions = [];
         foreach ($logs as $log) {
-            $versions[] = new Version($log, $entity);
+            $versions[] = new Version($log, $resourceName);
         }
 
         return $versions;
