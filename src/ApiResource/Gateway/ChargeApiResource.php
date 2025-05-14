@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\Gateway\ChargeGetCollectionDto;
 use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Entity\Money;
@@ -13,6 +14,7 @@ use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\ChargeStateProcessor;
+use App\State\Gateway\ChargeStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -21,10 +23,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\ApiResource(
     shortName: 'GatewayCharge',
     stateOptions: new Options(entityClass: Charge::class),
-    provider: ApiResourceStateProvider::class
+    // provider: ApiResourceStateProvider::class
+    provider: ChargeStateProvider::class,
 )]
 #[API\Get()]
-#[API\GetCollection()]
+#[API\GetCollection(output: ChargeGetCollectionDto::class)]
 #[API\Patch(
     input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
