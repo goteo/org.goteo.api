@@ -60,6 +60,7 @@ class ProjectsPump implements PumpInterface
         $project = new Project();
         $project->setTranslatableLocale($record['lang']);
         $project->setTitle($record['name']);
+        $project->setSlug($record['id']);
         $project->setSubtitle($record['subtitle']);
         $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
