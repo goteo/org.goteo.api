@@ -19,6 +19,7 @@ use App\Entity\Project\ProjectVideo;
 use App\Mapping\Transformer\BudgetMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
+use App\State\Project\ProjectStateProvider;
 use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -37,11 +38,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     security: 'is_granted("ROLE_USER")',
 )]
 #[API\Get(
+    provider: ProjectStateProvider::class,
     uriTemplate: '/projects/{idOrSlug}',
     uriVariables: [
         'idOrSlug' => new API\Link(
             description: 'Project identifier or slug',
-        )
+        ),
     ]
 )]
 #[API\Patch(
