@@ -73,6 +73,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      * The description body for the Project.
      */
     #[ORM\Column(type: Types::TEXT)]
+    #[Gedmo\Translatable()]
     private ?string $description = null;
 
     /**
