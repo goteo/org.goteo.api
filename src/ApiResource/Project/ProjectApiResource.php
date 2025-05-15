@@ -36,7 +36,14 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: ProjectStateProcessor::class,
     security: 'is_granted("ROLE_USER")',
 )]
-#[API\Get()]
+#[API\Get(
+    uriTemplate: '/projects/{idOrSlug}',
+    uriVariables: [
+        'idOrSlug' => new API\Link(
+            description: 'Project identifier or slug',
+        )
+    ]
+)]
 #[API\Patch(
     input: ProjectUpdationDto::class,
     processor: ProjectStateProcessor::class,
