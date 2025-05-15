@@ -49,7 +49,7 @@ class ProjectsBudgetPump implements PumpInterface
             return;
         }
 
-        $project = $this->getBudgetProject($record);
+        $project = $this->getProject($record);
         if ($project === null) {
             return;
         }
@@ -66,7 +66,7 @@ class ProjectsBudgetPump implements PumpInterface
         $this->persist($budgetItem, $context);
     }
 
-    private function getBudgetProject(array $record): ?Project
+    private function getProject(array $record): ?Project
     {
         return $this->projectRepository->findOneBy(['migratedId' => $record['project']]);
     }
