@@ -8,17 +8,18 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\User\UserApiResource;
-use App\Dto\ProjectCreateDto;
-use App\Dto\ProjectUpdateDto;
-use App\Entity\Project\Category;
+use App\Dto\ProjectCreationDto;
+use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
+use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
 use App\Mapping\Transformer\BudgetMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
+use App\State\Project\ProjectStateProvider;
 use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -32,13 +33,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\GetCollection()]
 #[API\Post(
-    input: ProjectCreateDto::class,
+    input: ProjectCreationDto::class,
     processor: ProjectStateProcessor::class,
     security: 'is_granted("ROLE_USER")',
 )]
-#[API\Get()]
+#[API\Get(
+    provider: ProjectStateProvider::class,
+    uriTemplate: '/projects/{idOrSlug}',
+    uriVariables: [
+        'idOrSlug' => new API\Link(
+            description: 'Project identifier or slug',
+        ),
+    ]
+)]
 #[API\Patch(
-    input: ProjectUpdateDto::class,
+    input: ProjectUpdationDto::class,
     processor: ProjectStateProcessor::class,
     security: 'is_granted("PROJECT_EDIT", previous_object)',
 )]
@@ -49,6 +58,13 @@ class ProjectApiResource
 
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
+
+    /**
+     * A unique, non white space, string identifier for this Project.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
+    public string $slug;
 
     /**
      * The Accounting holding the funds raised by this Project.
@@ -95,7 +111,7 @@ class ProjectApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    public Category $category;
+    public ProjectCategory $category;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

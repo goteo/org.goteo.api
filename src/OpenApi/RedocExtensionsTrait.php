@@ -36,6 +36,7 @@ trait RedocExtensionsTrait
                     'ProjectRewardClaim',
                     'ProjectBudgetItem',
                     'ProjectUpdate',
+                    'ProjectSupport',
                 ],
             ],
             [

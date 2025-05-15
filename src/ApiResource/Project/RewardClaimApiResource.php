@@ -4,10 +4,13 @@ namespace App\ApiResource\Project;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\Gateway\ChargeApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\RewardClaim;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardClaimStateProcessor;
+use App\Validator\AvailableRewardUnits;
+use App\Validator\EnoughRewardCharge;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,20 +22,28 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: RewardClaimStateProcessor::class
 )]
+#[EnoughRewardCharge()]
 class RewardClaimApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
     /**
-     * The ProjectReward being claimed.
-     */
-    #[Assert\NotBlank()]
-    public RewardApiResource $reward;
-
-    /**
      * The User claiming the ProjectReward.
      */
     #[API\ApiProperty(writable: false)]
     public UserApiResource $owner;
+
+    /**
+     * The GatewayCharge granting access to the ProjectReward.
+     */
+    #[Assert\NotBlank()]
+    public ChargeApiResource $charge;
+
+    /**
+     * The ProjectReward being claimed.
+     */
+    #[Assert\NotBlank()]
+    #[AvailableRewardUnits()]
+    public RewardApiResource $reward;
 }

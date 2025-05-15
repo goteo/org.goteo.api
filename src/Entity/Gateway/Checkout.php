@@ -8,6 +8,7 @@ use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
+use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\CheckoutRepository;
@@ -68,6 +69,12 @@ class Checkout
     private Collection $charges;
 
     /**
+     * The strategy to refund the payment.
+     */
+    #[ORM\Column(enumType: RefundStrategy::class)]
+    private ?RefundStrategy $refundStrategy = RefundStrategy::ToWallet;
+
+    /**
      * The address to where the user must be redirected to.
      */
     #[Assert\NotBlank()]
@@ -102,7 +109,7 @@ class Checkout
 
     public function __construct()
     {
-        $this->status = CheckoutStatus::Pending;
+        $this->status = CheckoutStatus::InPending;
         $this->charges = new ArrayCollection();
     }
 
@@ -180,6 +187,18 @@ class Checkout
         return $this;
     }
 
+    public function getRefundStrategy(): ?RefundStrategy
+    {
+        return $this->refundStrategy;
+    }
+
+    public function setRefundStrategy(?RefundStrategy $refundStrategy): static
+    {
+        $this->refundStrategy = $refundStrategy;
+
+        return $this;
+    }
+
     public function getReturnUrl(): ?string
     {
         return $this->returnUrl;
@@ -190,6 +209,11 @@ class Checkout
         $this->returnUrl = $returnUrl;
 
         return $this;
+    }
+
+    public function isCharged(): bool
+    {
+        return $this->status === CheckoutStatus::Charged;
     }
 
     public function getStatus(): ?CheckoutStatus
@@ -224,6 +248,8 @@ class Checkout
 
     public function addLink(Link $link): static
     {
+        $this->removeLink($link);
+
         $this->links = [...$this->links, $link];
 
         return $this;
@@ -232,7 +258,7 @@ class Checkout
     public function removeLink(Link $link): static
     {
         $this->links = \array_filter(
-            $this->links,
+            \array_map(fn($l) => Link::tryFrom($l), $this->links),
             function (Link $existingLink) use ($link) {
                 return $existingLink->href !== $link->href;
             }
@@ -246,7 +272,7 @@ class Checkout
      */
     public function getTrackings(): array
     {
-        return $this->trackings;
+        return array_map(fn($t) => Tracking::tryFrom($t), $this->trackings);
     }
 
     /**
@@ -261,6 +287,8 @@ class Checkout
 
     public function addTracking(Tracking $tracking): static
     {
+        $this->removeTracking($tracking);
+
         $this->trackings = [...$this->trackings, $tracking];
 
         return $this;
@@ -269,7 +297,7 @@ class Checkout
     public function removeTracking(Tracking $tracking): static
     {
         $this->trackings = \array_filter(
-            $this->trackings,
+            \array_map(fn($t) => Tracking::tryFrom($t), $this->trackings),
             function (Tracking $existingTracking) use ($tracking) {
                 return $existingTracking->title !== $tracking->title
                     && $existingTracking->value !== $tracking->value;

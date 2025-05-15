@@ -2,8 +2,8 @@
 
 namespace App\Benzina;
 
-use App\Entity\Project\Category;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectTerritory;
@@ -60,6 +60,7 @@ class ProjectsPump implements PumpInterface
         $project = new Project();
         $project->setTranslatableLocale($record['lang']);
         $project->setTitle($record['name']);
+        $project->setSlug($record['id']);
         $project->setSubtitle($record['subtitle']);
         $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
@@ -107,44 +108,43 @@ class ProjectsPump implements PumpInterface
             case 6:
                 return ProjectStatus::Unfunded;
             case 4:
-                return ProjectStatus::InFunding;
             case 5:
-                return ProjectStatus::Fulfilled;
+                return ProjectStatus::Funded;
             case 0:
             default:
                 return ProjectStatus::Rejected;
         }
     }
 
-    private function getProjectCategory(array $record): Category
+    private function getProjectCategory(array $record): ProjectCategory
     {
         switch ($record['social_commitment']) {
             case 1:
-                return Category::Solidary;
+                return ProjectCategory::Solidary;
             case 2:
-                return Category::LibreSoftware;
+                return ProjectCategory::LibreSoftware;
             case 3:
             case 16:
-                return Category::Employment;
+                return ProjectCategory::Employment;
             case 5:
-                return Category::Journalism;
+                return ProjectCategory::Journalism;
             case 6:
-                return Category::Education;
+                return ProjectCategory::Education;
             case 7:
-                return Category::Culture;
+                return ProjectCategory::Culture;
             case 8:
             case 15:
-                return Category::Ecology;
+                return ProjectCategory::Ecology;
             case 11:
             case 12:
-                return Category::Democracy;
+                return ProjectCategory::Democracy;
             case 13:
-                return Category::Equity;
+                return ProjectCategory::Equity;
             case 14:
-                return Category::HealthCares;
+                return ProjectCategory::HealthCares;
             case 10:
             default:
-                return Category::OpenData;
+                return ProjectCategory::OpenData;
         }
     }
 
@@ -238,7 +238,7 @@ class ProjectsPump implements PumpInterface
     {
         $query = $this->getDbConnection($context)->prepare(
             "SELECT * FROM `post` p
-                INNER JOIN `blog` b ON b.id = p.id
+                INNER JOIN `blog` b ON b.id = p.blog
                 WHERE b.type = 'project'
                     AND b.owner = :project
             "

@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 final class UserQueryFilter extends AbstractFilter
 {
     public function __construct(
-        protected ManagerRegistry $managerRegistry,
+        protected ?ManagerRegistry $managerRegistry,
         ?LoggerInterface $logger = null,
         protected ?array $properties = null,
         protected ?NameConverterInterface $nameConverter = null,

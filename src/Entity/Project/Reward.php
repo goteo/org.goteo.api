@@ -3,6 +3,7 @@
 namespace App\Entity\Project;
 
 use App\Entity\Money;
+use App\Entity\Trait\LocalizedEntityTrait;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\RewardRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -10,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
@@ -19,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: RewardRepository::class)]
 class Reward
 {
+    use LocalizedEntityTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -29,9 +33,11 @@ class Reward
     private ?Project $project = null;
 
     #[ORM\Column(length: 255)]
+    #[Gedmo\Translatable()]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Gedmo\Translatable()]
     private ?string $description = null;
 
     /**

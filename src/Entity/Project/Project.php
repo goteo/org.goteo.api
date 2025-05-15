@@ -43,6 +43,10 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[Gedmo\Translatable()]
     private ?string $title = null;
 
+    #[ORM\Column(length: 56, unique: true)]
+    #[Gedmo\Slug(fields: ['title'])]
+    private ?string $slug = null;
+
     /**
      * Secondary head-line for the project.
      */
@@ -56,8 +60,8 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Embedded(class: ProjectCalendar::class)]
     private ?ProjectCalendar $calendar = null;
 
-    #[ORM\Column(enumType: Category::class)]
-    private ?Category $category = null;
+    #[ORM\Column(enumType: ProjectCategory::class)]
+    private ?ProjectCategory $category = null;
 
     /**
      * Project's territory of interest.
@@ -69,6 +73,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      * The description body for the Project.
      */
     #[ORM\Column(type: Types::TEXT)]
+    #[Gedmo\Translatable()]
     private ?string $description = null;
 
     /**
@@ -116,12 +121,19 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project', cascade: ['persist'])]
     private Collection $updates;
 
+    /**
+     * @var Collection<int, Support>
+     */
+    #[ORM\OneToMany(targetEntity: Support::class, mappedBy: 'project')]
+    private Collection $supports;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
         $this->budgetItems = new ArrayCollection();
         $this->updates = new ArrayCollection();
+        $this->supports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -144,6 +156,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
@@ -184,12 +208,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getCategory(): ?Category
+    public function getCategory(): ?ProjectCategory
     {
         return $this->category;
     }
 
-    public function setCategory(Category $category): static
+    public function setCategory(ProjectCategory $category): static
     {
         $this->category = $category;
 
@@ -340,6 +364,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($update->getProject() === $this) {
                 $update->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Support>
+     */
+    public function getSupports(): Collection
+    {
+        return $this->supports;
+    }
+
+    public function addSupport(Support $support): static
+    {
+        if (!$this->supports->contains($support)) {
+            $this->supports->add($support);
+            $support->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupport(Support $support): static
+    {
+        if ($this->supports->removeElement($support)) {
+            // set the owning side to null (unless already changed)
+            if ($support->getProject() === $this) {
+                $support->setProject(null);
             }
         }
 

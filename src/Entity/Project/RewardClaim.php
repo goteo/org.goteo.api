@@ -2,6 +2,7 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\Gateway\Charge;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\UserOwnedTrait;
 use App\Entity\User\User;
@@ -22,6 +23,10 @@ class RewardClaim implements UserOwnedInterface
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Charge $charge = null;
+
     #[ORM\ManyToOne(inversedBy: 'claims')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Reward $reward = null;
@@ -33,6 +38,18 @@ class RewardClaim implements UserOwnedInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCharge(): ?Charge
+    {
+        return $this->charge;
+    }
+
+    public function setCharge(Charge $charge): static
+    {
+        $this->charge = $charge;
+
+        return $this;
     }
 
     public function getReward(): ?Reward

@@ -5,10 +5,11 @@ namespace App\ApiResource\Gateway;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
-use App\Gateway\LinkType;
+use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
 use App\Mapping\Transformer\GatewayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
@@ -26,9 +27,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: CheckoutStateProcessor::class,
 )]
-#[API\GetCollection()]
+#[API\GetCollection(
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")'
+)]
 #[API\Post()]
 #[API\Get()]
+#[API\Patch(
+    input: CheckoutUpdationDto::class,
+    security: 'is_granted("CHECKOUT_EDIT", object)'
+)]
 class CheckoutApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
@@ -60,17 +67,28 @@ class CheckoutApiResource
 
     /**
      * Gateways will redirect the user back to the v4 API,
-     * which will then redirect the user to this address.
+     * which will then redirect the user to this address.\
+     * \
+     * An URL query param `checkoutId` with the Checkout ID value
+     * will be appended on the redirection.
      */
     #[Assert\NotBlank()]
     #[Assert\Url()]
     public string $returnUrl;
 
     /**
+     * The strategy chosen by the User to decide where the money will go to
+     * in the event that one Charge needs to be returned.
+     */
+    #[MapTo(Checkout::class, property: 'refundStrategy')]
+    #[MapFrom(Checkout::class, property: 'refundStrategy')]
+    public RefundStrategy $refund = RefundStrategy::ToWallet;
+
+    /**
      * The status of this Checkout, as confirmed by the Gateway.
      */
     #[API\ApiProperty(writable: false)]
-    public CheckoutStatus $status = CheckoutStatus::Pending;
+    public CheckoutStatus $status = CheckoutStatus::InPending;
 
     /**
      * A list of related hyperlinks, as provided by the Gateway.
@@ -78,7 +96,8 @@ class CheckoutApiResource
      * @var Link[]
      */
     #[API\ApiProperty(writable: false)]
-    #[MapFrom(transformer: [self::class, 'parseLinks'])]
+    #[MapTo(Checkout::class, transformer: [self::class, 'parseLinks'])]
+    #[MapFrom(Checkout::class, transformer: [self::class, 'parseLinks'])]
     public array $links = [];
 
     /**
@@ -87,30 +106,20 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
-    #[MapFrom(transformer: [self::class, 'parseTrackings'])]
+    #[MapTo(Checkout::class, transformer: 'parseTrackings')]
+    #[MapFrom(Checkout::class, transformer: 'parseTrackings')]
     public array $trackings = [];
+
+    public \DateTimeInterface $dateCreated;
+    public \DateTimeInterface $dateUpdated;
 
     public static function parseLinks(array $values)
     {
-        return \array_map(function ($value) {
-            $link = new Link();
-            $link->href = $value['href'];
-            $link->rel = $value['rel'];
-            $link->method = $value['method'];
-            $link->type = LinkType::tryFrom($value['type']);
-
-            return $link;
-        }, $values);
+        return \array_map(fn($value) => Link::tryFrom($value), $values);
     }
 
     public static function parseTrackings(array $values)
     {
-        return \array_map(function ($value) {
-            $tracking = new Tracking();
-            $tracking->title = $value['title'];
-            $tracking->value = $value['value'];
-
-            return $tracking;
-        }, $values);
+        return \array_map(fn($value) => Tracking::tryFrom($value), $values);
     }
 }

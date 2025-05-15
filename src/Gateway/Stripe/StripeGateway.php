@@ -205,4 +205,36 @@ class StripeGateway extends AbstractGateway
 
         return $product;
     }
+
+    public function processRefund(Charge $charge): void
+    {
+        $trackings = $charge->getCheckout()->getTrackings();
+        $filteredTrackings = array_filter(
+            $trackings,
+            fn(Tracking $tracking) => $tracking->title === self::TRACKING_TITLE_CHECKOUT
+        );
+
+        $firstTracking = $filteredTrackings[0] ?? null;
+
+        if (!$firstTracking || $firstTracking->title !== self::TRACKING_TITLE_CHECKOUT) {
+            throw new \Exception('Tracking not found or not related to Stripe checkout.');
+        }
+
+        $sessionId = $firstTracking->value;
+
+        if (!$sessionId) {
+            throw new \Exception('Session ID not found for the charge.');
+        }
+
+        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
+
+        $paymentIntent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
+
+        $this->stripe->refunds->create([
+            'payment_intent' => $paymentIntent->id,
+            'amount' => $charge->getMoney()->amount,
+        ]);
+
+        $this->chargeService->addRefundTransaction($charge);
+    }
 }

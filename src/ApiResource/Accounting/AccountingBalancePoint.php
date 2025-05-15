@@ -28,10 +28,17 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         'interval' => new QueryParameter(
             schema: ['type' => 'string', 'default' => '24h'],
-            constraints: [new Assert\Choice(['24h'])],
+            constraints: [new Assert\Regex([
+                'pattern' => '/^\d+(h|d|w)$/',
+                'message' => 'Must be a number followed by h, d, or w (e.g. 1h, 24h, 2d, 1w)',
+            ])],
         ),
         'end' => new QueryParameter(
             schema: ['type' => 'string', 'format' => 'date-time', 'default' => 'now'],
+        ),
+        'aggregate' => new QueryParameter(
+            schema: ['type' => 'boolean', 'default' => false],
+            description: 'If true, the balance points are cumulative over time.',
         ),
     ],
 )]
