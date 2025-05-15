@@ -59,12 +59,13 @@ class ProjectsRewardsPump implements PumpInterface
             return;
         }
 
-        $project = $this->getBudgetProject($record);
+        $project = $this->getProject($record);
         if ($project === null) {
             return;
         }
 
         $reward = new Reward();
+        $reward->setTranslatableLocale($project->getLocales()[0]);
         $reward->setProject($project);
         $reward->setTitle($record['reward']);
         $reward->setDescription($record['description'] ?? $record['reward']);
@@ -76,7 +77,7 @@ class ProjectsRewardsPump implements PumpInterface
         $this->persist($reward, $context);
     }
 
-    private function getBudgetProject(array $record): ?Project
+    private function getProject(array $record): ?Project
     {
         return $this->projectRepository->findOneBy(['migratedId' => $record['project']]);
     }
