@@ -13,9 +13,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ProjectCreationDto
 {
     /**
-     * Main headline for the Project.
+     * Main headline for the Project. Must include at least one character between a-Z.
      */
     #[Assert\NotBlank()]
+    #[Assert\Regex('/[a-zA-Z]{1,}/')]
     public string $title;
 
     /**
