@@ -59,6 +59,9 @@ class ProjectApiResource
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
+    /**
+     * A unique, non white space, string identifier for this Project.
+     */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public string $slug;
