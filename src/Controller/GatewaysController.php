@@ -29,11 +29,11 @@ class GatewaysController extends AbstractController
         return $gateway->handleRedirect($request);
     }
 
-    #[Route('/gateway_webhooks', name: self::WEBHOOKS)]
-    public function handleWebhook(Request $request): Response
+    #[Route('/gateway_webhooks/{gateway}', name: self::WEBHOOKS)]
+    public function handleWebhook(Request $request, string $gateway): Response
     {
-        $gateway = $this->gatewayLocator->get($request->query->get('gateway'));
+        $handler = $this->gatewayLocator->get($gateway);
 
-        return $gateway->handleWebhook($request);
+        return $handler->handleWebhook($request);
     }
 }

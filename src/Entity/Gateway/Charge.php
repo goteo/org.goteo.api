@@ -5,7 +5,8 @@ namespace App\Entity\Gateway;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
-use App\Entity\Project\Support;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\Mapping\Provider\EntityMapProvider;
@@ -27,6 +28,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
 {
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -76,9 +80,6 @@ class Charge
     #[ORM\JoinTable(name: 'checkout_charge_transaction')]
     #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
-
-    #[ORM\ManyToOne(inversedBy: 'charges')]
-    private ?Support $support = null;
 
     /**
      * The status of the charge with the Gateway.
@@ -190,18 +191,6 @@ class Charge
     public function removeTransaction(Transaction $transaction): static
     {
         $this->transactions->removeElement($transaction);
-
-        return $this;
-    }
-
-    public function getSupport(): ?Support
-    {
-        return $this->support;
-    }
-
-    public function setSupport(?Support $support): static
-    {
-        $this->support = $support;
 
         return $this;
     }

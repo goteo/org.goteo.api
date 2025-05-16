@@ -7,3 +7,4 @@ stof_doctrine_extensions:
             translatable: true
             loggable: true
             timestampable: true
+            sluggable: true

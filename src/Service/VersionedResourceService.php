@@ -43,7 +43,7 @@ class VersionedResourceService
     /**
      * Stores the given names in lock file.
      *
-     * @param string[] $names
+     * @param array<string, string> $names
      */
     public function compileNames(array $names)
     {
@@ -51,17 +51,45 @@ class VersionedResourceService
 
         \file_put_contents(
             self::getNamesLockFile(),
-            implode(PHP_EOL, $names)
+            json_encode($names)
         );
     }
 
     /**
-     * @return array<string> List of the versioned resource names
+     * @return array<string, string> List of the versioned resource names
      *
      * @see compileNames()
      */
     public static function getNames(): array
     {
-        return explode(PHP_EOL, \file_get_contents(self::getNamesLockFile()));
+        return json_decode(\file_get_contents(self::getNamesLockFile()), true);
+    }
+
+    public static function getEntityFromResource(string $resourceShortName): string
+    {
+        $names = self::getNames();
+
+        if (\array_key_exists($resourceShortName, $names)) {
+            return $names[$resourceShortName];
+        }
+
+        throw new \Exception(\sprintf(
+            "The resource shortName '%s' does not match to a known versioned resource",
+            $resourceShortName
+        ));
+    }
+
+    public static function getResourceFromEntity(string $entityClass): string
+    {
+        foreach (self::getNames() as $shortName => $entityFqcl) {
+            if ($entityFqcl === $entityClass) {
+                return $shortName;
+            }
+        }
+
+        throw new \Exception(\sprintf(
+            "The entity class name '%s' does not match to a known versioned resource",
+            $entityClass
+        ));
     }
 }
