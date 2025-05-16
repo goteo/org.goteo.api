@@ -20,6 +20,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'GatewayCharge',
+    normalizationContext: ['groups' => ['charge:read']],
+    denormalizationContext: ['groups' => ['charge:write']],
     stateOptions: new Options(entityClass: Charge::class),
     provider: ApiResourceStateProvider::class,
 )]

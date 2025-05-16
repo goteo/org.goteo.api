@@ -27,6 +27,8 @@ use AutoMapper\Attribute\MapFrom;
  */
 #[API\ApiResource(
     shortName: 'Accounting',
+    normalizationContext: ['groups' => ['accounting:read']],
+    denormalizationContext: ['groups' => ['accounting:write']],
     stateOptions: new Options(entityClass: Accounting::class),
     provider: AccountingStateProvider::class,
     processor: AccountingStateProcessor::class,

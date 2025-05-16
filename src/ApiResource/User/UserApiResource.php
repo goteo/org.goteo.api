@@ -22,6 +22,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'User',
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
     stateOptions: new Options(entityClass: User::class),
     provider: ApiResourceStateProvider::class,
     processor: UserStateProcessor::class,
