@@ -2,6 +2,7 @@
 
 namespace App\ApiResource;
 
+use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -38,5 +39,6 @@ class TipjarApiResource
      * Human readable, non white space, unique string.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'partial')]
     public string $name;
 }
