@@ -23,9 +23,9 @@ class ApiResourceStateProvider implements ProviderInterface
 
     private function handleCollection(
         Operation $operation,
+        string $resourceClass,
         array $uriVariables = [],
         array $context = [],
-        string $resourceClass,
     ): TraversablePaginator|array {
         $collection = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
@@ -59,7 +59,7 @@ class ApiResourceStateProvider implements ProviderInterface
         $resourceClass = $operation->getClass();
 
         if ($operation instanceof CollectionOperationInterface) {
-            return $this->handleCollection($operation, $uriVariables, $context, $resourceClass);
+            return $this->handleCollection($operation, $resourceClass, $uriVariables, $context);
         }
 
         $item = $this->itemProvider->provide($operation, $uriVariables, $context);
