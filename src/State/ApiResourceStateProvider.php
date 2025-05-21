@@ -33,6 +33,15 @@ class ApiResourceStateProvider implements ProviderInterface
                 $resources[] = $this->autoMapper->map($item, $resourceClass);
             }
 
+            $isPaginated = filter_var(
+                $context['filters']['pagination'] ?? true,
+                FILTER_VALIDATE_BOOL
+            );
+
+            if (!$isPaginated) {
+                return $resources;
+            }
+
             return new TraversablePaginator(
                 new \ArrayIterator($resources),
                 $collection->getCurrentPage(),
