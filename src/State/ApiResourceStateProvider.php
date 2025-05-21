@@ -21,33 +21,45 @@ class ApiResourceStateProvider implements ProviderInterface
         private AutoMapper $autoMapper,
     ) {}
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
-    {
+    private function handleCollection(
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+        string $resourceClass,
+    ): TraversablePaginator|array {
+        $collection = $this->collectionProvider->provide($operation, $uriVariables, $context);
+
+        $resources = [];
+        foreach ($collection as $item) {
+            $resources[] = $this->autoMapper->map($item, $resourceClass);
+        }
+
+        $isPaginated = filter_var(
+            $context['filters']['pagination'] ?? true,
+            FILTER_VALIDATE_BOOL
+        );
+
+        if (!$isPaginated) {
+            return $resources;
+        }
+
+        return new TraversablePaginator(
+            new \ArrayIterator($resources),
+            $collection->getCurrentPage(),
+            $collection->getItemsPerPage(),
+            $collection->getTotalItems()
+        );
+    }
+
+    public function provide(
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = [],
+    ): object|array|null {
         $resourceClass = $operation->getClass();
 
         if ($operation instanceof CollectionOperationInterface) {
-            $collection = $this->collectionProvider->provide($operation, $uriVariables, $context);
-
-            $resources = [];
-            foreach ($collection as $item) {
-                $resources[] = $this->autoMapper->map($item, $resourceClass);
-            }
-
-            $isPaginated = filter_var(
-                $context['filters']['pagination'] ?? true,
-                FILTER_VALIDATE_BOOL
-            );
-
-            if (!$isPaginated) {
-                return $resources;
-            }
-
-            return new TraversablePaginator(
-                new \ArrayIterator($resources),
-                $collection->getCurrentPage(),
-                $collection->getItemsPerPage(),
-                $collection->getTotalItems()
-            );
+            return $this->handleCollection($operation, $uriVariables, $context, $resourceClass);
         }
 
         $item = $this->itemProvider->provide($operation, $uriVariables, $context);
