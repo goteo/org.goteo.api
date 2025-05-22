@@ -29,7 +29,7 @@ class Tracking
 
     public function __construct(
         ?string $title = null,
-        ?string $value = null
+        ?string $value = null,
     ) {
         $this->title = $title ?? $title;
         $this->value = $value ?? $value;

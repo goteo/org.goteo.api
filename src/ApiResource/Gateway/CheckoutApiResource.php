@@ -106,8 +106,6 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
-    #[MapTo(Checkout::class, transformer: 'parseTrackings')]
-    #[MapFrom(Checkout::class, transformer: 'parseTrackings')]
     public array $trackings = [];
 
     public \DateTimeInterface $dateCreated;
@@ -116,10 +114,5 @@ class CheckoutApiResource
     public static function parseLinks(array $values)
     {
         return \array_map(fn($value) => Link::tryFrom($value), $values);
-    }
-
-    public static function parseTrackings(array $values)
-    {
-        return \array_map(fn($value) => Tracking::tryFrom($value), $values);
     }
 }

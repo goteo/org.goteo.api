@@ -19,7 +19,7 @@ class TrackingMapProvider implements ProviderInterface
     {
         return $this->trackingRepository->findOneBy([
             'title' => $source->title,
-            'value' => $source->value
+            'value' => $source->value,
         ]);
     }
 }
