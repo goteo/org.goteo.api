@@ -4,12 +4,12 @@ namespace App\Gateway\Paypal;
 
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\Tracking;
 use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\LinkType;
-use App\Gateway\Tracking;
 use Brick\Money\Money as BrickMoney;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -64,9 +64,7 @@ class PaypalGateway extends AbstractGateway
             'payment_source' => $this->getPaypalPaymentSource($checkout),
         ]);
 
-        $tracking = new Tracking();
-        $tracking->title = self::TRACKING_TITLE_ORDER;
-        $tracking->value = $order['id'];
+        $tracking = new Tracking(self::TRACKING_TITLE_ORDER, $order['id']);
 
         $checkout->addTracking($tracking);
 
@@ -111,9 +109,10 @@ class PaypalGateway extends AbstractGateway
         }
 
         foreach ($capture['purchase_units'] as $purchaseUnit) {
-            $tracking = new Tracking();
-            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
-            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
+            $tracking = new Tracking(
+                self::TRACKING_TITLE_TRANSACTION,
+                $purchaseUnit['payments']['captures'][0]['id']
+            );
 
             $checkout->addTracking($tracking);
         }
@@ -189,9 +188,10 @@ class PaypalGateway extends AbstractGateway
         }
 
         foreach ($event['resource']['purchase_units'] as $purchaseUnit) {
-            $tracking = new Tracking();
-            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
-            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
+            $tracking = new Tracking(
+                self::TRACKING_TITLE_TRANSACTION,
+                $purchaseUnit['payments']['captures'][0]['id']
+            );
 
             $checkout->addTracking($tracking);
         }
@@ -263,16 +263,15 @@ class PaypalGateway extends AbstractGateway
     public function processRefund(Charge $charge): void
     {
         $trackings = $charge->getCheckout()->getTrackings();
-        $captureTracking = current(array_filter(
-            $trackings,
-            fn(Tracking $tracking) => $tracking->title === self::TRACKING_TITLE_TRANSACTION && $tracking->value
-        ));
+        $captureTracking = $trackings->filter(function (Tracking $t) {
+            return $t->getTitle() === self::TRACKING_TITLE_TRANSACTION && $t->getValue();
+        })->current();
 
         if (!$captureTracking) {
-            throw new \Exception('PayPal capture ID not found in tracking.');
+            throw new \Exception('Tracking for PayPal capture ID not found.');
         }
 
-        $captureId = $captureTracking->value;
+        $captureId = $captureTracking->getValue();
 
         $response = $this->paypal->refundCapture($captureId, [
             'amount' => $this->getPaypalMoney($charge),
