@@ -38,6 +38,7 @@ class ChargeApiResource
      * The Checkout to which this Charge item belongs to.
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("IS_AUTHENTICATED_FULLY")')]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['checkout.trackings.value'])]
     public CheckoutApiResource $checkout;
 
     /**
