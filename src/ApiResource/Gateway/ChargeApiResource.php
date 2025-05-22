@@ -76,8 +76,8 @@ class ChargeApiResource
      * It is money before fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]
-    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.amount' => 'exact'])]
     #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.currency' => 'exact'])]
     public Money $money;
 
     /**
