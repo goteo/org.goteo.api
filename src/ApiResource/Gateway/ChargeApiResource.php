@@ -90,6 +90,9 @@ class ChargeApiResource
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public ChargeStatus $status = ChargeStatus::InPending;
 
+    #[API\ApiFilter(Filter\DateFilter::class)]
     public \DateTimeInterface $dateCreated;
+
+    #[API\ApiFilter(Filter\DateFilter::class)]
     public \DateTimeInterface $dateUpdated;
 }
