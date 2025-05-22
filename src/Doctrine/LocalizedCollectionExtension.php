@@ -38,7 +38,15 @@ final class LocalizedCollectionExtension implements QueryResultCollectionExtensi
         ?Operation $operation = null,
         array $context = [],
     ): iterable {
+        $enabled = isset($context['graphql_operation_name'])
+            ? $this->pagination->isGraphQlEnabled($operation, $context)
+            : $this->pagination->isEnabled($operation, $context);
+
         $query = $this->addLocalizationHints($queryBuilder, $this->getAcceptedLanguages($context));
+
+        if (!$enabled) {
+            return $query->getResult();
+        }
 
         if (\count($queryBuilder->getAllAliases()) === 1) {
             $query->setHint(CountWalker::HINT_DISTINCT, false);
