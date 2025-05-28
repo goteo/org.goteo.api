@@ -4,6 +4,7 @@ namespace App\Entity\Matchfunding;
 
 use App\Entity\Money;
 use App\Mapping\Provider\MatchStrategyMapProvider;
+use App\Matchfunding\Formula\MultiplicationFormula;
 use App\Repository\Matchfunding\MatchStrategyRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
@@ -22,21 +23,29 @@ class MatchStrategy
     private array $ruleNames = [];
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $formulaName = null;
+    private ?string $formulaName;
 
     #[ORM\Embedded(class: Money::class)]
     private ?object $limit = null;
 
     #[ORM\Column(nullable: true)]
-    private ?float $factor = null;
+    private ?float $factor = 1.0;
 
     #[ORM\Column(enumType: MatchAgainst::class)]
     private ?MatchAgainst $against = MatchAgainst::DEFAULT;
 
-    public static function of(MatchCall $call): MatchStrategy
-    {
+    public static function of(
+        MatchCall $call,
+        ?string $formulaName = null,
+    ): MatchStrategy {
         $strategy = new MatchStrategy();
         $strategy->setCall($call);
+
+        $strategy->setFormulaName($formulaName ?? MultiplicationFormula::getName());
+        $strategy->setLimit(new Money(
+            2147483647,
+            $call->getAccounting()->getCurrency()
+        ));
 
         return $strategy;
     }
