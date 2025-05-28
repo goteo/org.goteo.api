@@ -51,6 +51,9 @@ class MatchCall implements AccountingOwnerInterface
     #[ORM\Embedded(class: Territory::class)]
     private ?Territory $territory = null;
 
+    #[ORM\Column(enumType: MatchCallStatus::class)]
+    private ?MatchCallStatus $status = MatchCallStatus::InEditing;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -179,6 +182,18 @@ class MatchCall implements AccountingOwnerInterface
     public function setTerritory(Territory $territory): static
     {
         $this->territory = $territory;
+
+        return $this;
+    }
+
+    public function getStatus(): ?MatchCallStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(MatchCallStatus $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

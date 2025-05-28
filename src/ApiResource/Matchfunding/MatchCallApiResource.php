@@ -7,6 +7,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Matchfunding\MatchCall;
+use App\Entity\Matchfunding\MatchCallStatus;
 use App\Entity\Territory;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
@@ -82,4 +83,9 @@ class MatchCallApiResource
     #[Assert\NotBlank()]
     #[Assert\Valid]
     public Territory $territory;
+
+    /**
+     * The current status of the MatchCall.
+     */
+    public MatchCallStatus $status;
 }
