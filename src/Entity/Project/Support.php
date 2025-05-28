@@ -2,8 +2,8 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\Accounting\Accounting;
 use App\Entity\Gateway\Charge;
-use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\SupportRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -23,7 +23,7 @@ class Support
 
     #[ORM\ManyToOne(inversedBy: 'supports')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $owner = null;
+    private ?Accounting $origin = null;
 
     #[ORM\ManyToOne(inversedBy: 'supports')]
     #[ORM\JoinColumn(nullable: false)]
@@ -51,14 +51,14 @@ class Support
         return $this->id;
     }
 
-    public function getOwner(): ?User
+    public function getOrigin(): ?Accounting
     {
-        return $this->owner;
+        return $this->origin;
     }
 
-    public function setOwner(?User $owner): static
+    public function setOrigin(?Accounting $origin): static
     {
-        $this->owner = $owner;
+        $this->origin = $origin;
 
         return $this;
     }

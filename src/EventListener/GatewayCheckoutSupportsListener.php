@@ -62,7 +62,7 @@ class GatewayCheckoutSupportsListener
     {
         $projectSupport = new Support();
         $projectSupport->setProject($project);
-        $projectSupport->setOwner($owner);
+        $projectSupport->setOrigin($owner->getAccounting());
         $projectSupport->setAnonymous(false);
 
         foreach ($charges as $charge) {
