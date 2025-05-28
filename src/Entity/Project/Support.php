@@ -128,4 +128,9 @@ class Support
 
         return $this;
     }
+
+    public function isMatchfundingSupport(): bool
+    {
+        return $this->charges->isEmpty();
+    }
 }
