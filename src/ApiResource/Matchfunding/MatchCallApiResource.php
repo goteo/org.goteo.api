@@ -87,5 +87,5 @@ class MatchCallApiResource
     /**
      * The current status of the MatchCall.
      */
-    public MatchCallStatus $status;
+    public MatchCallStatus $status = MatchCallStatus::InEditing;
 }
