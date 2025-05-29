@@ -14,6 +14,10 @@ class MatchCallSubmissionCreationDto
      * The MatchCall to which this MatchCallSubmission belongs to.
      */
     #[Assert\NotBlank()]
+    #[Assert\Expression(
+        expression: 'value.status === enum("App\\\Entity\\\Matchfunding\\\MatchCallStatus::InCalling")',
+        message: 'MatchCallSubmissions can only relate to a MatchCall with `in_calling` status.'
+    )]
     public MatchCallApiResource $call;
 
     /**
