@@ -66,7 +66,7 @@ class GatewayCheckoutSupportsListener
         $projectSupport->setAnonymous(false);
 
         foreach ($charges as $charge) {
-            $projectSupport->addCharge($charge);
+            $projectSupport->addTransactions($charge->getTransactions());
         }
 
         return $projectSupport;

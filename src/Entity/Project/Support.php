@@ -3,7 +3,7 @@
 namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Gateway\Charge;
+use App\Entity\Accounting\Transaction;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\SupportRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -30,10 +30,10 @@ class Support
     private ?Project $project = null;
 
     /**
-     * @var Collection<int, Charge>
+     * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(targetEntity: Charge::class, mappedBy: 'support')]
-    private Collection $charges;
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'support')]
+    private Collection $transactions;
 
     #[ORM\Column]
     private ?bool $anonymous = null;
@@ -43,7 +43,7 @@ class Support
 
     public function __construct()
     {
-        $this->charges = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,29 +76,41 @@ class Support
     }
 
     /**
-     * @return Collection<int, Charge>
+     * @return Collection<int, Transaction>
      */
-    public function getCharges(): Collection
+    public function getTransactions(): Collection
     {
-        return $this->charges;
+        return $this->transactions;
     }
 
-    public function addCharge(Charge $charge): static
+    public function addTransaction(Transaction $transaction): static
     {
-        if (!$this->charges->contains($charge)) {
-            $this->charges->add($charge);
-            $charge->setSupport($this);
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
+            $transaction->setSupport($this);
         }
 
         return $this;
     }
 
-    public function removeCharge(Charge $charge): static
+    /**
+     * @param Collection<Transaction> $transactions
+     */
+    public function addTransactions(Collection $transactions): static
     {
-        if ($this->charges->removeElement($charge)) {
+        foreach ($transactions as $transaction) {
+            $this->addTransaction($transaction);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transaction $transaction): static
+    {
+        if ($this->transactions->removeElement($transaction)) {
             // set the owning side to null (unless already changed)
-            if ($charge->getSupport() === $this) {
-                $charge->setSupport(null);
+            if ($transaction->getSupport() === $this) {
+                $transaction->setSupport(null);
             }
         }
 
@@ -127,10 +139,5 @@ class Support
         $this->message = $message;
 
         return $this;
-    }
-
-    public function isMatchfundingSupport(): bool
-    {
-        return $this->charges->isEmpty();
     }
 }

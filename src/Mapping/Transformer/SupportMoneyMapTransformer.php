@@ -18,11 +18,11 @@ class SupportMoneyMapTransformer implements PropertyTransformerInterface
      */
     public function transform(mixed $value, object|array $source, array $context): mixed
     {
-        $charges = $source->getCharges();
-        foreach ($charges as $charge) {
+        $transactions = $source->getTransactions();
+        foreach ($transactions as $transaction) {
             $money = $this->moneyService->add(
-                $charge->getMoney(),
-                $money ?? new Money(0, $charge->getMoney()->currency)
+                $transaction->getMoney(),
+                $money ?? new Money(0, $transaction->getMoney()->currency)
             );
         }
 

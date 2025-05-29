@@ -3,6 +3,7 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\Money;
+use App\Entity\Project\Support;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\TransactionRepository;
@@ -52,6 +53,9 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
 
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    private ?Support $support = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +93,18 @@ class Transaction
     public function setTarget(?Accounting $target): static
     {
         $this->target = $target;
+
+        return $this;
+    }
+
+    public function getSupport(): ?Support
+    {
+        return $this->support;
+    }
+
+    public function setSupport(?Support $support): static
+    {
+        $this->support = $support;
 
         return $this;
     }
