@@ -2,11 +2,9 @@
 
 namespace App\EventListener;
 
-use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
-use App\Entity\Project\Project;
 use App\Entity\Project\Support;
-use App\Entity\User\User;
+use App\Service\Project\SupportService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -26,6 +24,8 @@ class GatewayCheckoutSupportsListener
 {
     /** @var array<int, Support> */
     private array $supports;
+
+    public function __construct(private SupportService $supportService) {}
 
     public function preUpdate(Checkout $checkout, PreUpdateEventArgs $args): void
     {
@@ -54,25 +54,6 @@ class GatewayCheckoutSupportsListener
     }
 
     /**
-     * Create ProjectSupport for the given data.
-     *
-     * @param Charge[] $charges
-     */
-    private function createSupport(Project $project, User $owner, array $charges): Support
-    {
-        $projectSupport = new Support();
-        $projectSupport->setProject($project);
-        $projectSupport->setOrigin($owner->getAccounting());
-        $projectSupport->setAnonymous(false);
-
-        foreach ($charges as $charge) {
-            $projectSupport->addTransactions($charge->getTransactions());
-        }
-
-        return $projectSupport;
-    }
-
-    /**
      * @return Support[]
      */
     public function prepareSupports(Checkout $checkout): array
@@ -94,7 +75,11 @@ class GatewayCheckoutSupportsListener
         $supports = [];
         foreach ($chargesInProjectMap as $chargesInProject) {
             $project = $chargesInProject[0]->getTarget()->getProject();
-            $supports[] = $this->createSupport($project, $owner, $chargesInProject);
+            $supports[] = $this->supportService->createSupport(
+                $project,
+                $owner,
+                $chargesInProject
+            );
         }
 
         return $supports;
