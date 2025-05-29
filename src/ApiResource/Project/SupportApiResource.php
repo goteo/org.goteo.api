@@ -62,13 +62,6 @@ class SupportApiResource
     public Money $money;
 
     /**
-     * User's will to have their support to the Project be matched by the Project.
-     */
-    #[Assert\NotNull()]
-    #[Assert\Type('bool')]
-    public bool $matchfunding = true;
-
-    /**
      * User's will to have their support to the Project be shown publicly.
      */
     #[Assert\NotNull()]

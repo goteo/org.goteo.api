@@ -9,6 +9,8 @@ use App\Gateway\ChargeStatus;
 use App\Service\Matchfunding\MatchfundingService;
 use App\Service\Project\SupportService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
@@ -26,7 +28,9 @@ use Doctrine\ORM\Events;
 final class MatchfundingListener
 {
     private ?Charge $charge = null;
-    private ?Support $support = null;
+
+    /** @var Collection<int, Support> */
+    private Collection $supports;
 
     public function __construct(
         private MatchfundingService $matchfunding,
@@ -53,18 +57,24 @@ final class MatchfundingListener
 
         $transactions = $this->matchfunding->match($charge);
 
-        $origin = $charge->getCheckout()->getOrigin();
-        $support = $target->getMatchSupport($origin)
-        ?? $this->supportService->createSupport($target, $origin);
-
         if (\count($transactions) > 0) {
             foreach ($transactions as $transaction) {
                 $charge->addTransaction($transaction);
-                $support->addTransaction($transaction);
+
+                $origin = $transaction->getOrigin();
+                // You can only generate an support by origin in Matchfunding
+                $matchSupport = $target->getSupportsByOrigin($origin)->first()
+                    ?? $this->supportService->createSupport($target, $origin);
+
+                if ($this->supports->contains($matchSupport)) {
+                    $matchSupport = $this->supports->get($this->supports->indexOf($matchSupport));
+                } else {
+                    $this->supports->add($matchSupport);
+                }
+                $matchSupport->addTransaction($transaction);
             }
 
             $this->charge = $charge;
-            $this->support = $support;
         }
     }
 
@@ -76,13 +86,13 @@ final class MatchfundingListener
 
         $this->entityManager->persist($this->charge);
 
-        if ($this->support !== null) {
-            $this->entityManager->persist($this->support);
+        foreach ($this->supports as $support) {
+            $this->entityManager->persist($support);
         }
 
         $this->entityManager->flush();
 
         $this->charge = null;
-        $this->support = null;
+        $this->supports = new ArrayCollection();
     }
 }

@@ -13,7 +13,6 @@ use App\Matchfunding\Formula\FormulaLocator;
 use App\Matchfunding\Rule\RuleLocator;
 use App\Service\Project\BudgetService;
 use App\Service\Project\SupportService;
-use Doctrine\Common\Collections\Collection;
 
 class MatchfundingService
 {
@@ -25,14 +24,6 @@ class MatchfundingService
         private BudgetService $budgetService,
         private SupportService $supportService,
     ) {}
-
-    /**
-     * @return Collection<int, MatchCallSubmission>
-     */
-    public function getAcceptedSubmissions(Project $project): Collection
-    {
-        return $project->getMatchCallSubmissionsBy(self::SUBMISSION_ACCEPTED);
-    }
 
     /**
      * Perform the match-making logic for a Charge.
@@ -49,7 +40,7 @@ class MatchfundingService
 
         $transactions = [];
 
-        foreach ($this->getAcceptedSubmissions($target) as $submission) {
+        foreach ($target->getMatchCallSubmissionsBy(self::SUBMISSION_ACCEPTED) as $submission) {
             $transactions[] = $this->getTransaction($submission, $charge, $target);
         }
 
