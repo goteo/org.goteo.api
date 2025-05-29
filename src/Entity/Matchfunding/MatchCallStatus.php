@@ -22,7 +22,7 @@ enum MatchCallStatus: string
     /**
      * The MatchCall finished giving funds and closing actions can now be performed.
      */
-    case InClosing = 'in_closing';
+    case ToClosed = 'to_closed';
 
     /**
      * The MatchCall is now fully finished and will remain as read-only.
