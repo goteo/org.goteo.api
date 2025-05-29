@@ -5,7 +5,7 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\Gateway\ChargeApiResource;
+use App\ApiResource\Accounting\TransactionApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Money;
 use App\Entity\Project\Support;
@@ -50,10 +50,10 @@ class SupportApiResource
     /**
      * The Charges that were paid by the User.
      *
-     * @var array<int, ChargeApiResource>
+     * @var array<int, TransactionApiResource>
      */
     #[API\ApiProperty(writable: false)]
-    public array $charges;
+    public array $transactions;
 
     /**
      * The total monetary value of the Charges paid by the User.
