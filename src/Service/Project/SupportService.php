@@ -2,10 +2,10 @@
 
 namespace App\Service\Project;
 
+use App\Entity\Accounting\Accounting;
 use App\Entity\Gateway\Charge;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
-use App\Entity\User\User;
 
 class SupportService
 {
@@ -14,15 +14,18 @@ class SupportService
      *
      * @param Charge[] $charges
      */
-    public function createSupport(Project $project, User $owner, array $charges): Support
-    {
+    public function createSupport(
+        Project $project,
+        Accounting $origin,
+        array $charges = [],
+    ): Support {
         $projectSupport = new Support();
         $projectSupport->setProject($project);
-        $projectSupport->setOrigin($owner->getAccounting());
+        $projectSupport->setOrigin($origin);
         $projectSupport->setAnonymous(false);
 
         foreach ($charges as $charge) {
-            $projectSupport->addTransactions($charge->getTransactions());
+            $projectSupport->addTransactions($charge->getTransactions()->toArray());
         }
 
         return $projectSupport;

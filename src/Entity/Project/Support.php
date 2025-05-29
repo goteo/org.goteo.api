@@ -36,6 +36,9 @@ class Support
     private Collection $transactions;
 
     #[ORM\Column]
+    private ?bool $matchfunding = null;
+
+    #[ORM\Column]
     private ?bool $anonymous = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -94,9 +97,9 @@ class Support
     }
 
     /**
-     * @param Collection<Transaction> $transactions
+     * @param Transaction[] $transactions
      */
-    public function addTransactions(Collection $transactions): static
+    public function addTransactions(array $transactions): static
     {
         foreach ($transactions as $transaction) {
             $this->addTransaction($transaction);
@@ -113,6 +116,18 @@ class Support
                 $transaction->setSupport(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isMatchfunding(): ?bool
+    {
+        return $this->matchfunding;
+    }
+
+    public function setMatchfunding(bool $matchfunding): static
+    {
+        $this->matchfunding = $matchfunding;
 
         return $this;
     }

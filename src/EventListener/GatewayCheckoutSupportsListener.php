@@ -59,7 +59,7 @@ class GatewayCheckoutSupportsListener
     public function prepareSupports(Checkout $checkout): array
     {
         $charges = $checkout->getCharges()->toArray();
-        $owner = $checkout->getOrigin()->getUser();
+        $origin = $checkout->getOrigin();
 
         // Group charges for projects
         $chargesInProjectMap = [];
@@ -77,7 +77,7 @@ class GatewayCheckoutSupportsListener
             $project = $chargesInProject[0]->getTarget()->getProject();
             $supports[] = $this->supportService->createSupport(
                 $project,
-                $owner,
+                $origin,
                 $chargesInProject
             );
         }
