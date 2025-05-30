@@ -21,7 +21,7 @@ class SupportMoneyMapTransformer implements PropertyTransformerInterface
         $transactions = $source->getTransactions();
 
         if ($transactions->isEmpty()) {
-            return new Money(0, 'EUR');
+            return new Money(0, $this->moneyService::DEFAULT_CURRENCY);
         }
 
         $money = new Money(0, $transactions->first()->getMoney()->currency);

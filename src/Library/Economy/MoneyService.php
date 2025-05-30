@@ -8,6 +8,8 @@ use Brick\Money as Brick;
 
 class MoneyService
 {
+    public const DEFAULT_CURRENCY = 'EUR';
+
     public function __construct(
         private ExchangeLocator $exchangeLocator,
     ) {}
