@@ -409,6 +409,11 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this->supports;
     }
 
+    public function getSupportsByOrigin(Accounting $origin): Collection
+    {
+        return $this->supports->filter(fn(Support $s) => $s->getOrigin() === $origin);
+    }
+
     public function addSupport(Support $support): static
     {
         if (!$this->supports->contains($support)) {
