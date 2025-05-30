@@ -5,8 +5,8 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
-use App\ApiResource\User\UserApiResource;
 use App\Entity\Money;
 use App\Entity\Project\Support;
 use App\Mapping\Transformer\SupportMoneyMapTransformer;
@@ -38,7 +38,7 @@ class SupportApiResource
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("SUPPORT_VIEW", object)')]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    public ?UserApiResource $owner;
+    public ?AccountingApiResource $origin;
 
     /**
      * The Project being targeted in the Charges.

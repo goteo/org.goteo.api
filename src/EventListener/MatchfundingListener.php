@@ -96,6 +96,5 @@ final class MatchfundingListener
         $this->entityManager->flush();
 
         $this->charge = null;
-        $this->supports = new ArrayCollection();
     }
 }
