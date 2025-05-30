@@ -41,6 +41,7 @@ final class MatchfundingListener
     public function preUpdate(Charge $charge, PreUpdateEventArgs $event)
     {
         $this->charge = null;
+        $this->supports = new ArrayCollection();
 
         if (count($event->getEntityChangeSet()) === 0) {
             return;
@@ -63,8 +64,10 @@ final class MatchfundingListener
 
                 $origin = $transaction->getOrigin();
                 // You can only generate an support by origin in Matchfunding
-                $matchSupport = $target->getSupportsByOrigin($origin)->first()
-                    ?? $this->supportService->createSupport($target, $origin);
+                $matchSupport = $target->getSupportsByOrigin($origin)->first();
+                if (!$matchSupport instanceof Support) {
+                    $matchSupport = $this->supportService->createSupport($target, $origin);
+                }
 
                 if ($this->supports->contains($matchSupport)) {
                     $matchSupport = $this->supports->get($this->supports->indexOf($matchSupport));
