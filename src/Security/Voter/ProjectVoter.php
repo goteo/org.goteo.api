@@ -37,7 +37,7 @@ final class ProjectVoter extends Voter
         return false;
     }
 
-    private function canEdit(ProjectApiResource $project, User $user): bool
+    private function canEdit(ProjectApiResource $project, ?User $user): bool
     {
         if (!$user instanceof User) {
             return false;
