@@ -42,7 +42,7 @@ class MatchfundingService
 
             foreach ($this->ruleLocator->getFrom($strategy) as $rule) {
                 if (!$rule->validate($charge, $submission)) {
-                    continue;
+                    continue 2;
                 }
             }
 
