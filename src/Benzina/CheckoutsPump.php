@@ -4,6 +4,7 @@ namespace App\Benzina;
 
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\Tracking;
 use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
@@ -15,7 +16,6 @@ use App\Gateway\Gateway\CecaGateway;
 use App\Gateway\Gateway\DropGateway;
 use App\Gateway\Paypal\PaypalGateway;
 use App\Gateway\Stripe\StripeGateway;
-use App\Gateway\Tracking;
 use App\Gateway\Wallet\WalletGateway;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\TipjarRepository;
@@ -214,31 +214,31 @@ class CheckoutsPump implements PumpInterface
     private function getCheckoutTrackings(array $record): array
     {
         $v3Tracking = new Tracking();
-        $v3Tracking->title = self::TRACKING_TITLE_V3;
-        $v3Tracking->value = $record['id'];
+        $v3Tracking->setTitle(self::TRACKING_TITLE_V3);
+        $v3Tracking->setValue($record['id']);
 
         $trackings = [$v3Tracking];
 
         if (!empty($record['payment'])) {
             $payment = new Tracking();
-            $payment->title = self::TRACKING_TITLE_PAYMENT;
-            $payment->value = $record['payment'];
+            $payment->setTitle(self::TRACKING_TITLE_PAYMENT);
+            $payment->setValue($record['payment']);
 
             $trackings[] = $payment;
         }
 
         if (!empty($record['transaction'])) {
             $transaction = new Tracking();
-            $transaction->title = self::TRACKING_TITLE_TRANSACTION;
-            $transaction->value = $record['transaction'];
+            $transaction->setTitle(self::TRACKING_TITLE_TRANSACTION);
+            $transaction->setValue($record['transaction']);
 
             $trackings[] = $transaction;
         }
 
         if (!empty($record['preapproval'])) {
             $preapproval = new Tracking();
-            $preapproval->title = self::TRACKING_TITLE_PREAPPROVAL;
-            $preapproval->value = $record['preapproval'];
+            $preapproval->setTitle(self::TRACKING_TITLE_PREAPPROVAL);
+            $preapproval->setValue($record['preapproval']);
 
             $trackings[] = $preapproval;
         }

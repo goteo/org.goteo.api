@@ -63,6 +63,10 @@ services:
             - '%env(STRIPE_API_KEY)%'
             - '%env(STRIPE_WEBHOOK_SECRET)%'
 
+    App\Identifier\IdOrSlugUriVariableTransformer:
+        tags:
+            - { name: api_platform.uri_variables.transformer }
+
     App\Matchfunding\Formula\FormulaLocator:
         arguments:
             - !tagged 'app.matchfunding.formula'

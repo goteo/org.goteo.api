@@ -4,12 +4,12 @@ namespace App\Gateway\Paypal;
 
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\Tracking;
 use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\LinkType;
-use App\Gateway\Tracking;
 use Brick\Money\Money as BrickMoney;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -30,6 +30,7 @@ class PaypalGateway extends AbstractGateway
 
     /** @see https://developer.paypal.com/api/rest/webhooks/event-names/#orders */
     public const PAYPAL_EVENT_ORDER_COMPLETED = 'CHECKOUT.ORDER.COMPLETED';
+    public const PAYPAL_PAYMENT_CAPTURE_COMPLETED = 'PAYMENT.CAPTURE.COMPLETED';
 
     /**
      * @see https://developer.paypal.com/docs/api/orders/v2/
@@ -63,9 +64,7 @@ class PaypalGateway extends AbstractGateway
             'payment_source' => $this->getPaypalPaymentSource($checkout),
         ]);
 
-        $tracking = new Tracking();
-        $tracking->title = self::TRACKING_TITLE_ORDER;
-        $tracking->value = $order['id'];
+        $tracking = new Tracking(self::TRACKING_TITLE_ORDER, $order['id']);
 
         $checkout->addTracking($tracking);
 
@@ -110,9 +109,10 @@ class PaypalGateway extends AbstractGateway
         }
 
         foreach ($capture['purchase_units'] as $purchaseUnit) {
-            $tracking = new Tracking();
-            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
-            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
+            $tracking = new Tracking(
+                self::TRACKING_TITLE_TRANSACTION,
+                $purchaseUnit['payments']['captures'][0]['id']
+            );
 
             $checkout->addTracking($tracking);
         }
@@ -125,50 +125,80 @@ class PaypalGateway extends AbstractGateway
         return $redirection;
     }
 
+    private function getWebhookSource(?string $userAgent): string
+    {
+        if (!$userAgent || !str_contains(strtolower($userAgent), 'paypal')) {
+            return 'Unknown or custom client';
+        }
+
+        return 'PayPal';
+    }
+
+    private function createErrorResponse(string $message, Request $request, array $event = []): JsonResponse
+    {
+        $userAgent = $request->headers->get('User-Agent');
+
+        return new JsonResponse([
+            'status' => 'ERROR',
+            'message' => $message,
+            'eventId' => $event['id'] ?? 'N/A',
+            'eventType' => $event['event_type'] ?? 'N/A',
+            'source' => $this->getWebhookSource($userAgent),
+            'userAgent' => $userAgent,
+            'requestBody' => $request->getContent(),
+            'requestHeaders' => $request->headers->all(),
+        ], Response::HTTP_ACCEPTED);
+    }
+
     public function handleWebhook(Request $request): Response
     {
         try {
             $event = $this->paypal->verifyWebhook($request);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'status' => 'ERROR',
-                'message' => $e->getMessage(),
-                'requestBody' => $request->getContent(),
-                'requestHeaders' => $request->headers->all(),
-            ], Response::HTTP_ACCEPTED);
+        } catch (\Throwable $e) {
+            return $this->createErrorResponse(
+                sprintf('Webhook verification failed: %s', $e->getMessage()),
+                $request
+            );
         }
 
-        switch ($event['event_type']) {
-            case self::PAYPAL_EVENT_ORDER_COMPLETED:
-                return $this->handleOrderCompleted($event);
-            default:
-                return new Response('Event not supported', Response::HTTP_ACCEPTED);
-        }
+        $eventType = $event['event_type'];
 
-        return new Response();
+        return match ($eventType ?? null) {
+            self::PAYPAL_EVENT_ORDER_COMPLETED,
+            self::PAYPAL_PAYMENT_CAPTURE_COMPLETED => $this->handleOrderCompleted($event),
+            default => $this->createErrorResponse(
+                sprintf('Unsupported webhook event type "%s".', $eventType ?? 'undefined'),
+                $request,
+                $event
+            ),
+        };
     }
 
     private function handleOrderCompleted(array $event): Response
     {
-        $orderId = $event['resource']['id'];
+        $orderId = $event['resource']['supplementary_data']['related_ids']['order_id'] ?? null;
 
         $checkout = $this->checkoutRepository->findOneByTracking(self::TRACKING_TITLE_ORDER, $orderId);
 
         if ($checkout === null) {
-            throw new \Exception(sprintf("Could not find any Checkout by the Tracking '%s'", $orderId), 1);
+            throw new \Exception(sprintf(
+                "Could not find any Checkout by the Tracking '%s'",
+                $orderId
+            ), 1);
         }
 
         foreach ($event['resource']['purchase_units'] as $purchaseUnit) {
-            $tracking = new Tracking();
-            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
-            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
+            $tracking = new Tracking(
+                self::TRACKING_TITLE_TRANSACTION,
+                $purchaseUnit['payments']['captures'][0]['id']
+            );
 
             $checkout->addTracking($tracking);
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
 
-        return new JsonResponse(['checkout' => $checkout]);
+        return new JsonResponse(['checkout' => $checkout], Response::HTTP_NO_CONTENT);
     }
 
     private function getPaypalMoney(Charge $charge): array
@@ -233,16 +263,15 @@ class PaypalGateway extends AbstractGateway
     public function processRefund(Charge $charge): void
     {
         $trackings = $charge->getCheckout()->getTrackings();
-        $captureTracking = current(array_filter(
-            $trackings,
-            fn(Tracking $tracking) => $tracking->title === self::TRACKING_TITLE_TRANSACTION && $tracking->value
-        ));
+        $captureTracking = $trackings->filter(function (Tracking $t) {
+            return $t->getTitle() === self::TRACKING_TITLE_TRANSACTION && $t->getValue();
+        })->current();
 
         if (!$captureTracking) {
-            throw new \Exception('PayPal capture ID not found in tracking.');
+            throw new \Exception('Tracking for PayPal capture ID not found.');
         }
 
-        $captureId = $captureTracking->value;
+        $captureId = $captureTracking->getValue();
 
         $response = $this->paypal->refundCapture($captureId, [
             'amount' => $this->getPaypalMoney($charge),

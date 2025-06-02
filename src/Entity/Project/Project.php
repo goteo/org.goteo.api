@@ -46,6 +46,10 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[Gedmo\Translatable()]
     private ?string $title = null;
 
+    #[ORM\Column(length: 56, unique: true)]
+    #[Gedmo\Slug(fields: ['title'])]
+    private ?string $slug = null;
+
     /**
      * Secondary head-line for the project.
      */
@@ -72,6 +76,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      * The description body for the Project.
      */
     #[ORM\Column(type: Types::TEXT)]
+    #[Gedmo\Translatable()]
     private ?string $description = null;
 
     /**
@@ -161,6 +166,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }

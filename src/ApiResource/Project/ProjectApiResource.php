@@ -20,6 +20,7 @@ use App\Entity\Territory;
 use App\Mapping\Transformer\BudgetMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
+use App\State\Project\ProjectStateProvider;
 use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -37,7 +38,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: ProjectStateProcessor::class,
     security: 'is_granted("ROLE_USER")',
 )]
-#[API\Get()]
+#[API\Get(
+    provider: ProjectStateProvider::class,
+    uriTemplate: '/projects/{idOrSlug}',
+    uriVariables: [
+        'idOrSlug' => new API\Link(
+            description: 'Project identifier or slug',
+        ),
+    ]
+)]
 #[API\Patch(
     input: ProjectUpdationDto::class,
     processor: ProjectStateProcessor::class,
@@ -50,6 +59,13 @@ class ProjectApiResource
 
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
+
+    /**
+     * A unique, non white space, string identifier for this Project.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
+    public string $slug;
 
     /**
      * The Accounting holding the funds raised by this Project.

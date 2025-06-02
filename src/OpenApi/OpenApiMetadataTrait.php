@@ -19,34 +19,26 @@ trait OpenApiMetadataTrait
         $resource = $operation->getTags()[0];
 
         $operationType = $this->getOperationType($operation);
-        $operationSummary = $operation->getSummary();
         $operationDescription = $operation->getDescription();
 
         switch ($operationType) {
             case 'collection':
-                $operationSummary = sprintf('List all %ss', $resource);
                 break;
             case 'post':
-                $operationSummary = sprintf('Create one %s', $resource);
                 $operationDescription = sprintf('Creates a new %s resource.', $resource);
                 break;
             case 'get':
-                $operationSummary = sprintf('Retrieve one %s', $resource);
                 $operationDescription = sprintf('Retrieves one %s resource.', $resource);
                 break;
             case 'put':
-                $operationSummary = sprintf('Update one %s', $resource);
                 break;
             case 'delete':
-                $operationSummary = sprintf('Delete one %s', $resource);
                 break;
             case 'patch':
-                $operationSummary = sprintf('Patch one %s', $resource);
                 break;
         }
 
         return $operation
-            ->withSummary($operationSummary)
             ->withDescription($operationDescription);
     }
 

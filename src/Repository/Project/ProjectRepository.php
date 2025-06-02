@@ -31,6 +31,15 @@ class ProjectRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findOneByIdOrSlug(mixed $idOrSlug): ?Project
+    {
+        if (\is_numeric($idOrSlug)) {
+            return $this->find($idOrSlug);
+        }
+
+        return $this->findOneBy(['slug' => $idOrSlug]);
+    }
+
     //    /**
     //     * @return Project[] Returns an array of Project objects
     //     */

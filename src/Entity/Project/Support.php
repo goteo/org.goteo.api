@@ -32,7 +32,10 @@ class Support
     /**
      * @var Collection<int, Charge>
      */
-    #[ORM\OneToMany(targetEntity: Charge::class, mappedBy: 'support')]
+    #[ORM\JoinTable(name: 'project_support_charges')]
+    #[ORM\JoinColumn(name: 'support_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'charge_id', referencedColumnName: 'id')]
+    #[ORM\ManyToMany(targetEntity: Charge::class)]
     private Collection $charges;
 
     #[ORM\Column]
@@ -87,7 +90,6 @@ class Support
     {
         if (!$this->charges->contains($charge)) {
             $this->charges->add($charge);
-            $charge->setSupport($this);
         }
 
         return $this;
@@ -95,12 +97,7 @@ class Support
 
     public function removeCharge(Charge $charge): static
     {
-        if ($this->charges->removeElement($charge)) {
-            // set the owning side to null (unless already changed)
-            if ($charge->getSupport() === $this) {
-                $charge->setSupport(null);
-            }
-        }
+        $this->charges->removeElement($charge);
 
         return $this;
     }

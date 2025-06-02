@@ -10,6 +10,7 @@ use App\Repository\Project\UpdateRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_update')]
@@ -30,12 +31,15 @@ class Update
     private ?Project $project = null;
 
     #[ORM\Column(length: 255)]
+    #[Gedmo\Translatable()]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
+    #[Gedmo\Translatable()]
     private ?string $subtitle = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Gedmo\Translatable()]
     private ?string $body = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

@@ -4,6 +4,7 @@ namespace App\Gateway\Stripe;
 
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\Tracking;
 use App\Entity\Project\Project;
 use App\Entity\User\User;
 use App\Gateway\AbstractGateway;
@@ -11,7 +12,6 @@ use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\LinkType;
-use App\Gateway\Tracking;
 use App\Service\Gateway\CheckoutService;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
@@ -71,12 +71,7 @@ class StripeGateway extends AbstractGateway
         $link->type = LinkType::Payment;
 
         $checkout->addLink($link);
-
-        $tracking = new Tracking();
-        $tracking->title = self::TRACKING_TITLE_CHECKOUT;
-        $tracking->value = $session->id;
-
-        $checkout->addTracking($tracking);
+        $checkout->addTracking(new Tracking(self::TRACKING_TITLE_CHECKOUT, $session->id));
 
         return $checkout;
     }
@@ -209,22 +204,15 @@ class StripeGateway extends AbstractGateway
     public function processRefund(Charge $charge): void
     {
         $trackings = $charge->getCheckout()->getTrackings();
-        $filteredTrackings = array_filter(
-            $trackings,
-            fn(Tracking $tracking) => $tracking->title === self::TRACKING_TITLE_CHECKOUT
-        );
+        $sessionTracking = $trackings->filter(function (Tracking $t) {
+            return $t->getTitle() === self::TRACKING_TITLE_CHECKOUT;
+        })->current();
 
-        $firstTracking = $filteredTrackings[0] ?? null;
-
-        if (!$firstTracking || $firstTracking->title !== self::TRACKING_TITLE_CHECKOUT) {
-            throw new \Exception('Tracking not found or not related to Stripe checkout.');
+        if (!$sessionTracking) {
+            throw new \Exception('Tracking for Stripe Session ID not found.');
         }
 
-        $sessionId = $firstTracking->value;
-
-        if (!$sessionId) {
-            throw new \Exception('Session ID not found for the charge.');
-        }
+        $sessionId = $sessionTracking->getValue();
 
         $session = $this->stripe->checkout->sessions->retrieve($sessionId);
 

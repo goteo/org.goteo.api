@@ -9,6 +9,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Entity\Money;
+use App\Filter\GatewayFilter;
 use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\State\ApiResourceStateProvider;
@@ -38,6 +39,8 @@ class ChargeApiResource
      * The Checkout to which this Charge item belongs to.
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("IS_AUTHENTICATED_FULLY")')]
+    #[API\ApiFilter(GatewayFilter::class, properties: ['checkout.gateway'])]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['checkout.trackings.value'])]
     public CheckoutApiResource $checkout;
 
     /**
@@ -76,8 +79,8 @@ class ChargeApiResource
      * It is money before fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]
-    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.amount' => 'exact'])]
     #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.currency' => 'exact'])]
     public Money $money;
 
     /**
@@ -86,4 +89,10 @@ class ChargeApiResource
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public ChargeStatus $status = ChargeStatus::InPending;
+
+    #[API\ApiFilter(Filter\DateFilter::class)]
+    public \DateTimeInterface $dateCreated;
+
+    #[API\ApiFilter(Filter\DateFilter::class)]
+    public \DateTimeInterface $dateUpdated;
 }
