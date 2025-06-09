@@ -4,10 +4,12 @@ namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\Matchfunding\MatchCallApiResource;
 use App\ApiResource\Project\ProjectApiResource;
 use App\ApiResource\TipjarApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Accounting\Accounting;
+use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
@@ -68,6 +70,8 @@ class AccountingApiResource
                 return $this->project;
             case Tipjar::class:
                 return $this->tipjar;
+            case MatchCall::class:
+                return $this->matchCall;
         }
 
         return null;
@@ -81,4 +85,7 @@ class AccountingApiResource
 
     #[API\ApiProperty(readable: false, writable: false)]
     public ?TipjarApiResource $tipjar = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?MatchCallApiResource $matchCall;
 }

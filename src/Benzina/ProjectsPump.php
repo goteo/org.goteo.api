@@ -6,9 +6,9 @@ use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
-use App\Entity\Project\ProjectTerritory;
 use App\Entity\Project\ProjectVideo;
 use App\Entity\Project\Update;
+use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
@@ -148,12 +148,12 @@ class ProjectsPump implements PumpInterface
         }
     }
 
-    private function getProjectTerritory(array $record): ProjectTerritory
+    private function getProjectTerritory(array $record): Territory
     {
         $cleanAddress = $this->cleanProjectLocation($record['project_location'], 2);
 
         if ($cleanAddress === '') {
-            return ProjectTerritory::unknown();
+            return Territory::unknown();
         }
 
         return $this->territoryService->search($cleanAddress);

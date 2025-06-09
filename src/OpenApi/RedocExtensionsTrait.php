@@ -40,6 +40,16 @@ trait RedocExtensionsTrait
                 ],
             ],
             [
+                'name' => 'Matchfunding',
+                'tags' => [
+                    'MatchCall',
+                    'MatchCallSubmission',
+                    'MatchStrategy',
+                    'MatchFormula',
+                    'MatchRule',
+                ],
+            ],
+            [
                 'name' => 'Gateways',
                 'tags' => [
                     'Gateway',

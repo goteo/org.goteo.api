@@ -4,11 +4,11 @@ namespace App\Tests\Entity\ProjectApi;
 
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectStatus;
-use App\Entity\Project\ProjectTerritory;
+use App\Entity\Territory;
 use App\Factory\Project\ProjectFactory;
 use Symfony\Component\HttpFoundation\Response;
 
-class GetAllTest extends BaseTest
+class GetAllTest extends ProjectTestCase
 {
     private const PAGE_SIZE = 30;
 
@@ -52,7 +52,7 @@ class GetAllTest extends BaseTest
         int $responseCode = Response::HTTP_OK,
     ) {
         $owner = $this->createTestUser();
-        $territory = new ProjectTerritory('ES');
+        $territory = new Territory('ES');
         $baseAttributes = [
             'owner' => $owner,
             'territory' => $territory,
@@ -81,7 +81,7 @@ class GetAllTest extends BaseTest
         string|ProjectCategory|ProjectStatus $otherValue,
     ) {
         $owner = $this->createTestUser();
-        $territory = new ProjectTerritory('ES');
+        $territory = new Territory('ES');
         $baseAttributes = [
             'owner' => $owner,
             'territory' => $territory,
@@ -241,7 +241,7 @@ class GetAllTest extends BaseTest
     {
         ProjectFactory::createOne([
             'owner' => $this->createTestUser(),
-            'territory' => new ProjectTerritory('ES'),
+            'territory' => new Territory('ES'),
             'title' => 'Lorem ipsum title',
         ]);
 

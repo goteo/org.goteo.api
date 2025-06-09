@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateTest extends BaseTest
+class UpdateTest extends ProjectTestCase
 {
     // Auxiliary functions
 
@@ -33,7 +33,7 @@ class UpdateTest extends BaseTest
 
         static::createClient()->request($this->getMethod(), $this->getUri(1));
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testUpdateWithInvalidToken(): void

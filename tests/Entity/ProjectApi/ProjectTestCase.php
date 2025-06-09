@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
-use App\Entity\Project\ProjectTerritory;
+use App\Entity\Territory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use App\Tests\Traits\TestHelperTrait;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-abstract class BaseTest extends ApiTestCase
+abstract class ProjectTestCase extends ApiTestCase
 {
     use ResetDatabase;
     use Factories;
@@ -79,7 +79,7 @@ abstract class BaseTest extends ApiTestCase
     protected function createTestProjectOptimized(int $count = 1, array $attributes = []): array
     {
         $owner = $this->createTestUser();
-        $territory = new ProjectTerritory('ES');
+        $territory = new Territory('ES');
 
         $mergedAttributes = array_merge([
             'owner' => $owner,

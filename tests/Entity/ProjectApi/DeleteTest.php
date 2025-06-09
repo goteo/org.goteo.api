@@ -4,7 +4,7 @@ namespace App\Tests\Entity\ProjectApi;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class DeleteTest extends BaseTest
+class DeleteTest extends ProjectTestCase
 {
     protected function getMethod(): string
     {
@@ -29,7 +29,7 @@ class DeleteTest extends BaseTest
 
         static::createClient()->request('DELETE', $this->getUri(1));
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testDeleteWithInvalidToken(): void
