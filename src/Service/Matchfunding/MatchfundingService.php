@@ -38,30 +38,32 @@ class MatchfundingService
         $transactions = [];
 
         foreach ($target->getMatchCallSubmissionsBy(self::SUBMISSION_ACCEPTED) as $submission) {
-            $strategy = $submission->getCall()->getStrategy();
-
-            foreach ($this->ruleLocator->getFrom($strategy) as $rule) {
-                if (!$rule->validate($charge, $submission)) {
-                    continue 2;
+            foreach ($submission->getCall()->getStrategies() as $strategy) {
+                foreach ($this->ruleLocator->getFrom($strategy) as $rule) {
+                    if (!$rule->validate($charge, $submission)) {
+                        continue 2;
+                    }
                 }
+
+                $toBeMatched = match ($strategy->getAgainst()) {
+                    MatchAgainst::Charge => $charge->getMoney(),
+                    MatchAgainst::BudgetMin => $this->getBudget($target)[ProjectDeadline::Minimum->value],
+                    MatchAgainst::BudgetOpt => $this->getBudget($target)[ProjectDeadline::Optimum->value],
+                };
+
+                $matched = $this->formulaLocator
+                    ->get($strategy->getFormulaName())
+                    ->match($strategy->getFactor(), $toBeMatched, $strategy->getLimit());
+
+                $transaction = new Transaction();
+                $transaction->setMoney($matched);
+                $transaction->setOrigin($submission->getCall()->getAccounting());
+                $transaction->setTarget($submission->getProject()->getAccounting());
+
+                $transactions[] = $transaction;
+
+                continue;
             }
-
-            $toBeMatched = match ($strategy->getAgainst()) {
-                MatchAgainst::Charge => $charge->getMoney(),
-                MatchAgainst::BudgetMin => $this->getBudget($target)[ProjectDeadline::Minimum->value],
-                MatchAgainst::BudgetOpt => $this->getBudget($target)[ProjectDeadline::Optimum->value],
-            };
-
-            $matched = $this->formulaLocator
-                ->get($strategy->getFormulaName())
-                ->match($strategy->getFactor(), $toBeMatched, $strategy->getLimit());
-
-            $transaction = new Transaction();
-            $transaction->setMoney($matched);
-            $transaction->setOrigin($submission->getCall()->getAccounting());
-            $transaction->setTarget($submission->getProject()->getAccounting());
-
-            $transactions[] = $transaction;
         }
 
         return $transactions;

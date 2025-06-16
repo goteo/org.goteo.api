@@ -47,7 +47,7 @@ class MatchCallApiResource
 
     /**
      * The MatchStrategies define the matching behaviour for this MatchCall.
-     * 
+     *
      * @var MatchStrategyApiResource[]
      */
     #[API\ApiProperty(writable: false)]
