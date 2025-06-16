@@ -23,6 +23,9 @@ class MatchStrategy
     #[ORM\JoinColumn(nullable: false)]
     private ?MatchCall $call = null;
 
+    #[ORM\Column]
+    private ?int $ranking = null;
+
     #[ORM\Column(type: Types::ARRAY)]
     private array $ruleNames = [];
 
@@ -67,6 +70,18 @@ class MatchStrategy
     public function setCall(?MatchCall $call): static
     {
         $this->call = $call;
+
+        return $this;
+    }
+
+    public function getRanking(): ?int
+    {
+        return $this->ranking;
+    }
+
+    public function setRanking(int $ranking): static
+    {
+        $this->ranking = $ranking;
 
         return $this;
     }

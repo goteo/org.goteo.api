@@ -90,6 +90,16 @@ class MatchCall implements AccountingOwnerInterface
         return $this->strategies;
     }
 
+    /**
+     * @param Collection<int, MatchStrategy> $strategies
+     */
+    public function setStrategies(Collection $strategies): static
+    {
+        $this->strategies = $strategies;
+
+        return $this;
+    }
+
     public function addStrategy(MatchStrategy $strategy): static
     {
         if (!$this->strategies->contains($strategy)) {
