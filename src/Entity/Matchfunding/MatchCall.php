@@ -27,8 +27,11 @@ class MatchCall implements AccountingOwnerInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
-    #[ORM\OneToOne(mappedBy: 'call', cascade: ['persist', 'remove'])]
-    private ?MatchStrategy $strategy = null;
+    /**
+     * @var Collection<int, MatchStrategy>
+     */
+    #[ORM\OneToMany(targetEntity: MatchStrategy::class, mappedBy: 'call')]
+    private Collection $strategies;
 
     /**
      * @var Collection<int, MatchCallSubmission>
@@ -57,9 +60,9 @@ class MatchCall implements AccountingOwnerInterface
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
-        $this->strategy = MatchStrategy::of($this);
         $this->managers = new ArrayCollection();
         $this->submissions = new ArrayCollection();
+        $this->strategies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -79,19 +82,32 @@ class MatchCall implements AccountingOwnerInterface
         return $this;
     }
 
-    public function getStrategy(): ?MatchStrategy
+    /**
+     * @return Collection<int, MatchStrategy>
+     */
+    public function getStrategies(): Collection
     {
-        return $this->strategy;
+        return $this->strategies;
     }
 
-    public function setStrategy(MatchStrategy $strategy): static
+    public function addStrategy(MatchStrategy $strategy): static
     {
-        // set the owning side of the relation if necessary
-        if ($strategy->getCall() !== $this) {
+        if (!$this->strategies->contains($strategy)) {
+            $this->strategies->add($strategy);
             $strategy->setCall($this);
         }
 
-        $this->strategy = $strategy;
+        return $this;
+    }
+
+    public function removeStrategy(MatchStrategy $strategy): static
+    {
+        if ($this->strategies->removeElement($strategy)) {
+            // set the owning side to null (unless already changed)
+            if ($strategy->getCall() === $this) {
+                $strategy->setCall(null);
+            }
+        }
 
         return $this;
     }

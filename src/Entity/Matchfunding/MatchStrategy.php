@@ -15,7 +15,11 @@ use Doctrine\ORM\Mapping as ORM;
 class MatchStrategy
 {
     #[ORM\Id]
-    #[ORM\OneToOne(inversedBy: 'strategy', cascade: ['persist', 'remove'])]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\ManyToOne(inversedBy: 'strategies')]
     #[ORM\JoinColumn(nullable: false)]
     private ?MatchCall $call = null;
 
@@ -39,8 +43,8 @@ class MatchStrategy
         ?string $formulaName = null,
     ): MatchStrategy {
         $strategy = new MatchStrategy();
-        $strategy->setCall($call);
 
+        $strategy->setCall($call);
         $strategy->setFormulaName($formulaName ?? MultiplicationFormula::getName());
         $strategy->setLimit(new Money(
             2147483647,
@@ -50,12 +54,17 @@ class MatchStrategy
         return $strategy;
     }
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     public function getCall(): ?MatchCall
     {
         return $this->call;
     }
 
-    public function setCall(MatchCall $call): static
+    public function setCall(?MatchCall $call): static
     {
         $this->call = $call;
 

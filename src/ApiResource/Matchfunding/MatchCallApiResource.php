@@ -46,10 +46,12 @@ class MatchCallApiResource
     public AccountingApiResource $accounting;
 
     /**
-     * The MatchStrategy defines the match behaviour for this MatchCall.
+     * The MatchStrategies define the matching behaviour for this MatchCall.
+     * 
+     * @var MatchStrategyApiResource[]
      */
     #[API\ApiProperty(writable: false)]
-    public MatchStrategyApiResource $strategy;
+    public array $strategies;
 
     /**
      * A list of the MatchCallSubmissions received by this MatchCall.

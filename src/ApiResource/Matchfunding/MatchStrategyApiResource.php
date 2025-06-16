@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Matchfunding;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Money;
@@ -30,20 +31,22 @@ use Symfony\Component\Validator\Constraints as Assert;
     stateOptions: new Options(entityClass: MatchStrategy::class),
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
-    uriTemplate: '/match_call/{id}/strategy',
-    uriVariables: [
-        'id' => new API\Link(
-            fromClass: MatchCallApiResource::class,
-            fromProperty: 'strategy',
-            description: 'MatchCall identifier'
-        ),
-    ]
 )]
+#[API\GetCollection()]
+#[API\Post()]
 #[API\Get()]
-#[API\Patch()]
+#[API\Patch(security: 'is_granted("MATCHCALL_EDIT", object.call)')]
+#[API\Delete(security: 'is_granted("MATCHCALL_EDIT", object.call)')]
 class MatchStrategyApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
+    public int $id;
+
+    /**
+     * The MatchCall to which this strategy belongs to.
+     */
+    #[Assert\NotBlank()]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public MatchCallApiResource $call;
 
     /**
