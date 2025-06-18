@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Matchfunding;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -10,8 +11,8 @@ use App\Entity\Matchfunding\MatchAgainst;
 use App\Entity\Matchfunding\MatchStrategy;
 use App\Mapping\Transformer\MatchFormulaMapTransformer;
 use App\Mapping\Transformer\MatchRulesMapTransformer;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\State\Matchfunding\MatchStrategyStateProcessor;
 use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -30,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'MatchStrategy',
     stateOptions: new Options(entityClass: MatchStrategy::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class,
+    processor: MatchStrategyStateProcessor::class,
 )]
 #[API\GetCollection()]
 #[API\Post()]
@@ -55,6 +56,7 @@ class MatchStrategyApiResource
      * after each change in the number of strategies or the ranking values.
      */
     #[Assert\PositiveOrZero()]
+    #[API\ApiFilter(OrderFilter::class)]
     public int $ranking = 0;
 
     /**

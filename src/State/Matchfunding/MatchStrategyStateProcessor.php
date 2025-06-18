@@ -28,31 +28,23 @@ class MatchStrategyStateProcessor implements ProcessorInterface
     {
         /** @var MatchStrategy */
         $strategy = $this->autoMapper->map($data, MatchStrategy::class);
+
         $call = $strategy->getCall();
 
-        $strategies = $call->getStrategies()->filter(fn(MatchStrategy $s) => $s->getId() === $strategy->getId());
-        $strategies = $strategies->map(function (MatchStrategy $item) use ($strategy, $operation) {
-            $iRanking = $item->getRanking();
-            $sRanking = $strategy->getRanking();
-
-            if ($iRanking < $sRanking) {
-                return $item;
-            }
-
-            if ($iRanking >= $sRanking) {
-                $newRanking = $operation instanceof DeleteOperationInterface ? $iRanking - 1 : $iRanking + 1;
-
-                return $item->setRanking($newRanking);
-            }
-        });
-        $strategies->add($strategy);
-
-        $call->setStrategies($strategies);
+        if ($operation instanceof DeleteOperationInterface) {
+            $call->removeStrategy($strategy);
+        } else {
+            $call->addStrategy($strategy);
+        }
 
         $this->entityManager->persist($call);
         $this->entityManager->flush();
 
         $strategy = $this->entityProcessor->process($strategy, $operation, $uriVariables, $context);
+
+        if ($strategy === null) {
+            return null;
+        }
 
         return $this->autoMapper->map($strategy, MatchStrategyApiResource::class);
     }
