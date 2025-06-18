@@ -30,7 +30,7 @@ class MatchCall implements AccountingOwnerInterface
     /**
      * @var Collection<int, MatchStrategy>
      */
-    #[ORM\OneToMany(targetEntity: MatchStrategy::class, mappedBy: 'call')]
+    #[ORM\OneToMany(targetEntity: MatchStrategy::class, mappedBy: 'call', cascade: ['persist'])]
     private Collection $strategies;
 
     /**
@@ -103,7 +103,16 @@ class MatchCall implements AccountingOwnerInterface
     public function addStrategy(MatchStrategy $strategy): static
     {
         if (!$this->strategies->contains($strategy)) {
+            $this->strategies = $this->strategies->map(function (MatchStrategy $s) use ($strategy) {
+                if ($s->getRanking() >= $strategy->getRanking()) {
+                    $s->setRanking($s->getRanking() + 1);
+                }
+
+                return $s;
+            });
+
             $this->strategies->add($strategy);
+
             $strategy->setCall($this);
         }
 
@@ -113,10 +122,13 @@ class MatchCall implements AccountingOwnerInterface
     public function removeStrategy(MatchStrategy $strategy): static
     {
         if ($this->strategies->removeElement($strategy)) {
-            // set the owning side to null (unless already changed)
-            if ($strategy->getCall() === $this) {
-                $strategy->setCall(null);
-            }
+            $this->strategies = $this->strategies->map(function (MatchStrategy $s) use ($strategy) {
+                if ($s->getRanking() > $strategy->getRanking()) {
+                    $s->setRanking($s->getRanking() - 1);
+                }
+
+                return $s;
+            });
         }
 
         return $this;
