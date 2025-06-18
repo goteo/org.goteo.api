@@ -3,14 +3,14 @@
 namespace App\Entity\Matchfunding;
 
 use App\Entity\Money;
-use App\Mapping\Provider\MatchStrategyMapProvider;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Matchfunding\Formula\MultiplicationFormula;
 use App\Repository\Matchfunding\MatchStrategyRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[MapProvider(MatchStrategyMapProvider::class)]
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: MatchStrategyRepository::class)]
 class MatchStrategy
 {
