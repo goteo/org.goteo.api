@@ -50,4 +50,7 @@ RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 
 EXPOSE 80
 
+HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
+ CMD curl -s -o /dev/null -f http://localhost/v4/index.json || exit 1
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
