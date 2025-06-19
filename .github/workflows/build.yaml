@@ -25,7 +25,7 @@ jobs:
         with:
           push: true
           context: .
-          file: docker/php/Dockerfile
+          file: docker/dev/php/Dockerfile
           target: prod
           tags: ${{ secrets.REGISTRY_URL }}/goteo-v4:latest
 
