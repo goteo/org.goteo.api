@@ -2,6 +2,7 @@
 
 namespace App\Repository\Matchfunding;
 
+use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Matchfunding\MatchStrategy;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,20 +17,19 @@ class MatchStrategyRepository extends ServiceEntityRepository
         parent::__construct($registry, MatchStrategy::class);
     }
 
-    //    /**
-    //     * @return MatchStrategy[] Returns an array of MatchStrategy objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * @return MatchStrategy[] Returns an array of ranked MatchStrategy objects
+     */
+    public function findByCall(MatchCall $call): array
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.call = :val')
+            ->setParameter('val', $call)
+            ->orderBy('m.ranking', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
     //    public function findOneBySomeField($value): ?MatchStrategy
     //    {
