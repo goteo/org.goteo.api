@@ -10,6 +10,7 @@ use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Matchfunding\Formula\FormulaLocator;
 use App\Matchfunding\Rule\RuleLocator;
+use App\Repository\Matchfunding\MatchStrategyRepository;
 use App\Service\Project\BudgetService;
 
 class MatchfundingService
@@ -20,6 +21,7 @@ class MatchfundingService
         private RuleLocator $ruleLocator,
         private FormulaLocator $formulaLocator,
         private BudgetService $budgetService,
+        private MatchStrategyRepository $matchStrategyRepository,
     ) {}
 
     /**
@@ -38,9 +40,12 @@ class MatchfundingService
         $transactions = [];
 
         foreach ($target->getMatchCallSubmissionsBy(self::SUBMISSION_ACCEPTED) as $submission) {
-            foreach ($submission->getCall()->getStrategies() as $strategy) {
+            $rankedStrategies = $this->matchStrategyRepository->findByCall($submission->getCall());
+
+            foreach ($rankedStrategies as $strategy) {
                 foreach ($this->ruleLocator->getFrom($strategy) as $rule) {
                     if (!$rule->validate($charge, $submission)) {
+                        // If an strategy's rule fails, skip to the next strategy
                         continue 2;
                     }
                 }
