@@ -2,6 +2,8 @@
 
 namespace App\ApiResource\Matchfunding;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Money;
@@ -9,8 +11,8 @@ use App\Entity\Matchfunding\MatchAgainst;
 use App\Entity\Matchfunding\MatchStrategy;
 use App\Mapping\Transformer\MatchFormulaMapTransformer;
 use App\Mapping\Transformer\MatchRulesMapTransformer;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\State\Matchfunding\MatchStrategyStateProcessor;
 use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -20,31 +22,42 @@ use Symfony\Component\Validator\Constraints as Assert;
  * \
  * The match-making flow is:
  * 1. A Project accepted in a MatchCall receives a successful Charge.
- * 2. The match-making loads the MatchCall's MatchStrategy.
- * 3. The MatchStrategy rules are executed, if one rule fails the match-making is cancelled for the Charge.
- * 3. The MatchStrategy formula function is passed the respective limit, factor and money of the MatchAgainst.
+ * 2. The match-making loads the MatchCall's MatchStrategies.
+ * 3. For each MatchStrategy the rules are executed, if one rule fails the match-making is cancelled for the strategy.
+ * 3. The first valid MatchStrategy's formula function is passed the respective limit, factor and money of the MatchAgainst.
  * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
  */
 #[API\ApiResource(
     shortName: 'MatchStrategy',
     stateOptions: new Options(entityClass: MatchStrategy::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class,
-    uriTemplate: '/match_call/{id}/strategy',
-    uriVariables: [
-        'id' => new API\Link(
-            fromClass: MatchCallApiResource::class,
-            fromProperty: 'strategy',
-            description: 'MatchCall identifier'
-        ),
-    ]
+    processor: MatchStrategyStateProcessor::class,
 )]
+#[API\GetCollection()]
+#[API\Post()]
 #[API\Get()]
-#[API\Patch()]
+#[API\Patch(security: 'is_granted("MATCHCALL_EDIT", object.call)')]
+#[API\Delete(security: 'is_granted("MATCHCALL_EDIT", object.call)')]
 class MatchStrategyApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
+    public int $id;
+
+    /**
+     * The MatchCall to which this strategy belongs to.
+     */
+    #[Assert\NotBlank()]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public MatchCallApiResource $call;
+
+    /**
+     * The ranking is the index order of this strategy among the others of the MatchCall
+     * when this is up for match making. The ranking value of items will be sorted
+     * after each change in the number of strategies or the ranking values.
+     */
+    #[Assert\PositiveOrZero()]
+    #[API\ApiFilter(OrderFilter::class)]
+    public int $ranking = 0;
 
     /**
      * The MatchRules used to decide if the match making strategy should be executed or not.
