@@ -14,6 +14,8 @@ if [ "$FORCE_SCHEMA_UPDATE" = "true" ]; then
   php bin/console doctrine:schema:update --force
 fi
 
+php bin/console cache:warmup
+
 echo "Start Supervisord"
 
 supervisord -c /etc/supervisord.conf
