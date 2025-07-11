@@ -3,21 +3,28 @@
 namespace App\Entity\Matchfunding;
 
 use App\Entity\Money;
-use App\Mapping\Provider\MatchStrategyMapProvider;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Matchfunding\Formula\MultiplicationFormula;
 use App\Repository\Matchfunding\MatchStrategyRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[MapProvider(MatchStrategyMapProvider::class)]
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: MatchStrategyRepository::class)]
 class MatchStrategy
 {
     #[ORM\Id]
-    #[ORM\OneToOne(inversedBy: 'strategy', cascade: ['persist', 'remove'])]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\ManyToOne(inversedBy: 'strategies')]
     #[ORM\JoinColumn(nullable: false)]
     private ?MatchCall $call = null;
+
+    #[ORM\Column]
+    private ?int $ranking = null;
 
     #[ORM\Column(type: Types::ARRAY)]
     private array $ruleNames = [];
@@ -39,8 +46,8 @@ class MatchStrategy
         ?string $formulaName = null,
     ): MatchStrategy {
         $strategy = new MatchStrategy();
-        $strategy->setCall($call);
 
+        $strategy->setCall($call);
         $strategy->setFormulaName($formulaName ?? MultiplicationFormula::getName());
         $strategy->setLimit(new Money(
             2147483647,
@@ -50,14 +57,31 @@ class MatchStrategy
         return $strategy;
     }
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     public function getCall(): ?MatchCall
     {
         return $this->call;
     }
 
-    public function setCall(MatchCall $call): static
+    public function setCall(?MatchCall $call): static
     {
         $this->call = $call;
+
+        return $this;
+    }
+
+    public function getRanking(): ?int
+    {
+        return $this->ranking;
+    }
+
+    public function setRanking(int $ranking): static
+    {
+        $this->ranking = $ranking;
 
         return $this;
     }
