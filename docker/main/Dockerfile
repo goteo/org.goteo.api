@@ -60,7 +60,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 USER nginx
 WORKDIR /app
 
-RUN composer install --prefer-dist --no-dev --optimize-autoloader
+RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 
 EXPOSE 80
 
