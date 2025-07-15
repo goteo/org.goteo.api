@@ -15,6 +15,7 @@ if [ "$FORCE_SCHEMA_UPDATE" = "true" ]; then
 fi
 
 php bin/console cache:warmup
+php bin/console assets:install
 
 echo "Start Supervisord"
 
