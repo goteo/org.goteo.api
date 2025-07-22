@@ -103,7 +103,11 @@ class EmbedService
             throw new \Exception(\sprintf('Could not extract embed data from %s', $url));
         }
 
-        $data = $data[$url];
+        $data = $data[\array_key_first($data)];
+
+        if (!\array_key_exists('html', $data)) {
+            throw new \Exception(\sprintf('Could not extract embed data from %s', $url));
+        }
 
         return new EmbedVideo(
             $this->getIframeSrc($data['html']),
