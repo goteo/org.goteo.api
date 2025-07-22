@@ -159,13 +159,22 @@ class ProjectsPump implements PumpInterface
         return $this->territoryService->search($cleanAddress);
     }
 
-    private function getProjectVideo(array $record): ?ProjectVideo
+    private function getProjectVideoSource(array $record): ?string
     {
-        if ($record['video'] === null) {
-            return null;
+        if ($record['video'] !== null) {
+            return \trim($record['video']);
         }
 
-        $url = \trim($record['video']);
+        if ($record['media'] !== null) {
+            return \trim($record['media']);
+        }
+
+        return null;
+    }
+
+    private function getProjectVideo(array $record): ?ProjectVideo
+    {
+        $url = $this->getProjectVideoSource($record);
 
         if ($url === '') {
             return null;
