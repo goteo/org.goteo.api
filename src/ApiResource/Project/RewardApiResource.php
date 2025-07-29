@@ -2,6 +2,8 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -53,6 +55,7 @@ class RewardApiResource
      * The minimal monetary sum to be able to claim this reward.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(OrderFilter::class, properties: ['money.amount'])]
     public Money $money;
 
     /**
@@ -60,6 +63,7 @@ class RewardApiResource
      */
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
+    #[API\ApiFilter(BooleanFilter::class)]
     public bool $hasUnits;
 
     /**
@@ -76,5 +80,6 @@ class RewardApiResource
      * For finite rewards, the currently available amount of unitsTotal that can be claimed.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(OrderFilter::class)]
     public int $unitsAvailable = 0;
 }
