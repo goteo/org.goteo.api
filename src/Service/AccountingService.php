@@ -30,12 +30,13 @@ class AccountingService
         $balance = new Money(0, $accounting->getCurrency());
         $trxs = $this->transactionRepository->findByAccounting($accounting);
 
+        $accountingId = $accounting->getId();
         foreach ($trxs as $transaction) {
-            if ($transaction->getTarget() === $accounting) {
+            if ($transaction->getTarget()->getId() === $accountingId) {
                 $balance = $this->money->add($transaction->getMoney(), $balance);
             }
 
-            if ($transaction->getOrigin() === $accounting) {
+            if ($transaction->getOrigin()->getId() === $accountingId) {
                 $balance = $this->money->substract($transaction->getMoney(), $balance);
             }
         }
@@ -95,6 +96,7 @@ class AccountingService
         $points = [];
         $totalBalance = new Money(0, $accounting->getCurrency());
 
+        $accountingId = $accounting->getId();
         foreach ($period as $start) {
             $end = \DateTime::createFromInterface($start)->add($period->getDateInterval());
             $periodTrxs = $this->getTransactionsInPeriod($trxs, $start, $end);
@@ -103,11 +105,11 @@ class AccountingService
             foreach ($periodTrxs as $trx) {
                 $trxMoney = $trx->getMoney();
 
-                if ($trx->getTarget() === $accounting) {
+                if ($trx->getTarget()->getId() === $accountingId) {
                     $balance = $this->money->add($trxMoney, $balance);
                 }
 
-                if ($trx->getOrigin() === $accounting) {
+                if ($trx->getOrigin()->getId() === $accountingId) {
                     $balance = $this->money->substract($trxMoney, $balance);
                 }
             }

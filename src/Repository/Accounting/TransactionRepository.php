@@ -34,19 +34,15 @@ class TransactionRepository extends ServiceEntityRepository
         ?\DateTimeInterface $dateEnd = null,
     ): array {
         $queryBuilder = $this->createQueryBuilder('t');
-        $accountingExpr = $queryBuilder->expr();
-
-        if ($dateEnd === null) {
-            $dateEnd = new \DateTime();
-        }
 
         $query = $queryBuilder
-            ->andWhere($accountingExpr->orX(
-                $accountingExpr->eq('t.origin', $accounting->getId()),
-                $accountingExpr->eq('t.target', $accounting->getId()),
+            ->andWhere($queryBuilder->expr()->orX(
+                't.origin = :accountingId',
+                't.target = :accountingId'
             ))
+            ->setParameter('accountingId', $accounting->getId())
             ->andWhere('t.dateCreated <= :dateEnd')
-            ->setParameter('dateEnd', $dateEnd);
+            ->setParameter('dateEnd', $dateEnd ?? new \DateTime());
 
         if ($dateStart !== null) {
             $query->andWhere('t.dateCreated >= :dateStart')
