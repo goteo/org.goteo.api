@@ -21,6 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'accounting_transaction')]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Index(fields: ['origin'])]
+#[ORM\Index(fields: ['target'])]
 class Transaction
 {
     use TimestampedCreationEntity;

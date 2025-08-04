@@ -27,16 +27,19 @@ class AccountingService
             return $this->wallet->getBalance($accounting);
         }
 
-        $balance = new Money(0, $accounting->getCurrency());
-        $trxs = $this->transactionRepository->findByAccounting($accounting);
+        $trxs = $this->transactionRepository->findForBalanceCalc($accounting);
 
-        foreach ($trxs as $transaction) {
-            if ($transaction->getTarget() === $accounting) {
-                $balance = $this->money->add($transaction->getMoney(), $balance);
+        $accountingId = $accounting->getId();
+        $balance = new Money(0, $accounting->getCurrency());
+        foreach ($trxs as $trx) {
+            $transaction = new Money($trx['money.amount'], $trx['money.currency']);
+
+            if ($trx['target_id'] === $accountingId) {
+                $balance = $this->money->add($transaction, $balance);
             }
 
-            if ($transaction->getOrigin() === $accounting) {
-                $balance = $this->money->substract($transaction->getMoney(), $balance);
+            if ($trx['origin_id'] === $accountingId) {
+                $balance = $this->money->substract($transaction, $balance);
             }
         }
 
@@ -95,6 +98,7 @@ class AccountingService
         $points = [];
         $totalBalance = new Money(0, $accounting->getCurrency());
 
+        $accountingId = $accounting->getId();
         foreach ($period as $start) {
             $end = \DateTime::createFromInterface($start)->add($period->getDateInterval());
             $periodTrxs = $this->getTransactionsInPeriod($trxs, $start, $end);
@@ -103,11 +107,11 @@ class AccountingService
             foreach ($periodTrxs as $trx) {
                 $trxMoney = $trx->getMoney();
 
-                if ($trx->getTarget() === $accounting) {
+                if ($trx->getTarget()->getId() === $accountingId) {
                     $balance = $this->money->add($trxMoney, $balance);
                 }
 
-                if ($trx->getOrigin() === $accounting) {
+                if ($trx->getOrigin()->getId() === $accountingId) {
                     $balance = $this->money->substract($trxMoney, $balance);
                 }
             }
