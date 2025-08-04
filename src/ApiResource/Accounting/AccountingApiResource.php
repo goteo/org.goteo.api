@@ -46,6 +46,18 @@ class AccountingApiResource
     #[API\ApiProperty(readable: false, writable: false)]
     public string $ownerClass;
 
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?UserApiResource $user = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?ProjectApiResource $project = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?TipjarApiResource $tipjar = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?MatchCallApiResource $matchCall;
+
     /**
      * The resource owning this Accounting.
      *
@@ -66,16 +78,4 @@ class AccountingApiResource
 
         return null;
     }
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?UserApiResource $user = null;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?ProjectApiResource $project = null;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?TipjarApiResource $tipjar = null;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?MatchCallApiResource $matchCall;
 }
