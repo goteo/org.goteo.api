@@ -55,6 +55,45 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param \DateTimeInterface|null $dateStart a date to act as lower bound of the selection
+     * @param \DateTimeInterface|null $dateEnd   A date to act as upper bound of the selection. Current date will be used if null.
+     *
+     * @return array Simplified array data of Transactions originated from or targeting the Accounting
+     */
+    public function findForBalanceCalc(
+        Accounting $accounting,
+        ?\DateTimeInterface $dateStart = null,
+        ?\DateTimeInterface $dateEnd = null,
+    ): array {
+        $queryBuilder = $this->createQueryBuilder('t');
+
+        $query = $queryBuilder
+            ->select('
+                t.id,
+                t.money.amount,
+                t.money.currency,
+                IDENTITY(t.origin) AS origin_id,
+                IDENTITY(t.target) AS target_id
+            ')
+            ->andWhere($queryBuilder->expr()->orX(
+                't.origin = :accountingId',
+                't.target = :accountingId'
+            ))
+            ->setParameter('accountingId', $accounting->getId())
+            ->andWhere('t.dateCreated <= :dateEnd')
+            ->setParameter('dateEnd', $dateEnd ?? new \DateTime());
+
+        if ($dateStart !== null) {
+            $query->andWhere('t.dateCreated >= :dateStart')
+                ->setParameter('dateStart', $dateStart);
+        }
+
+        $query->orderBy('t.id', 'ASC');
+
+        return $query->getQuery()->getArrayResult();
+    }
+
+    /**
      * @return Transaction[] Transactions originated from the Accounting
      */
     public function findByOrigin(Accounting $origin): array

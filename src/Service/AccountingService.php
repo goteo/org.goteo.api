@@ -27,17 +27,19 @@ class AccountingService
             return $this->wallet->getBalance($accounting);
         }
 
-        $balance = new Money(0, $accounting->getCurrency());
-        $trxs = $this->transactionRepository->findByAccounting($accounting);
+        $trxs = $this->transactionRepository->findForBalanceCalc($accounting);
 
         $accountingId = $accounting->getId();
-        foreach ($trxs as $transaction) {
-            if ($transaction->getTarget()->getId() === $accountingId) {
-                $balance = $this->money->add($transaction->getMoney(), $balance);
+        $balance = new Money(0, $accounting->getCurrency());
+        foreach ($trxs as $trx) {
+            $transaction = new Money($trx['money.amount'], $trx['money.currency']);
+
+            if ($trx['target_id'] === $accountingId) {
+                $balance = $this->money->add($transaction, $balance);
             }
 
-            if ($transaction->getOrigin()->getId() === $accountingId) {
-                $balance = $this->money->substract($transaction->getMoney(), $balance);
+            if ($trx['origin_id'] === $accountingId) {
+                $balance = $this->money->substract($transaction, $balance);
             }
         }
 
