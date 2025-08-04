@@ -10,14 +10,11 @@ use App\ApiResource\TipjarApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Matchfunding\MatchCall;
-use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
-use App\Mapping\Transformer\AccountingBalanceMapTransformer;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
-use AutoMapper\Attribute\MapFrom;
 
 /**
  * v4 features an advanced economy model under the hood.
@@ -34,7 +31,7 @@ use AutoMapper\Attribute\MapFrom;
     processor: AccountingStateProcessor::class,
 )]
 #[API\GetCollection()]
-#[API\Get()]
+#[API\Get(output: BalancedAccountingApiResource::class)]
 #[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class AccountingApiResource
 {
@@ -45,13 +42,6 @@ class AccountingApiResource
      * 3-letter ISO 4217 currency code.
      */
     public string $currency;
-
-    /**
-     * The money currently held by the Accounting.
-     */
-    #[MapFrom(Accounting::class, transformer: AccountingBalanceMapTransformer::class)]
-    #[API\ApiProperty(writable: false, security: 'is_granted("ACCOUNTING_VIEW", object)')]
-    public Money $balance;
 
     #[API\ApiProperty(readable: false, writable: false)]
     public string $ownerClass;

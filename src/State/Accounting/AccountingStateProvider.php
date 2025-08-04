@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\Accounting\BalancedAccountingApiResource;
 use App\Mapping\AutoMapper;
 use App\Service\AccountingService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -48,6 +49,6 @@ class AccountingStateProvider implements ProviderInterface
             return null;
         }
 
-        return $this->autoMapper->map($accounting, AccountingApiResource::class);
+        return $this->autoMapper->map($accounting, BalancedAccountingApiResource::class);
     }
 }
