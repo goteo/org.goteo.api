@@ -31,7 +31,7 @@ use App\State\Accounting\AccountingStateProvider;
     processor: AccountingStateProcessor::class,
 )]
 #[API\GetCollection()]
-#[API\Get(output: BalancedAccountingApiResource::class)]
+#[API\Get()]
 #[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class AccountingApiResource
 {
