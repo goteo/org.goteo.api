@@ -61,6 +61,7 @@ trait RedocExtensionsTrait
                 'name' => 'Accounting',
                 'tags' => [
                     'Accounting',
+                    'AccountingBalance',
                     'AccountingBalancePoint',
                     'AccountingTransaction',
                 ],
