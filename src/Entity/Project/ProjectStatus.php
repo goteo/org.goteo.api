@@ -33,6 +33,11 @@ enum ProjectStatus: string
     case Rejected = 'rejected';
 
     /**
+     * An admin reviewed it and deemed worthy to campaign.
+     */
+    case ToCampaign = 'to_campaign';
+
+    /**
      * Project was reviewed and is in campaign for funding.
      */
     case InCampaign = 'in_campaign';
