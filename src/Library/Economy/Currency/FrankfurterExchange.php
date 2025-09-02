@@ -34,7 +34,7 @@ class FrankfurterExchange implements ExchangeInterface
     }
 
     public function __construct(
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
     ) {
         $response = $httpClient->request('GET', self::ENDPOINT);
         $data = $response->toArray();
