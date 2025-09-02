@@ -263,6 +263,10 @@ class ProjectsPump implements PumpInterface
 
         $posts = $this->getProjectBlogPosts($project, $context);
         foreach ($posts as $post) {
+            if ($post['publish'] == 0) {
+                continue;
+            }
+
             $update = new Update();
             $update->setProject($project);
             $update->setTranslatableLocale($project->getLocales()[0]);
