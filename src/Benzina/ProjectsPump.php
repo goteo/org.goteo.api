@@ -57,13 +57,9 @@ class ProjectsPump implements PumpInterface
         }
 
         $project = new Project();
-        $project->setTranslatableLocale($record['lang']);
-        $project->setTitle($record['name']);
         $project->setSlug($record['id']);
-        $project->setSubtitle($record['subtitle']);
         $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
-        $project->setDescription($record['description']);
         $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
         $project->setStatus($status);
@@ -71,6 +67,19 @@ class ProjectsPump implements PumpInterface
         $project->setMigratedId($record['id']);
         $project->setDateCreated(new \DateTime($record['created']));
         $project->setDateUpdated(new \DateTime());
+
+        $project->setTranslatableLocale($record['lang']);
+        $project->setTitle($record['name']);
+        $project->setSubtitle($record['subtitle']);
+        $project->setDescription($this->getProjectDescription($record));
+
+        $localizations = $this->getProjectLocalizations($project, $context);
+        foreach ($localizations as $localization) {
+            $project->setTranslatableLocale($localization['lang']);
+            $project->setTitle($localization['name']);
+            $project->setSubtitle($localization['subtitle']);
+            $project->setDescription($this->getProjectDescription($localization));
+        }
 
         $updates = $this->getProjectUpdates($project, $context);
         foreach ($updates as $update) {
@@ -88,6 +97,35 @@ class ProjectsPump implements PumpInterface
     private function getProjectOwner(array $record): ?User
     {
         return $this->userRepository->findOneBy(['migratedId' => $record['owner']]);
+    }
+
+    private function getProjectDescription(array $record): string
+    {
+        $hasTitles = \array_key_exists($record['lang'], self::PROJECT_DESC_TITLES);
+
+        $description = $record['description'];
+
+        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['about'] : '');
+        $description .= \sprintf("\n%s", $record['about']);
+
+        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['motivation'] : '');
+        $description .= \sprintf("\n%s", $record['motivation']);
+
+        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['related'] : '');
+        $description .= \sprintf("\n%s", $record['related']);
+
+        return $description;
+    }
+
+    private function getProjectLocalizations(Project $project, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `project_lang` l WHERE l.id = :project'
+        );
+
+        $query->execute(['project' => $project->getMigratedId()]);
+
+        return $query->fetchAll();
     }
 
     private function getProjectCalendar(array $record): ProjectCalendar
