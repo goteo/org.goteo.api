@@ -20,9 +20,9 @@ class SupportMoneyMapTransformer implements PropertyTransformerInterface
     {
         $money = new Money(0, $source->getProject()->getAccounting()->getCurrency());
 
-        $charges = $source->getCharges();
-        foreach ($charges as $charge) {
-            $money = $this->moneyService->add($charge->getMoney(), $money);
+        $transactions = $source->getTransactions();
+        foreach ($transactions as $transaction) {
+            $money = $this->moneyService->add($transaction->getMoney(), $money);
         }
 
         return $money;
