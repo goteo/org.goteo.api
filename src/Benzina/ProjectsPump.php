@@ -76,8 +76,8 @@ class ProjectsPump implements PumpInterface
         $localizations = $this->getProjectLocalizations($project, $context);
         foreach ($localizations as $localization) {
             $project->setTranslatableLocale($localization['lang']);
-            $project->setTitle($localization['name']);
-            $project->setSubtitle($localization['subtitle']);
+            $project->setTitle($localization['name'] ?? $record['name']);
+            $project->setSubtitle($localization['subtitle'] ?? $record['subtitle']);
             $project->setDescription($this->getProjectDescription($localization));
         }
 
