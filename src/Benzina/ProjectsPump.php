@@ -131,9 +131,9 @@ class ProjectsPump implements PumpInterface
     private function getProjectCalendar(array $record): ProjectCalendar
     {
         $calendar = new ProjectCalendar();
-        $calendar->release = $record['published'];
-        $calendar->minimum = $record['passed'];
-        $calendar->optimum = $record['success'];
+        $calendar->release = new \DateTimeImmutable($record['published']);
+        $calendar->minimum = new \DateTimeImmutable($record['passed']);
+        $calendar->optimum = new \DateTimeImmutable($record['success']);
 
         return $calendar;
     }
