@@ -127,6 +127,49 @@ trait ProjectsPumpTrait
         'PAMLONA' => ['IRUÑEA'],
     ];
 
+    private const PROJECT_DESC_TITLES = [
+        'es' => [
+            'about' => 'Descripción del proyecto. Características, fortalezas y diferenciales.',
+            'motivation' => 'Motivación y a quién va dirigido el proyecto.',
+            'related' => 'Experiencia previa y equipo.',
+        ],
+        'gl' => [
+            'about' => 'Características básicas.',
+            'motivation' => 'Motivación e a quen vai dirixido o proxecto.',
+            'related' => 'Experiencia previa e equipo.',
+        ],
+        'eu' => [
+            'about' => 'Oinarrizko ezaugarriak eta helburuak.',
+            'motivation' => 'Zerk bultzatzen zaitu eta zeini zuzenduta dago proiektua.',
+            'related' => 'Proiektuaren deskribapenean derrigorrekoa da azaltzea kontutan hartzen den taldearen esperientzia.',
+        ],
+        'ca' => [
+            'about' => 'Característiques bàsiques i objectius.',
+            'motivation' => 'Motivació i a qui va dirigit el projecte.',
+            'related' => 'Experiència prèvia i equip.',
+        ],
+        'en' => [
+            'about' => 'Main features and goals of the crowdfunding campaign.',
+            'motivation' => 'Why this is important.',
+            'related' => 'Team and experience.',
+        ],
+        'fr' => [
+            'about' => 'Caractéristiques principales.',
+            'motivation' => 'Pourquoi est-ce important.',
+            'related' => 'Expérience antérieure et équipe.',
+        ],
+        'it' => [
+            'about' => 'Caratteristiche fondamentali.',
+            'motivation' => 'Obiettivo e a chi si dirige il progetto.',
+            'related' => 'Esperienza e team.',
+        ],
+        'de' => [
+            'about' => 'Hauptmerkmale.',
+            'motivation' => 'Warum das wichtig ist.',
+            'related' => 'Team und Erfahrung.',
+        ],
+    ];
+
     private const PROJECT_KEYS = [
         'id',
         'name',

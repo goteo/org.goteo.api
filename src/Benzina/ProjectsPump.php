@@ -3,6 +3,7 @@
 namespace App\Benzina;
 
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
@@ -12,8 +13,8 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
-use App\Service\Project\CalendarService;
 use App\Service\Project\TerritoryService;
+use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -29,7 +30,6 @@ class ProjectsPump implements PumpInterface
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
         private EmbedService $embedService,
-        private CalendarService $calendarService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -58,13 +58,9 @@ class ProjectsPump implements PumpInterface
         }
 
         $project = new Project();
-        $project->setTranslatableLocale($record['lang']);
-        $project->setTitle($record['name']);
         $project->setSlug($record['id']);
-        $project->setSubtitle($record['subtitle']);
         $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
-        $project->setDescription($record['description']);
         $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
         $project->setStatus($status);
@@ -72,6 +68,24 @@ class ProjectsPump implements PumpInterface
         $project->setMigratedId($record['id']);
         $project->setDateCreated(new \DateTime($record['created']));
         $project->setDateUpdated(new \DateTime());
+
+        $project->setTranslatableLocale($record['lang']);
+        $project->setTitle($record['name']);
+        $project->setSubtitle($record['subtitle']);
+        $project->setDescription($this->getProjectDescription($record));
+
+        $localizations = $this->getProjectLocalizations($project, $context);
+        $translations = $this->entityManager->getRepository(Translation::class);
+        foreach ($localizations as $localization) {
+            $locale = $localization['lang'];
+
+            $project->addLocale($locale);
+            $translations
+                ->translate($project, 'title', $locale, $localization['name'] ?? $record['name'])
+                ->translate($project, 'subtitle', $locale, $localization['subtitle'] ?? $record['subtitle'])
+                ->translate($project, 'description', $locale, $this->getProjectDescription($localization))
+            ;
+        }
 
         $updates = $this->getProjectUpdates($project, $context);
         foreach ($updates as $update) {
@@ -81,12 +95,7 @@ class ProjectsPump implements PumpInterface
         $conf = $this->getProjectConf($project, $context);
 
         $project->setDeadline($this->getProjectDeadline($conf));
-        $project->setCalendar($this->calendarService->makeCalendar(
-            $project->getDeadline(),
-            new \DateTimeImmutable($record['published']),
-            $conf['days_round1'],
-            $conf['days_round2'],
-        ));
+        $project->setCalendar($this->getProjectCalendar($record));
 
         $this->persist($project, $context);
     }
@@ -94,6 +103,45 @@ class ProjectsPump implements PumpInterface
     private function getProjectOwner(array $record): ?User
     {
         return $this->userRepository->findOneBy(['migratedId' => $record['owner']]);
+    }
+
+    private function getProjectDescription(array $record): string
+    {
+        $hasTitles = \array_key_exists($record['lang'], self::PROJECT_DESC_TITLES);
+
+        $description = $record['description'];
+
+        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['about'] : '');
+        $description .= \sprintf("\n%s", $record['about']);
+
+        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['motivation'] : '');
+        $description .= \sprintf("\n%s", $record['motivation']);
+
+        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['related'] : '');
+        $description .= \sprintf("\n%s", $record['related']);
+
+        return $description;
+    }
+
+    private function getProjectLocalizations(Project $project, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `project_lang` l WHERE l.id = :project'
+        );
+
+        $query->execute(['project' => $project->getMigratedId()]);
+
+        return $query->fetchAll();
+    }
+
+    private function getProjectCalendar(array $record): ProjectCalendar
+    {
+        $calendar = new ProjectCalendar();
+        $calendar->release = new \DateTimeImmutable($record['published']);
+        $calendar->minimum = new \DateTimeImmutable($record['passed']);
+        $calendar->optimum = new \DateTimeImmutable($record['success']);
+
+        return $calendar;
     }
 
     private function getProjectStatus(array $record): ProjectStatus
@@ -215,12 +263,16 @@ class ProjectsPump implements PumpInterface
 
         $posts = $this->getProjectBlogPosts($project, $context);
         foreach ($posts as $post) {
+            if ($post['publish'] == 0) {
+                continue;
+            }
+
             $update = new Update();
             $update->setProject($project);
             $update->setTranslatableLocale($project->getLocales()[0]);
             $update->setTitle($post['title']);
             $update->setSubtitle($post['subtitle'] ?? '');
-            $update->setBody($post['text']);
+            $update->setBody($post['text'] ?? '');
             $update->setDate(new \DateTime($post['date']));
 
             $updates[] = $update;

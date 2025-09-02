@@ -2,11 +2,11 @@
 
 namespace App\EventListener;
 
+use App\Entity\Accounting\Accounting;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
-use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -55,18 +55,16 @@ class GatewayCheckoutSupportsListener
 
     /**
      * Create ProjectSupport for the given data.
-     *
-     * @param Charge[] $charges
      */
-    private function createSupport(Project $project, User $owner, array $charges): Support
+    private function createSupport(Project $project, Accounting $origin, array $transactions): Support
     {
         $projectSupport = new Support();
         $projectSupport->setProject($project);
-        $projectSupport->setOwner($owner);
+        $projectSupport->setOrigin($origin);
         $projectSupport->setAnonymous(false);
 
-        foreach ($charges as $charge) {
-            $projectSupport->addCharge($charge);
+        foreach ($transactions as $transaction) {
+            $projectSupport->addTransaction($transaction);
         }
 
         return $projectSupport;
@@ -77,24 +75,28 @@ class GatewayCheckoutSupportsListener
      */
     public function prepareSupports(Checkout $checkout): array
     {
+        /** @var Charge[] */
         $charges = $checkout->getCharges()->toArray();
-        $owner = $checkout->getOrigin()->getUser();
+        $origin = $checkout->getOrigin();
 
-        // Group charges for projects
-        $chargesInProjectMap = [];
+        $projects = [];
+        $transactionsByProject = [];
         foreach ($charges as $charge) {
             $project = $charge->getTarget()->getProject();
-            if ($project === null) {
+
+            if (!$project) {
                 continue;
             }
 
-            $chargesInProjectMap[$project->getId()][] = $charge;
+            $projectId = $project->getId();
+
+            $projects[$projectId] = $project;
+            $transactionsByProject[$projectId] = [...$transactionsByProject[$projectId], ...$charge->getTransactions()];
         }
 
         $supports = [];
-        foreach ($chargesInProjectMap as $chargesInProject) {
-            $project = $chargesInProject[0]->getTarget()->getProject();
-            $supports[] = $this->createSupport($project, $owner, $chargesInProject);
+        foreach ($transactionsByProject as $projectId => $transactions) {
+            $supports[] = $this->createSupport($projects[$projectId], $origin, $transactions);
         }
 
         return $supports;

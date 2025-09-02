@@ -5,8 +5,8 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\Gateway\ChargeApiResource;
-use App\ApiResource\User\UserApiResource;
+use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\Accounting\TransactionApiResource;
 use App\Entity\Money;
 use App\Entity\Project\Support;
 use App\Mapping\Transformer\SupportMoneyMapTransformer;
@@ -15,6 +15,12 @@ use App\State\Project\SupportStateProcessor;
 use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * ProjectSupports gather Transactions going from one same origin to one same Project.\
+ * \
+ * MatchCalls specially might make several different Transactions to the same Project,
+ * but their ProjectSupport remains the same just with updated money.
+ */
 #[API\ApiResource(
     shortName: 'ProjectSupport',
     stateOptions: new Options(entityClass: Support::class),
@@ -32,31 +38,31 @@ class SupportApiResource
     public int $id;
 
     /**
-     * The User who created the ProjectSupport record.\
-     * \
-     * When `anonymous` is *true* it will only be public to admins and the User.
-     */
-    #[API\ApiProperty(writable: false, security: 'is_granted("SUPPORT_VIEW", object)')]
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    public ?UserApiResource $owner;
-
-    /**
-     * The Project being targeted in the Charges.
+     * The Project being supported.
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ProjectApiResource $project;
 
     /**
-     * The Charges that were paid by the User.
-     *
-     * @var array<int, ChargeApiResource>
+     * The Accounting of origin for the Transactions under this ProjectSupport record.\
+     * \
+     * When `anonymous` is *true* it will only be public to admins and the User.
      */
-    #[API\ApiProperty(writable: false)]
-    public array $charges;
+    #[API\ApiProperty(writable: false, security: 'is_granted("SUPPORT_VIEW", object)')]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
+    public ?AccountingApiResource $origin;
 
     /**
-     * The total monetary value of the Charges paid by the User.
+     * The Transactions that were issued to the Project by the origin.
+     *
+     * @var array<int, TransactionApiResource>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $transactions;
+
+    /**
+     * The total monetary value of the Transactions going to the Project.
      */
     #[MapFrom(Support::class, transformer: SupportMoneyMapTransformer::class)]
     public Money $money;

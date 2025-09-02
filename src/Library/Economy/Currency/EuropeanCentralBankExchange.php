@@ -137,7 +137,13 @@ class EuropeanCentralBankExchange implements ExchangeInterface
             throw new \Exception('Could not retrieve XML data');
         }
 
-        return \json_decode(\json_encode($data), true)['Cube']['Cube'];
+        $data = \json_decode(\json_encode($data), true)['Cube']['Cube'];
+
+        if (empty($data['@attributes']['time'])) {
+            throw new \Exception('XML data comes empty from ECB');
+        }
+
+        return $data;
     }
 
     private function getDataCached(): array
@@ -148,7 +154,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
             return $this->getDataLatest();
         });
 
-        if (!$data) {
+        if (!$data || empty($data['@attributes']['time'])) {
             throw new \Exception('Could not retrieve cached data');
         }
 
