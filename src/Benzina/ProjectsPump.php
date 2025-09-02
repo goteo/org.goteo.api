@@ -14,6 +14,7 @@ use App\Entity\User\User;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
+use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -74,11 +75,16 @@ class ProjectsPump implements PumpInterface
         $project->setDescription($this->getProjectDescription($record));
 
         $localizations = $this->getProjectLocalizations($project, $context);
+        $translations = $this->entityManager->getRepository(Translation::class);
         foreach ($localizations as $localization) {
-            $project->setTranslatableLocale($localization['lang']);
-            $project->setTitle($localization['name'] ?? $record['name']);
-            $project->setSubtitle($localization['subtitle'] ?? $record['subtitle']);
-            $project->setDescription($this->getProjectDescription($localization));
+            $locale = $localization['lang'];
+
+            $project->addLocale($locale);
+            $translations
+                ->translate($project, 'title', $locale, $localization['name'] ?? $record['name'])
+                ->translate($project, 'subtitle', $locale, $localization['subtitle'] ?? $record['subtitle'])
+                ->translate($project, 'description', $locale, $this->getProjectDescription($localization))
+            ;
         }
 
         $updates = $this->getProjectUpdates($project, $context);
@@ -262,7 +268,7 @@ class ProjectsPump implements PumpInterface
             $update->setTranslatableLocale($project->getLocales()[0]);
             $update->setTitle($post['title']);
             $update->setSubtitle($post['subtitle'] ?? '');
-            $update->setBody($post['text']);
+            $update->setBody($post['text'] ?? '');
             $update->setDate(new \DateTime($post['date']));
 
             $updates[] = $update;
