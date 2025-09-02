@@ -3,6 +3,7 @@
 namespace App\Benzina;
 
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
@@ -12,7 +13,6 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
-use App\Service\Project\CalendarService;
 use App\Service\Project\TerritoryService;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -29,7 +29,6 @@ class ProjectsPump implements PumpInterface
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
         private EmbedService $embedService,
-        private CalendarService $calendarService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -81,12 +80,7 @@ class ProjectsPump implements PumpInterface
         $conf = $this->getProjectConf($project, $context);
 
         $project->setDeadline($this->getProjectDeadline($conf));
-        $project->setCalendar($this->calendarService->makeCalendar(
-            $project->getDeadline(),
-            new \DateTimeImmutable($record['published']),
-            $conf['days_round1'],
-            $conf['days_round2'],
-        ));
+        $project->setCalendar($this->getProjectCalendar($record));
 
         $this->persist($project, $context);
     }
@@ -94,6 +88,16 @@ class ProjectsPump implements PumpInterface
     private function getProjectOwner(array $record): ?User
     {
         return $this->userRepository->findOneBy(['migratedId' => $record['owner']]);
+    }
+
+    private function getProjectCalendar(array $record): ProjectCalendar
+    {
+        $calendar = new ProjectCalendar();
+        $calendar->release = $record['published'];
+        $calendar->minimum = $record['passed'];
+        $calendar->optimum = $record['success'];
+
+        return $calendar;
     }
 
     private function getProjectStatus(array $record): ProjectStatus
