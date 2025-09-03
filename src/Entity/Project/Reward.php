@@ -2,8 +2,10 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Money;
 use App\Entity\Trait\LocalizedEntityTrait;
+use App\Entity\Trait\MigratedEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\RewardRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -19,8 +21,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_reward')]
 #[ORM\Entity(repositoryClass: RewardRepository::class)]
-class Reward
+class Reward implements LocalizedEntityInterface
 {
+    use MigratedEntity;
     use LocalizedEntityTrait;
 
     #[ORM\Id]
