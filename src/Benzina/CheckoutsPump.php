@@ -45,6 +45,7 @@ class CheckoutsPump implements PumpInterface
     private const PLATFORM_TIPJAR_NAME = 'platform';
 
     private const MAX_INT = 2147483647;
+    private const CURRENCY = 'EUR';
 
     public function __construct(
         private UserRepository $userRepository,
@@ -104,7 +105,7 @@ class CheckoutsPump implements PumpInterface
         $charge->setDateCreated($invested);
         $charge->setDateUpdated(new \DateTime());
         $charge->setType($this->getChargeType($record));
-        $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
+        $charge->setMoney($this->getChargeMoney($record['amount'], self::CURRENCY));
 
         if ($project === null) {
             $charge->setTitle(self::CHARGE_TITLE_POOL);
@@ -120,7 +121,7 @@ class CheckoutsPump implements PumpInterface
             $tip = new Charge();
             $tip->setType(ChargeType::Single);
             $tip->setTitle(self::CHARGE_TITLE_TIP);
-            $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
+            $tip->setMoney($this->getChargeMoney($record['donate_amount'], self::CURRENCY));
             $tip->setTarget($tipjar->getAccounting());
 
             $checkout->addCharge($tip);
