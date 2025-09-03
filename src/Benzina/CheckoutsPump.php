@@ -2,6 +2,7 @@
 
 namespace App\Benzina;
 
+use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Gateway\Tracking;
@@ -40,6 +41,7 @@ class CheckoutsPump implements PumpInterface
     public const CHARGE_TITLE_POOL = 'Pago en Goteo v3 - Carga de monedero';
     public const CHARGE_TITLE_TIP = 'Pago en Goteo v3 - Propina a la plataforma';
 
+    private const PLATFORM_RETURN_URL = 'https://goteo.org';
     private const PLATFORM_TIPJAR_NAME = 'platform';
 
     private const MAX_INT = 2147483647;
@@ -81,23 +83,26 @@ class CheckoutsPump implements PumpInterface
 
         $project = $this->getProject($record);
         $tipjar = $this->getPlatformTipjar();
+        $invested = new \DateTime($record['invested']);
 
         $checkout = new Checkout();
+        $checkout->setMigrated(true);
+        $checkout->setMigratedId($record['id']);
+        $checkout->setDateCreated($invested);
+        $checkout->setDateUpdated(new \DateTime());
+
         $checkout->setOrigin($user->getAccounting());
         $checkout->setStatus($this->getCheckoutStatus($record));
         $checkout->setGatewayName($this->getCheckoutGateway($record));
+        $checkout->setReturnUrl(self::PLATFORM_RETURN_URL);
 
         foreach ($this->getCheckoutTrackings($record) as $tracking) {
             $checkout->addTracking($tracking);
         }
 
-        $checkout->setMigrated(true);
-        $checkout->setMigratedId($record['id']);
-
-        $checkout->setDateCreated(new \DateTime($record['invested']));
-        $checkout->setDateUpdated(new \DateTime());
-
         $charge = new Charge();
+        $charge->setDateCreated($invested);
+        $charge->setDateUpdated(new \DateTime());
         $charge->setType($this->getChargeType($record));
         $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
 
@@ -122,7 +127,15 @@ class CheckoutsPump implements PumpInterface
         }
 
         if ($checkout->getStatus() === CheckoutStatus::Charged) {
-            $checkout = $this->checkoutService->chargeCheckout($checkout);
+            foreach ($checkout->getCharges() as $charge) {
+                $transaction = new Transaction();
+                $transaction->setDateCreated($invested);
+                $transaction->setMoney($charge->getMoney());
+                $transaction->setOrigin($checkout->getOrigin());
+                $transaction->setTarget($charge->getTarget());
+
+                $charge->addTransaction($transaction);
+            }
         }
 
         $this->persist($checkout, $context);
