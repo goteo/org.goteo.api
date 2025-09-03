@@ -75,6 +75,7 @@ class ProjectsPump implements PumpInterface
         $project->setMigratedId($record['id']);
         $project->setDateCreated(new \DateTime($record['created']));
         $project->setDateUpdated(new \DateTime());
+        $project->setTranslatableLocale($record['lang']);
         $project->setUpdates(new ArrayCollection($this->getProjectUpdates($project, $context)));
 
         $conf = $this->getProjectConf($project, $context);
