@@ -25,6 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[MapProvider(EntityMapProvider::class)]
+#[ORM\Index(fields: ['migratedId'])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedEntityInterface
 {
@@ -394,6 +395,16 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function getUpdates(): Collection
     {
         return $this->updates;
+    }
+
+    /**
+     * @param Collection<int, Update> $updates
+     */
+    public function setUpdates(Collection $updates): static
+    {
+        $this->updates = $updates;
+
+        return $this;
     }
 
     public function addUpdate(Update $update): static
