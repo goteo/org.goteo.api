@@ -10,6 +10,7 @@ use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
+use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Gateway\CashGateway;
@@ -104,6 +105,7 @@ class CheckoutsPump implements PumpInterface
         $charge = new Charge();
         $charge->setDateCreated($invested);
         $charge->setDateUpdated(new \DateTime());
+        $charge->setStatus($this->getChargeStatus($record));
         $charge->setType($this->getChargeType($record));
         $charge->setMoney($this->getChargeMoney($record['amount'], self::CURRENCY));
 
@@ -119,6 +121,9 @@ class CheckoutsPump implements PumpInterface
 
         if ($record['donate_amount'] > 0) {
             $tip = new Charge();
+            $tip->setDateCreated($invested);
+            $tip->setDateUpdated(new \DateTime());
+            $tip->setStatus($this->getChargeStatus($record));
             $tip->setType(ChargeType::Single);
             $tip->setTitle(self::CHARGE_TITLE_TIP);
             $tip->setMoney($this->getChargeMoney($record['donate_amount'], self::CURRENCY));
@@ -127,16 +132,30 @@ class CheckoutsPump implements PumpInterface
             $checkout->addCharge($tip);
         }
 
-        if ($checkout->getStatus() === CheckoutStatus::Charged) {
-            foreach ($checkout->getCharges() as $charge) {
-                $transaction = new Transaction();
-                $transaction->setDateCreated($invested);
-                $transaction->setMoney($charge->getMoney());
-                $transaction->setOrigin($checkout->getOrigin());
-                $transaction->setTarget($charge->getTarget());
-
-                $charge->addTransaction($transaction);
+        foreach ($checkout->getCharges() as $charge) {
+            if (!\in_array($charge->getStatus(), [ChargeStatus::Charged, ChargeStatus::Refunded])) {
+                continue;
             }
+
+            $transaction = new Transaction();
+            $transaction->setDateCreated($invested);
+            $transaction->setMoney($charge->getMoney());
+            $transaction->setOrigin($checkout->getOrigin());
+            $transaction->setTarget($charge->getTarget());
+
+            $charge->addTransaction($transaction);
+
+            if ($charge->getStatus() !== ChargeStatus::Refunded) {
+                continue;
+            }
+
+            $returned = new Transaction();
+            $returned->setDateCreated(new \DateTime($record['returned']));
+            $returned->setMoney($charge->getMoney());
+            $returned->setOrigin($charge->getTarget());
+            $returned->setTarget($checkout->getOrigin());
+
+            $charge->addTransaction($returned);
         }
 
         $this->persist($checkout, $context);
@@ -193,13 +212,42 @@ class CheckoutsPump implements PumpInterface
         return new Money($amount, $currency);
     }
 
+    private function getChargeStatus(array $record): ChargeStatus
+    {
+        switch ($record['status']) {
+            case 0:
+            case 1:
+            case 3:
+            case 7:
+                if ($record['issue'] === 1) {
+                    return ChargeStatus::InPending;
+                }
+
+                return ChargeStatus::Charged;
+            case 2:
+            case 4:
+            case 6:
+                return ChargeStatus::Refunded;
+            default:
+                return ChargeStatus::InPending;
+        }
+    }
+
     private function getCheckoutStatus(array $record): CheckoutStatus
     {
-        if ($record['status'] < 1) {
-            return CheckoutStatus::InPending;
-        }
+        switch ($record['status']) {
+            case 0:
+            case 1:
+            case 3:
+            case 7:
+                if ($record['issue'] === 1) {
+                    return CheckoutStatus::InPending;
+                }
 
-        return CheckoutStatus::Charged;
+                return CheckoutStatus::Charged;
+            default:
+                return CheckoutStatus::InPending;
+        }
     }
 
     private function getCheckoutGateway(array $record): string
