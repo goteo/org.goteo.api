@@ -111,13 +111,13 @@ class ProjectsPump implements PumpInterface
 
         $description = $record['description'];
 
-        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['about'] : '');
+        $description .= \sprintf("\n## %s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['about'] : '');
         $description .= \sprintf("\n%s", $record['about']);
 
-        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['motivation'] : '');
+        $description .= \sprintf("\n## %s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['motivation'] : '');
         $description .= \sprintf("\n%s", $record['motivation']);
 
-        $description .= \sprintf("\n##%s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['related'] : '');
+        $description .= \sprintf("\n## %s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['related'] : '');
         $description .= \sprintf("\n%s", $record['related']);
 
         return $description;
