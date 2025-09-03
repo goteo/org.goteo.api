@@ -11,9 +11,11 @@ use App\Entity\Project\ProjectVideo;
 use App\Entity\Project\Update;
 use App\Entity\Territory;
 use App\Entity\User\User;
+use App\Repository\Project\ProjectRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -27,6 +29,7 @@ class ProjectsPump implements PumpInterface
     use ProjectsPumpTrait;
 
     public function __construct(
+        private ProjectRepository $projectRepository,
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
         private EmbedService $embedService,
@@ -57,7 +60,11 @@ class ProjectsPump implements PumpInterface
             return;
         }
 
-        $project = new Project();
+        $project = $this->getProject($record);
+        if ($project === null) {
+            $project = new Project();
+        }
+
         $project->setSlug($record['id']);
         $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
@@ -68,11 +75,12 @@ class ProjectsPump implements PumpInterface
         $project->setMigratedId($record['id']);
         $project->setDateCreated(new \DateTime($record['created']));
         $project->setDateUpdated(new \DateTime());
+        $project->setUpdates(new ArrayCollection($this->getProjectUpdates($project, $context)));
 
-        $project->setTranslatableLocale($record['lang']);
-        $project->setTitle($record['name']);
-        $project->setSubtitle($record['subtitle']);
-        $project->setDescription($this->getProjectDescription($record));
+        $conf = $this->getProjectConf($project, $context);
+
+        $project->setDeadline($this->getProjectDeadline($conf));
+        $project->setCalendar($this->getProjectCalendar($record));
 
         $localizations = $this->getProjectLocalizations($project, $context);
         $translations = $this->entityManager->getRepository(Translation::class);
@@ -87,17 +95,16 @@ class ProjectsPump implements PumpInterface
             ;
         }
 
-        $updates = $this->getProjectUpdates($project, $context);
-        foreach ($updates as $update) {
-            $project->addUpdate($update);
-        }
-
-        $conf = $this->getProjectConf($project, $context);
-
-        $project->setDeadline($this->getProjectDeadline($conf));
-        $project->setCalendar($this->getProjectCalendar($record));
+        $project->setTitle($record['name']);
+        $project->setSubtitle($record['subtitle']);
+        $project->setDescription($this->getProjectDescription($record));
 
         $this->persist($project, $context);
+    }
+
+    private function getProject(array $record): ?Project
+    {
+        return $this->projectRepository->findOneBy(['migratedId' => $record['id']]);
     }
 
     private function getProjectOwner(array $record): ?User
@@ -107,17 +114,27 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectDescription(array $record): string
     {
-        $hasTitles = \array_key_exists($record['lang'], self::PROJECT_DESC_TITLES);
+        $lang = $record['lang'];
+        $hasTitles = \array_key_exists($lang, self::PROJECT_DESC_TITLES);
 
         $description = $record['description'];
 
-        $description .= \sprintf("\n## %s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['about'] : '');
+        if ($hasTitles) {
+            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['about']);
+        }
+
         $description .= \sprintf("\n%s", $record['about']);
 
-        $description .= \sprintf("\n## %s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['motivation'] : '');
-        $description .= \sprintf("\n%s", $record['motivation']);
+        if ($hasTitles) {
+            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['motivation']);
+        }
 
-        $description .= \sprintf("\n## %s", $hasTitles ? self::PROJECT_DESC_TITLES[$record['lang']]['related'] : '');
+        $description .= \sprintf("\n\n%s", $record['motivation']);
+
+        if ($hasTitles) {
+            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['related']);
+        }
+
         $description .= \sprintf("\n%s", $record['related']);
 
         return $description;
