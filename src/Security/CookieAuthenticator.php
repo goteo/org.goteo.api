@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 class CookieAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
-        private AccessTokenHandler $accessTokenHandler
+        private AccessTokenHandler $accessTokenHandler,
     ) {}
 
     /**

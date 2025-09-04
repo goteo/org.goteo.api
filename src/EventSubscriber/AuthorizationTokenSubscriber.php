@@ -6,7 +6,6 @@ use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\ApiResource\User\UserTokenApiResource;
 use App\Service\Auth\AuthService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -14,7 +13,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class AuthorizationTokenSubscriber implements EventSubscriberInterface
 {
-    public function __construct() {}
+    public function __construct(
+        private AuthService $authService,
+    ) {}
 
     public static function getSubscribedEvents()
     {
@@ -22,24 +23,6 @@ final class AuthorizationTokenSubscriber implements EventSubscriberInterface
             KernelEvents::VIEW => ['onView', EventPriorities::POST_WRITE],
             KernelEvents::RESPONSE => ['onResponse', EventPriorities::POST_RESPOND],
         ];
-    }
-
-    private function getCookieTtl(): \DateTimeInterface
-    {
-        return (new \DateTime())->add(new \DateInterval(\sprintf('PT%dS', AuthService::AUTH_COOKIE_TTL)));
-    }
-
-    private function getCookie(string $tokenValue)
-    {
-        return new Cookie(
-            name: AuthService::AUTH_COOKIE_NAME,
-            value: $tokenValue,
-            expire: $this->getCookieTtl(),
-            path: '/',
-            secure: false,
-            httpOnly: true,
-            sameSite: 'Lax'
-        );
     }
 
     public function onView(ViewEvent $event): void
@@ -73,7 +56,7 @@ final class AuthorizationTokenSubscriber implements EventSubscriberInterface
                 $event->getResponse()->headers->clearCookie(AuthService::AUTH_COOKIE_NAME);
                 break;
             case Request::METHOD_POST:
-                $event->getResponse()->headers->setCookie($this->getCookie($token));
+                $event->getResponse()->headers->setCookie($this->authService->generateCookie($token));
                 break;
         }
     }
