@@ -6,9 +6,13 @@ use App\Entity\User\User;
 use App\Entity\User\UserToken;
 use App\Repository\User\UserRepository;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthService
 {
+    public const AUTH_COOKIE_NAME = 'authToken';
+    public const AUTH_COOKIE_TTL = 86400;
+
     private const TOKEN_HASH_ALGO = 'sha256';
 
     private array $config;
@@ -25,6 +29,24 @@ class AuthService
     public function getConfig(): array
     {
         return $this->config;
+    }
+
+    private function getCookieTtl(): \DateTimeInterface
+    {
+        return (new \DateTime())->add(new \DateInterval(\sprintf('PT%dS', AuthService::AUTH_COOKIE_TTL)));
+    }
+
+    public function generateCookie(string $token): Cookie
+    {
+        return new Cookie(
+            name: AuthService::AUTH_COOKIE_NAME,
+            value: $token,
+            expire: $this->getCookieTtl(),
+            path: '/',
+            secure: true,
+            httpOnly: true,
+            sameSite: 'Strict'
+        );
     }
 
     public function generateUserToken(User $user, AuthTokenType $type): UserToken
