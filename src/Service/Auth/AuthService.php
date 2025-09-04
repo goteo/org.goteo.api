@@ -9,6 +9,9 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 class AuthService
 {
+    public const AUTH_COOKIE_NAME = 'authToken';
+    public const AUTH_COOKIE_TTL = 86400;
+
     private const TOKEN_HASH_ALGO = 'sha256';
 
     private array $config;

@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\ApiResource\User\UserTokenApiResource;
+use App\Service\Auth\AuthService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,9 +14,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class AuthorizationTokenSubscriber implements EventSubscriberInterface
 {
-    private const COOKIE_NAME = 'authToken';
-    private const COOKIE_TTL = 86400;
-
     public function __construct() {}
 
     public static function getSubscribedEvents()
@@ -28,13 +26,13 @@ final class AuthorizationTokenSubscriber implements EventSubscriberInterface
 
     private function getCookieTtl(): \DateTimeInterface
     {
-        return (new \DateTime())->add(new \DateInterval(\sprintf('PT%dS', self::COOKIE_TTL)));
+        return (new \DateTime())->add(new \DateInterval(\sprintf('PT%dS', AuthService::AUTH_COOKIE_TTL)));
     }
 
     private function getCookie(string $tokenValue)
     {
         return new Cookie(
-            name: self::COOKIE_NAME,
+            name: AuthService::AUTH_COOKIE_NAME,
             value: $tokenValue,
             expire: $this->getCookieTtl(),
             path: '/',
@@ -72,7 +70,7 @@ final class AuthorizationTokenSubscriber implements EventSubscriberInterface
 
         switch ($method) {
             case Request::METHOD_DELETE:
-                $event->getResponse()->headers->clearCookie(self::COOKIE_NAME);
+                $event->getResponse()->headers->clearCookie(AuthService::AUTH_COOKIE_NAME);
                 break;
             case Request::METHOD_POST:
                 $event->getResponse()->headers->setCookie($this->getCookie($token));
