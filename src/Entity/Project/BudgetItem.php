@@ -5,6 +5,7 @@ namespace App\Entity\Project;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Money;
 use App\Entity\Trait\LocalizedEntityTrait;
+use App\Entity\Trait\MigratedEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\BudgetItemRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -17,6 +18,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Entity(repositoryClass: BudgetItemRepository::class)]
 class BudgetItem implements LocalizedEntityInterface
 {
+    use MigratedEntity;
     use LocalizedEntityTrait;
 
     #[ORM\Id]

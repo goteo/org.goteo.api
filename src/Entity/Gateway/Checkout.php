@@ -76,8 +76,6 @@ class Checkout
     /**
      * The address to where the user must be redirected to.
      */
-    #[Assert\NotBlank()]
-    #[Assert\Url()]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $returnUrl = null;
 

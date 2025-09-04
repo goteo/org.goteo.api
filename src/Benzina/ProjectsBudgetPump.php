@@ -8,6 +8,7 @@ use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Repository\Project\ProjectRepository;
+use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -15,6 +16,7 @@ use Goteo\Benzina\Pump\PumpInterface;
 class ProjectsBudgetPump implements PumpInterface
 {
     use ArrayPumpTrait;
+    use DatabasePumpTrait;
     use DoctrinePumpTrait;
 
     private const COST_KEYS = [
@@ -55,6 +57,8 @@ class ProjectsBudgetPump implements PumpInterface
         }
 
         $budgetItem = new BudgetItem();
+        $budgetItem->setMigrated(true);
+        $budgetItem->setMigratedId($record['id']);
         $budgetItem->setTranslatableLocale($project->getLocales()[0]);
         $budgetItem->setProject($project);
         $budgetItem->setType($this->getCostType($record));
@@ -62,6 +66,18 @@ class ProjectsBudgetPump implements PumpInterface
         $budgetItem->setDescription($record['description'] ?? $record['cost']);
         $budgetItem->setMoney(new Money($record['amount'] * 100, 'EUR'));
         $budgetItem->setDeadline($this->getDeadline($record));
+
+        $localizations = $this->getCostLocalizations($budgetItem, $context);
+        $translations = $this->entityManager->getRepository(Translation::class);
+        foreach ($localizations as $localization) {
+            $locale = $localization['lang'];
+
+            $budgetItem->addLocale($locale);
+            $translations
+                ->translate($budgetItem, 'title', $locale, $localization['cost'] ?? $record['cost'])
+                ->translate($budgetItem, 'description', $locale, $localization['description'] ?? $record['description'])
+            ;
+        }
 
         $this->persist($budgetItem, $context);
     }
@@ -90,5 +106,16 @@ class ProjectsBudgetPump implements PumpInterface
         }
 
         return ProjectDeadline::Optimum;
+    }
+
+    private function getCostLocalizations(BudgetItem $budgetItem, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `cost_lang` l WHERE l.id = :cost'
+        );
+
+        $query->execute(['cost' => $budgetItem->getMigratedId()]);
+
+        return $query->fetchAll();
     }
 }
