@@ -8,49 +8,33 @@ use App\Entity\Gateway\Checkout;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsEntityListener(
-    event: Events::preUpdate,
-    method: 'preUpdate',
-    entity: Checkout::class
-)]
-#[AsEntityListener(
-    event: Events::postUpdate,
-    method: 'postUpdate',
+    event: Events::preFlush,
+    method: 'preFlush',
     entity: Checkout::class
 )]
 class GatewayCheckoutSupportsListener
 {
-    /** @var array<int, Support> */
-    private array $supports;
-
-    public function preUpdate(Checkout $checkout, PreUpdateEventArgs $args): void
+    public function preFlush(Checkout $checkout, PreFlushEventArgs $args): void
     {
-        if (!$args->hasChangedField('status')) {
+        if (!$checkout->isCharged()) {
             return;
         }
 
-        if ($checkout->isCharged()) {
-            $this->supports = $this->prepareSupports($checkout, $args->getObjectManager());
+        $supports = $this->prepareSupports($checkout);
+
+        /** @var EntityManagerInterface */
+        $em = $args->getObjectManager();
+        $uow = $em->getUnitOfWork();
+
+        foreach ($supports as $support) {
+            $em->persist($support);
+            $uow->computeChangeSet($em->getClassMetadata(Support::class), $support);
         }
-    }
-
-    public function postUpdate(Checkout $checkout, PostUpdateEventArgs $args): void
-    {
-        if (empty($this->supports)) {
-            return;
-        }
-
-        foreach ($this->supports as $key => $support) {
-            $args->getObjectManager()->persist($support);
-
-            unset($this->supports[$key]);
-        }
-
-        $args->getObjectManager()->flush();
     }
 
     /**
