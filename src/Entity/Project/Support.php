@@ -12,8 +12,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
-#[ORM\Table(name: 'project_support')]
 #[ORM\Entity(repositoryClass: SupportRepository::class)]
+#[ORM\Table(name: 'project_support', uniqueConstraints: [
+    new ORM\UniqueConstraint(fields: ['project', 'origin']),
+])]
 class Support
 {
     #[ORM\Id]
@@ -35,7 +37,7 @@ class Support
     #[ORM\JoinTable(name: 'project_support_trxs')]
     #[ORM\JoinColumn(name: 'support_id', referencedColumnName: 'id')]
     #[ORM\InverseJoinColumn(name: 'transaction_id', referencedColumnName: 'id')]
-    #[ORM\ManyToMany(targetEntity: Transaction::class)]
+    #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
 
     #[ORM\Column]

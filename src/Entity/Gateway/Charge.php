@@ -77,7 +77,7 @@ class Charge
     /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\JoinTable(name: 'checkout_charge_transaction')]
+    #[ORM\JoinTable(name: 'checkout_charge_trxs')]
     #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
 

@@ -7,50 +7,47 @@ use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
+use App\Repository\Project\SupportRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsEntityListener(
-    event: Events::preUpdate,
-    method: 'preUpdate',
-    entity: Checkout::class
-)]
-#[AsEntityListener(
-    event: Events::postUpdate,
-    method: 'postUpdate',
+    event: Events::preFlush,
+    method: 'preFlush',
     entity: Checkout::class
 )]
 class GatewayCheckoutSupportsListener
 {
-    /** @var array<int, Support> */
-    private array $supports;
+    public function __construct(
+        private SupportRepository $supportRepository,
+    ) {}
 
-    public function preUpdate(Checkout $checkout, PreUpdateEventArgs $args): void
+    public function preFlush(Checkout $checkout, PreFlushEventArgs $args): void
     {
-        if (!$args->hasChangedField('status')) {
-            return;
+        /** @var EntityManagerInterface */
+        $em = $args->getObjectManager();
+        $uow = $em->getUnitOfWork();
+
+        foreach ($uow->getScheduledEntityUpdates() as $entity) {
+            if (!$entity instanceof Checkout) {
+                continue;
+            }
+
+            $changes = $uow->getEntityChangeSet($entity);
+
+            if (!isset($changes['status']) || !$entity->isCharged()) {
+                continue;
+            }
+
+            $supports = $this->prepareSupports($entity);
+
+            foreach ($supports as $support) {
+                $em->persist($support);
+                $uow->computeChangeSet($em->getClassMetadata(Support::class), $support);
+            }
         }
-
-        if ($checkout->isCharged()) {
-            $this->supports = $this->prepareSupports($checkout, $args->getObjectManager());
-        }
-    }
-
-    public function postUpdate(Checkout $checkout, PostUpdateEventArgs $args): void
-    {
-        if (empty($this->supports)) {
-            return;
-        }
-
-        foreach ($this->supports as $key => $support) {
-            $args->getObjectManager()->persist($support);
-
-            unset($this->supports[$key]);
-        }
-
-        $args->getObjectManager()->flush();
     }
 
     /**
@@ -58,7 +55,15 @@ class GatewayCheckoutSupportsListener
      */
     private function createSupport(Project $project, Accounting $origin, array $transactions): Support
     {
-        $projectSupport = new Support();
+        $projectSupport = $this->supportRepository->findOneBy([
+            'project' => $project->getId(),
+            'origin' => $origin->getId(),
+        ]);
+
+        if (!$projectSupport) {
+            $projectSupport = new Support();
+        }
+
         $projectSupport->setProject($project);
         $projectSupport->setOrigin($origin);
         $projectSupport->setAnonymous(false);
