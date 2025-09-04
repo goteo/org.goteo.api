@@ -7,6 +7,7 @@ use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
+use App\Repository\Project\SupportRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreFlushEventArgs;
@@ -19,6 +20,10 @@ use Doctrine\ORM\Events;
 )]
 class GatewayCheckoutSupportsListener
 {
+    public function __construct(
+        private SupportRepository $supportRepository,
+    ) {}
+
     public function preFlush(Checkout $checkout, PreFlushEventArgs $args): void
     {
         /** @var EntityManagerInterface */
@@ -50,7 +55,15 @@ class GatewayCheckoutSupportsListener
      */
     private function createSupport(Project $project, Accounting $origin, array $transactions): Support
     {
-        $projectSupport = new Support();
+        $projectSupport = $this->supportRepository->findOneBy([
+            'project' => $project->getId(),
+            'origin' => $origin->getId(),
+        ]);
+
+        if (!$projectSupport) {
+            $projectSupport = new Support();
+        }
+
         $projectSupport->setProject($project);
         $projectSupport->setOrigin($origin);
         $projectSupport->setAnonymous(false);
