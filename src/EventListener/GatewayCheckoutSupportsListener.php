@@ -21,19 +21,27 @@ class GatewayCheckoutSupportsListener
 {
     public function preFlush(Checkout $checkout, PreFlushEventArgs $args): void
     {
-        if (!$checkout->isCharged()) {
-            return;
-        }
-
-        $supports = $this->prepareSupports($checkout);
-
         /** @var EntityManagerInterface */
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
 
-        foreach ($supports as $support) {
-            $em->persist($support);
-            $uow->computeChangeSet($em->getClassMetadata(Support::class), $support);
+        foreach ($uow->getScheduledEntityUpdates() as $entity) {
+            if (!$entity instanceof Checkout) {
+                continue;
+            }
+
+            $changes = $uow->getEntityChangeSet($entity);
+
+            if (!isset($changes['status']) || !$entity->isCharged()) {
+                continue;
+            }
+
+            $supports = $this->prepareSupports($entity);
+
+            foreach ($supports as $support) {
+                $em->persist($support);
+                $uow->computeChangeSet($em->getClassMetadata(Support::class), $support);
+            }
         }
     }
 
