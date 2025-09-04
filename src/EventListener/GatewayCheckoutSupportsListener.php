@@ -91,7 +91,10 @@ class GatewayCheckoutSupportsListener
             $projectId = $project->getId();
 
             $projects[$projectId] = $project;
-            $transactionsByProject[$projectId] = [...$transactionsByProject[$projectId], ...$charge->getTransactions()];
+            $transactionsByProject[$projectId] = [
+                ...$transactionsByProject[$projectId] ?? [],
+                ...$charge->getTransactions()
+            ];
         }
 
         $supports = [];
