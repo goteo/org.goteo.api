@@ -8,6 +8,7 @@ use App\Entity\Gateway\Checkout;
 use App\Entity\Gateway\Tracking;
 use App\Entity\Money;
 use App\Entity\Project\Project;
+use App\Entity\Project\Support;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
 use App\Gateway\ChargeStatus;
@@ -20,6 +21,7 @@ use App\Gateway\Paypal\PaypalGateway;
 use App\Gateway\Stripe\StripeGateway;
 use App\Gateway\Wallet\WalletGateway;
 use App\Repository\Project\ProjectRepository;
+use App\Repository\Project\SupportRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Gateway\CheckoutService;
@@ -30,6 +32,7 @@ use Goteo\Benzina\Pump\PumpInterface;
 class CheckoutsPump implements PumpInterface
 {
     use ArrayPumpTrait;
+    use DatabasePumpTrait;
     use DoctrinePumpTrait;
     use CheckoutsPumpTrait;
 
@@ -51,6 +54,7 @@ class CheckoutsPump implements PumpInterface
     public function __construct(
         private UserRepository $userRepository,
         private ProjectRepository $projectRepository,
+        private SupportRepository $supportRepository,
         private TipjarRepository $tipjarRepository,
         private CheckoutService $checkoutService,
     ) {}
@@ -145,6 +149,17 @@ class CheckoutsPump implements PumpInterface
 
             $charge->addTransaction($transaction);
 
+            if ($project) {
+                $support = $this->getSupport($charge);
+                $support->setProject($project);
+                $support->setOrigin($checkout->getOrigin());
+                $support->addTransaction($transaction);
+                $support->setAnonymous($this->getSupportAnon($record, $support));
+                $support->setMessage($this->getSupportMessage($record, $support, $context));
+
+                $this->entityManager->persist($support);
+            }
+
             if ($charge->getStatus() !== ChargeStatus::Refunded) {
                 continue;
             }
@@ -175,6 +190,49 @@ class CheckoutsPump implements PumpInterface
         return $this->projectRepository->findOneBy(['migratedId' => $record['project']]);
     }
 
+    private function getSupport(Charge $charge): Support
+    {
+        $support = $this->supportRepository->findOneBy([
+            'origin' => $charge->getCheckout()->getOrigin()->getId(),
+            'project' => $charge->getTarget()->getOwner()->getId(),
+        ]);
+
+        if ($support) {
+            return $support;
+        }
+
+        return new Support();
+    }
+
+    private function getSupportAnon(array $record, Support $support): bool
+    {
+        if ($record['anonymous'] === 1) {
+            return true;
+        }
+
+        if ($support->isAnonymous()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function getSupportMessage(array $record, Support $support, array $context): ?string
+    {
+        $message = $support->getMessage();
+        $msg = $this->getInvestMsg($record, $context);
+
+        if (!$msg || empty($msg['msg'])) {
+            return $message;
+        }
+
+        if (!$message) {
+            return $msg['msg'];
+        }
+
+        return \sprintf("\n***\n%s", $msg['msg']);
+    }
+
     private function getPlatformTipjar(): Tipjar
     {
         $tipjar = $this->tipjarRepository->findOneBy(['name' => self::PLATFORM_TIPJAR_NAME]);
@@ -190,6 +248,17 @@ class CheckoutsPump implements PumpInterface
         $this->entityManager->flush();
 
         return $tipjar;
+    }
+
+    private function getInvestMsg(array $record, array $context)
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `invest_msg` m WHERE m.invest = :invest'
+        );
+
+        $query->execute(['invest' => $record['id']]);
+
+        return $query->fetch(\PDO::FETCH_ASSOC);
     }
 
     private function getChargeType(array $record): ChargeType
