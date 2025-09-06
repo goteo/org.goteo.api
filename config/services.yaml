@@ -15,7 +15,9 @@ services:
         App\Gateway\GatewayInterface:
             tags: ['app.gateway.gateway']
         App\Money\Currency\ExchangeInterface:
-            tags: ['app.lib.economy.currency.exchange']
+            tags: ['app.money.currency.exchange']
+        App\Money\Totalization\TotalizerInterface:
+            tags: ['app.money.totalization.totalizer']
         App\Matchfunding\Formula\FormulaInterface:
             tags: ['app.matchfunding.formula']
         App\Matchfunding\Rule\RuleInterface:
@@ -96,7 +98,11 @@ services:
 
     App\Money\Currency\ExchangeLocator:
         arguments:
-            - !tagged 'app.lib.economy.currency.exchange'
+            - !tagged 'app.money.currency.exchange'
+
+    App\Money\Totalization\TotalizerLocator:
+        arguments:
+            - !tagged 'app.money.totalization.totalizer'
 
     App\Mapping\AutoMapper:
         arguments:
