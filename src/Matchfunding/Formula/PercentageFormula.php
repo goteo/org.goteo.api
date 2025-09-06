@@ -2,8 +2,9 @@
 
 namespace App\Matchfunding\Formula;
 
-use App\Entity\Money;
-use App\Library\Economy\MoneyService;
+use App\Money\Money;
+use App\Money\MoneyInterface;
+use App\Money\MoneyService;
 
 class PercentageFormula implements FormulaInterface
 {
@@ -17,13 +18,11 @@ class PercentageFormula implements FormulaInterface
         return 'min(factor * money / 100, limit)';
     }
 
-    public function match(float $factor, Money $money, Money $limit): Money
+    public function match(float $factor, MoneyInterface $money, MoneyInterface $limit): Money
     {
         $delta = \Brick\Money\Money::min(
             MoneyService::toBrick($limit),
-            MoneyService::toBrick($money)
-                ->multipliedBy($factor)
-                ->dividedBy(100)
+            MoneyService::toBrick($money)->multipliedBy($factor)->dividedBy(100)
         );
 
         return MoneyService::toMoney($delta);

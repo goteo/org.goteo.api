@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Library\Economy;
+namespace App\Money;
 
-use App\Entity\Money;
-use App\Library\Economy\Currency\ExchangeLocator;
-use Brick\Money as Brick;
+use App\Money\Currency\ExchangeLocator;
+use Brick\Money\Money as BrickMoney;
 
 class MoneyService
 {
@@ -12,7 +11,7 @@ class MoneyService
         private ExchangeLocator $exchangeLocator,
     ) {}
 
-    public static function toMoney(Brick\Money $brick): Money
+    public static function toMoney(BrickMoney $brick): Money
     {
         return new Money(
             $brick->getMinorAmount()->toInt(),
@@ -20,17 +19,17 @@ class MoneyService
         );
     }
 
-    public static function toBrick(Money $money): Brick\Money
+    public static function toBrick(MoneyInterface $money): BrickMoney
     {
-        return Brick\Money::ofMinor($money->amount, $money->currency);
+        return BrickMoney::ofMinor($money->getAmount(), $money->getCurrency());
     }
 
     /**
      * Adds `a` to `b`.
      */
-    public function add(Money $a, Money $b): Money
+    public function add(MoneyInterface $a, MoneyInterface $b): Money
     {
-        $a = $this->convert($a, $b->currency);
+        $a = $this->convert($a, $b->getCurrency());
         $ab = self::toBrick($b)->plus($a);
 
         return self::toMoney($ab);
@@ -39,9 +38,9 @@ class MoneyService
     /**
      * Substracts `a` from `b`.
      */
-    public function substract(Money $a, Money $b): Money
+    public function substract(MoneyInterface $a, MoneyInterface $b): Money
     {
-        $a = $this->convert($a, $b->currency);
+        $a = $this->convert($a, $b->getCurrency());
         $ab = self::toBrick($b)->minus($a);
 
         return self::toMoney($ab);
@@ -52,9 +51,9 @@ class MoneyService
      *
      * @return bool `true` if `$money` is less than `$than`
      */
-    public function isLess(Money $money, Money $than): bool
+    public function isLess(MoneyInterface $money, MoneyInterface $than): bool
     {
-        $money = $this->convert($money, $than->currency);
+        $money = $this->convert($money, $than->getCurrency());
 
         return $money->isLessThan(self::toBrick($than));
     }
@@ -64,16 +63,16 @@ class MoneyService
      *
      * @return bool `true` if `$money` is more than or same as `$than`
      */
-    public function isMoreOrSame(Money $money, Money $than): bool
+    public function isMoreOrSame(MoneyInterface $money, MoneyInterface $than): bool
     {
-        $money = $this->convert($money, $than->currency);
+        $money = $this->convert($money, $than->getCurrency());
 
         return $money->isGreaterThanOrEqualTo(self::toBrick($than));
     }
 
-    private function convert(Money $money, string $toCurrency): Brick\Money
+    private function convert(MoneyInterface $money, string $toCurrency): BrickMoney
     {
-        $fromCurrency = $money->currency;
+        $fromCurrency = $money->getCurrency();
         if ($fromCurrency === $toCurrency) {
             return self::toBrick($money);
         }

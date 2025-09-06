@@ -3,10 +3,10 @@
 namespace App\Benzina;
 
 use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Gateway\Tracking;
-use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
@@ -201,7 +201,7 @@ class CheckoutsPump implements PumpInterface
         return ChargeType::Single;
     }
 
-    private function getChargeMoney(int $amount, string $currency): Money
+    private function getChargeMoney(int $amount, string $currency): EmbeddableMoney
     {
         $amount = $amount * 100;
 
@@ -209,7 +209,7 @@ class CheckoutsPump implements PumpInterface
             $amount = self::MAX_INT;
         }
 
-        return new Money($amount, $currency);
+        return new EmbeddableMoney($amount, $currency);
     }
 
     private function getChargeStatus(array $record): ChargeStatus

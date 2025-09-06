@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Money\MoneyInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @see \Brick\Money
  */
 #[ORM\Embeddable]
-class Money
+class EmbeddableMoney implements MoneyInterface
 {
     /**
      * An amount of currency.\
@@ -32,5 +33,23 @@ class Money
     ) {
         $this->amount = $amount;
         $this->currency = $currency;
+    }
+
+    public static function of(MoneyInterface $moneyInterface): self
+    {
+        return new self(
+            $moneyInterface->getAmount(),
+            $moneyInterface->getCurrency()
+        );
+    }
+
+    public function getAmount(): int
+    {
+        return $this->amount;
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency;
     }
 }

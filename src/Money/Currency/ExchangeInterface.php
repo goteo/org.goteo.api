@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Library\Economy\Currency;
+namespace App\Money\Currency;
 
-use App\Entity\Money;
+use App\Money\MoneyInterface;
 use Brick\Money\Exception\CurrencyConversionException;
 
 interface ExchangeInterface
@@ -18,14 +18,14 @@ interface ExchangeInterface
     public function getWeight(): int;
 
     /**
-     * @param Money  $money      The money to be converted
-     * @param string $toCurrency The currency to convert to
+     * @param MoneyInterface $money      The money to be converted
+     * @param string         $toCurrency The currency to convert to
      *
-     * @return Money The converted Money
+     * @return MoneyInterface The converted MoneyInterface
      *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
-    public function convert(Money $money, string $toCurrency): Money;
+    public function convert(MoneyInterface $money, string $toCurrency): MoneyInterface;
 
     /**
      * @param string $fromCurrency The currency to convert from

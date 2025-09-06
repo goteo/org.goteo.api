@@ -2,6 +2,7 @@
 
 namespace App\Mapping\Transformer;
 
+use App\ApiResource\ApiMoney;
 use App\ApiResource\Project\Budget;
 use App\ApiResource\Project\BudgetSummary;
 use App\Entity\Project\BudgetItem;
@@ -45,25 +46,25 @@ class BudgetMapTransformer implements PropertyTransformerInterface
 
         $summary = new BudgetSummary();
 
-        $summary->money = $this->budgetService->calcBudget(
+        $summary->money = ApiMoney::of($this->budgetService->calcBudget(
             $items,
             $currency
-        )[$deadline];
+        )[$deadline]);
 
-        $summary->task = $this->budgetService->calcBudget(
+        $summary->task = ApiMoney::of($this->budgetService->calcBudget(
             $this->filterItemsByType($items, BudgetItemType::Task),
             $currency
-        )[$deadline];
+        )[$deadline]);
 
-        $summary->material = $this->budgetService->calcBudget(
+        $summary->material = ApiMoney::of($this->budgetService->calcBudget(
             $this->filterItemsByType($items, BudgetItemType::Material),
             $currency
-        )[$deadline];
+        )[$deadline]);
 
-        $summary->infra = $this->budgetService->calcBudget(
+        $summary->infra = ApiMoney::of($this->budgetService->calcBudget(
             $this->filterItemsByType($items, BudgetItemType::Infrastructure),
             $currency
-        )[$deadline];
+        )[$deadline]);
 
         return $summary;
     }

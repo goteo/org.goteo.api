@@ -17,7 +17,7 @@ final class AuthorizationTokenSubscriber implements EventSubscriberInterface
         private AuthService $authService,
     ) {}
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::VIEW => ['onView', EventPriorities::POST_WRITE],

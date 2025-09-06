@@ -5,8 +5,8 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\ApiMoney;
 use App\ApiResource\LocalizedApiResourceTrait;
-use App\ApiResource\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\ProjectDeadline;
@@ -58,7 +58,7 @@ class BudgetItemApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public Money $money;
+    public ApiMoney $money;
 
     /**
      * Defines the budget category for this item within the project.
