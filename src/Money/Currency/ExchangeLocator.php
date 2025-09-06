@@ -24,7 +24,7 @@ class ExchangeLocator
          * @param ExchangeInterface $b
          */
         usort($exchanges, function ($a, $b) {
-            return $a->getWeight() < $b->getWeight();
+            return $a->getWeight() <=> $b->getWeight();
         });
 
         foreach ($exchanges as $exchange) {
