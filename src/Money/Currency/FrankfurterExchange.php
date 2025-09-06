@@ -2,7 +2,8 @@
 
 namespace App\Money\Currency;
 
-use App\Entity\Money;
+use App\Money\Money;
+use App\Money\MoneyInterface;
 use App\Money\MoneyService;
 use Brick\Math\RoundingMode;
 use Brick\Money\CurrencyConverter;
@@ -49,7 +50,7 @@ class FrankfurterExchange implements ExchangeInterface
         $this->converter = new CurrencyConverter($this->provider);
     }
 
-    public function convert(Money $money, string $toCurrency): Money
+    public function convert(MoneyInterface $money, string $toCurrency): MoneyInterface
     {
         $converted = $this->converter->convert(
             MoneyService::toBrick($money),
