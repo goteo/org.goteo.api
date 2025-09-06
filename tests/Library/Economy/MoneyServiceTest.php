@@ -3,7 +3,7 @@
 namespace App\Tests\Library\Economy;
 
 use App\Entity\Money;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**

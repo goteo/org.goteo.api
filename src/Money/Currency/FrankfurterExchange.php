@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Library\Economy\Currency;
+namespace App\Money\Currency;
 
 use App\Entity\Money;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 use Brick\Math\RoundingMode;
 use Brick\Money\CurrencyConverter;
 use Brick\Money\ExchangeRateProvider;

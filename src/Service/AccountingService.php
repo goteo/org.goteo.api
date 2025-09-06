@@ -8,7 +8,7 @@ use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\User\User;
 use App\Gateway\Wallet\WalletService;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 use App\Repository\Accounting\TransactionRepository;
 
 class AccountingService

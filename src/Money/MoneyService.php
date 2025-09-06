@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Library\Economy;
+namespace App\Money;
 
 use App\Entity\Money;
-use App\Library\Economy\Currency\ExchangeLocator;
+use App\Money\Currency\ExchangeLocator;
 use Brick\Money as Brick;
 
 class MoneyService

@@ -3,7 +3,7 @@
 namespace App\Matchfunding\Formula;
 
 use App\Entity\Money;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 
 class PercentageFormula implements FormulaInterface
 {

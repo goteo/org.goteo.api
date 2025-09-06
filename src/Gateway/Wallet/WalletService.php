@@ -7,7 +7,7 @@ use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\WalletFinancement;
 use App\Entity\WalletStatement;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 use App\Repository\WalletStatementRepository;
 use Brick\Money as Brick;
 use Doctrine\ORM\EntityManagerInterface;

@@ -4,7 +4,7 @@ namespace App\Mapping\Transformer;
 
 use App\Entity\Money;
 use App\Entity\Project\Support;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class SupportMoneyMapTransformer implements PropertyTransformerInterface

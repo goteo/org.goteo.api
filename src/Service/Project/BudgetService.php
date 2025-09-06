@@ -5,7 +5,7 @@ namespace App\Service\Project;
 use App\Entity\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\ProjectDeadline;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 
 class BudgetService
 {

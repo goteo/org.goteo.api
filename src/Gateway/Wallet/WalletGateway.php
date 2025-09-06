@@ -10,7 +10,7 @@ use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\GatewayInterface;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
