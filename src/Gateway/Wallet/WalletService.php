@@ -4,11 +4,12 @@ namespace App\Gateway\Wallet;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
-use App\Entity\Money;
-use App\Entity\WalletFinancement;
-use App\Entity\WalletStatement;
+use App\Entity\EmbeddableMoney;
+use App\Entity\Wallet\WalletFinancement;
+use App\Entity\Wallet\WalletStatement;
+use App\Money\Money;
 use App\Money\MoneyService;
-use App\Repository\WalletStatementRepository;
+use App\Repository\Wallet\WalletStatementRepository;
 use Brick\Money as Brick;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -39,7 +40,10 @@ class WalletService
             $total = $total->plus($balance);
         }
 
-        return $this->money->toMoney($total);
+        return new Money(
+            $total->getMinorAmount()->toInt(),
+            $total->getCurrency()->getCurrencyCode()
+        );
     }
 
     /**
@@ -77,7 +81,7 @@ class WalletService
         $origin = $transaction->getOrigin();
 
         $spendGoal = $transaction->getMoney();
-        $spentTotal = new Money(0, $spendGoal->currency);
+        $spentTotal = new Money(0, $spendGoal->getCurrency());
 
         $outgoing = new WalletStatement();
         $outgoing->setTransaction($transaction);
@@ -85,7 +89,7 @@ class WalletService
 
         $statements = $this->getStatements($origin);
         foreach ($statements as $statement) {
-            if ($spendGoal->amount === 0) {
+            if ($spendGoal->getAmount() === 0) {
                 break;
             }
 
@@ -94,9 +98,9 @@ class WalletService
             }
 
             $incoming = $statement;
-            $balance = $incoming->getBalance();
 
-            if ($balance->amount === 0) {
+            $balance = $incoming->getBalance();
+            if ($balance->getAmount() === 0) {
                 continue;
             }
 
@@ -107,12 +111,14 @@ class WalletService
             }
 
             $financement = new WalletFinancement();
-            $financement->setMoney($balanceSpent);
+            $financement->setMoney(EmbeddableMoney::of($balanceSpent));
 
-            $incoming->setBalance($this->money->substract($balanceSpent, $balance));
+            $substracted = $this->money->substract($balanceSpent, $balance);
+            $incoming->setBalance(EmbeddableMoney::of($substracted));
             $incoming->addFinancesTo($financement);
 
-            $outgoing->setBalance($this->money->add($balanceSpent, $spentTotal));
+            $added = $this->money->add($balanceSpent, $spentTotal);
+            $outgoing->setBalance(EmbeddableMoney::of($added));
             $outgoing->addFinancedBy($financement);
 
             $this->entityManager->persist($incoming);

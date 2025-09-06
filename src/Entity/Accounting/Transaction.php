@@ -2,7 +2,7 @@
 
 namespace App\Entity\Accounting;
 
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney as Money;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\TransactionRepository;

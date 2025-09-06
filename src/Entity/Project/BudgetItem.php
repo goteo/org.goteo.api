@@ -2,8 +2,8 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\EmbeddableMoney as Money;
 use App\Entity\Interface\LocalizedEntityInterface;
-use App\Entity\Money;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Mapping\Provider\EntityMapProvider;

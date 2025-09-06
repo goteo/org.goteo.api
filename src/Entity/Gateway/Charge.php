@@ -4,7 +4,7 @@ namespace App\Entity\Gateway;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney as Money;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\ChargeStatus;

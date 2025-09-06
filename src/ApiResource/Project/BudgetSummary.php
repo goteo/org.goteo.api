@@ -2,27 +2,27 @@
 
 namespace App\ApiResource\Project;
 
-use App\Entity\Money;
+use App\ApiResource\ApiMoney;
 
 class BudgetSummary
 {
     /**
      * The total money by the included items.
      */
-    public Money $money;
+    public ApiMoney $money;
 
     /**
      * The total money of type 'task'.
      */
-    public Money $task;
+    public ApiMoney $task;
 
     /**
      * The total money of type 'material'.
      */
-    public Money $material;
+    public ApiMoney $material;
 
     /**
      * The total money of type 'infrastructure'.
      */
-    public Money $infra;
+    public ApiMoney $infra;
 }

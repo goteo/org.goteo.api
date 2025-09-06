@@ -7,8 +7,8 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\ApiMoney;
 use App\ApiResource\LocalizedApiResourceTrait;
-use App\Entity\Money;
 use App\Entity\Project\Reward;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardStateProcessor;
@@ -56,7 +56,7 @@ class RewardApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(OrderFilter::class, properties: ['money.amount'])]
-    public Money $money;
+    public ApiMoney $money;
 
     /**
      * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.

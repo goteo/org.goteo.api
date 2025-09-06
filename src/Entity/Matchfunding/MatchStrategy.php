@@ -2,7 +2,7 @@
 
 namespace App\Entity\Matchfunding;
 
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney as Money;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Matchfunding\Formula\MultiplicationFormula;
 use App\Repository\Matchfunding\MatchStrategyRepository;
