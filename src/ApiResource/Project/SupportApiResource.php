@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -75,6 +76,7 @@ class SupportApiResource
      */
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
+    #[API\ApiFilter(BooleanFilter::class)]
     public bool $anonymous = true;
 
     /**

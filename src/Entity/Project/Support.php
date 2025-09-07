@@ -46,9 +46,9 @@ class Support
     private ?EmbeddableMoney $money = null;
 
     #[ORM\Column]
-    private ?bool $anonymous = null;
+    private bool $anonymous = false;
 
-    #[ORM\Column(Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
     public function __construct()
@@ -121,7 +121,7 @@ class Support
         return $this;
     }
 
-    public function isAnonymous(): ?bool
+    public function isAnonymous(): bool
     {
         return $this->anonymous;
     }
