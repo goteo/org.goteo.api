@@ -9,10 +9,9 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
 use App\ApiResource\ApiMoney;
 use App\Entity\Project\Support;
-use App\Mapping\Transformer\SupportMoneyMapTransformer;
 use App\State\ApiResourceStateProvider;
+use App\State\MoneyTotalStateProvider;
 use App\State\Project\SupportStateProcessor;
-use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -27,6 +26,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
 )]
 #[API\GetCollection()]
+#[API\GetCollection(
+    uriTemplate: '/project_supports/money_total',
+    provider: MoneyTotalStateProvider::class,
+    paginationEnabled: false,
+)]
 #[API\Get()]
 #[API\Patch(
     security: 'is_granted("SUPPORT_EDIT", previous_object)',
