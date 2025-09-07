@@ -27,26 +27,27 @@ class ApiMoney implements MoneyInterface
     /**
      * Conversion metadata.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(readable: true, writable: false)]
     public ?array $conversion;
 
     public function __construct(
         int $amount,
         string $currency,
-        ?Conversion $conversion = null,
     ) {
         $this->amount = $amount;
         $this->currency = $currency;
-        $this->conversion = $conversion?->toArray();
     }
 
     public static function of(MoneyInterface $moneyInterface): self
     {
-        return new self(
+        $money = new self(
             $moneyInterface->getAmount(),
             $moneyInterface->getCurrency(),
-            $moneyInterface->getConversion()
         );
+
+        $money->conversion = $moneyInterface->getConversion()?->toArray();
+
+        return $money;
     }
 
     public function getAmount(): int
