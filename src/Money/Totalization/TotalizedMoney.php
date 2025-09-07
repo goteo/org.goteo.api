@@ -2,10 +2,7 @@
 
 namespace App\Money\Totalization;
 
-use App\Money\Conversion\Conversion;
-use App\Money\MoneyInterface;
-
-class TotalizedMoney implements MoneyInterface
+class TotalizedMoney
 {
     public function __construct(
         private int $amount,
@@ -21,11 +18,6 @@ class TotalizedMoney implements MoneyInterface
     public function getCurrency(): string
     {
         return $this->currency;
-    }
-
-    public function getConversion(): ?Conversion
-    {
-        return null;
     }
 
     /**
