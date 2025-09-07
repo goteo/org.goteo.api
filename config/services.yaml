@@ -96,6 +96,10 @@ services:
             $hosts:
                 - 'peertube.plataformess.org'
 
+    App\State\MoneyTotalStateProvider:
+        arguments:
+            - !tagged 'api_platform.doctrine.orm.query_extension.collection'
+
     App\Money\MoneyService:
         arguments:
             - '%env(CURRENCY_DEFAULT)%'
