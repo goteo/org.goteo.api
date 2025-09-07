@@ -2,7 +2,7 @@
 
 namespace App\Benzina;
 
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\Reward;
@@ -73,7 +73,7 @@ class ProjectsRewardsPump implements PumpInterface
         $reward->setMigratedId($record['id']);
         $reward->setTitle($record['reward']);
         $reward->setDescription($record['description'] ?? $record['reward']);
-        $reward->setMoney(new Money($record['amount'] * 100, 'EUR'));
+        $reward->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
         $reward->setHasUnits($record['units'] > 0);
         $reward->setUnitsTotal($record['units'] ?? 0);
         $reward->setUnitsAvailable($record['units'] ?? 0);

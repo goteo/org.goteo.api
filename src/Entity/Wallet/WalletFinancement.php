@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Wallet;
 
-use App\Repository\WalletFinancementRepository;
+use App\Entity\EmbeddableMoney;
+use App\Repository\Wallet\WalletFinancementRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -19,8 +20,8 @@ class WalletFinancement
     /**
      * The monetary value used in this Financement.
      */
-    #[ORM\Embedded(class: Money::class)]
-    private ?Money $money = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    private ?EmbeddableMoney $money = null;
 
     /**
      * An incoming Statement that originally saved the money in this Financement.
@@ -41,12 +42,12 @@ class WalletFinancement
         return $this->id;
     }
 
-    public function getMoney(): ?Money
+    public function getMoney(): ?EmbeddableMoney
     {
         return $this->money;
     }
 
-    public function setMoney(Money $money): static
+    public function setMoney(EmbeddableMoney $money): static
     {
         $this->money = $money;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\Economy\Currency;
+namespace App\Money\Currency;
 
 use Brick\Money\Exception\CurrencyConversionException;
 
@@ -24,7 +24,7 @@ class ExchangeLocator
          * @param ExchangeInterface $b
          */
         usort($exchanges, function ($a, $b) {
-            return $a->getWeight() < $b->getWeight();
+            return $a->getWeight() <=> $b->getWeight();
         });
 
         foreach ($exchanges as $exchange) {

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Wallet;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
-use App\Entity\WalletStatement;
+use App\Entity\Wallet\WalletStatement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;

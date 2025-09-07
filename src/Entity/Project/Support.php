@@ -13,10 +13,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
+#[ORM\Table(name: 'project_support')]
+#[ORM\UniqueConstraint(fields: ['project', 'origin'])]
 #[ORM\Entity(repositoryClass: SupportRepository::class)]
-#[ORM\Table(name: 'project_support', uniqueConstraints: [
-    new ORM\UniqueConstraint(fields: ['project', 'origin']),
-])]
 class Support
 {
     #[ORM\Id]

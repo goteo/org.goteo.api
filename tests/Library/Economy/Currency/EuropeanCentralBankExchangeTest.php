@@ -2,7 +2,7 @@
 
 namespace App\Tests\Library\Economy\Currency;
 
-use App\Library\Economy\Currency\EuropeanCentralBankExchange;
+use App\Money\Currency\EuropeanCentralBankExchange;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 

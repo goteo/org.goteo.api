@@ -3,12 +3,14 @@
 namespace App\Service;
 
 use App\ApiResource\Accounting\AccountingBalancePoint;
+use App\ApiResource\ApiMoney;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
-use App\Entity\Money;
 use App\Entity\User\User;
 use App\Gateway\Wallet\WalletService;
-use App\Library\Economy\MoneyService;
+use App\Money\Money;
+use App\Money\MoneyInterface;
+use App\Money\MoneyService;
 use App\Repository\Accounting\TransactionRepository;
 
 class AccountingService
@@ -64,13 +66,13 @@ class AccountingService
     private function createPoint(
         \DateTimeInterface $lowerBound,
         \DateTimeInterface $upperBound,
-        Money $balance,
+        MoneyInterface $balance,
         array $transactions,
     ): AccountingBalancePoint {
         $point = new AccountingBalancePoint();
         $point->start = $lowerBound;
         $point->end = $upperBound;
-        $point->balance = $balance;
+        $point->balance = ApiMoney::of($balance);
         $point->length = count($transactions);
 
         return $point;

@@ -8,7 +8,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
-use App\Entity\Money;
+use App\ApiResource\ApiMoney;
 use App\Entity\Project\Support;
 use App\Mapping\Transformer\SupportMoneyMapTransformer;
 use App\State\ApiResourceStateProvider;
@@ -66,7 +66,7 @@ class SupportApiResource
      * The total monetary value of the Transactions going to the Project.
      */
     #[MapFrom(Support::class, transformer: SupportMoneyMapTransformer::class)]
-    public Money $money;
+    public ApiMoney $money;
 
     /**
      * User's will to have their support to the Project be shown publicly.

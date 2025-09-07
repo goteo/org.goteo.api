@@ -2,8 +2,8 @@
 
 namespace App\Tests\Library\Economy;
 
-use App\Entity\Money;
-use App\Library\Economy\MoneyService;
+use App\Money\Money;
+use App\Money\MoneyService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
@@ -64,17 +64,17 @@ class MoneyServiceTest extends KernelTestCase
 
         $c = $this->moneyService->add($a, $b);
 
-        $this->assertEquals(100, $a->amount);
-        $this->assertEquals(110, $b->amount);
-        $this->assertEquals(210, $c->amount);
+        $this->assertEquals(100, $a->getAmount());
+        $this->assertEquals(110, $b->getAmount());
+        $this->assertEquals(210, $c->getAmount());
 
         $d = new Money(100, 'USD');
         $e = $this->moneyService->add($a, $d);
 
-        $this->assertEquals($d->amount, $a->amount);
-        $this->assertEquals($d->currency, $e->currency);
+        $this->assertEquals($d->getAmount(), $a->getAmount());
+        $this->assertEquals($d->getCurrency(), $e->getCurrency());
 
-        $this->assertNotEquals($d->amount, $e->amount);
+        $this->assertNotEquals($d->getAmount(), $e->getAmount());
         $this->assertTrue($this->moneyService->isMoreOrSame($e, $d));
         $this->assertTrue($this->moneyService->isMoreOrSame($e, $a));
     }
@@ -86,16 +86,16 @@ class MoneyServiceTest extends KernelTestCase
 
         $c = $this->moneyService->substract($a, $b);
 
-        $this->assertEquals(101, $a->amount);
-        $this->assertEquals(210, $b->amount);
-        $this->assertEquals(109, $c->amount);
+        $this->assertEquals(101, $a->getAmount());
+        $this->assertEquals(210, $b->getAmount());
+        $this->assertEquals(109, $c->getAmount());
 
         $d = new Money(500, 'USD');
         $e = $this->moneyService->substract($a, $d);
 
-        $this->assertEquals($d->currency, $e->currency);
+        $this->assertEquals($d->getCurrency(), $e->getCurrency());
 
-        $this->assertNotEquals($d->amount, $e->amount);
+        $this->assertNotEquals($d->getAmount(), $e->getAmount());
         $this->assertTrue($this->moneyService->isLess($e, $d));
         $this->assertTrue($this->moneyService->isMoreOrSame($e, $a));
     }

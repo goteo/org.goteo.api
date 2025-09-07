@@ -2,9 +2,10 @@
 
 namespace App\Mapping\Transformer;
 
-use App\Entity\Money;
+use App\ApiResource\ApiMoney;
 use App\Entity\Project\Support;
-use App\Library\Economy\MoneyService;
+use App\Money\Money;
+use App\Money\MoneyService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class SupportMoneyMapTransformer implements PropertyTransformerInterface
@@ -25,6 +26,6 @@ class SupportMoneyMapTransformer implements PropertyTransformerInterface
             $money = $this->moneyService->add($transaction->getMoney(), $money);
         }
 
-        return $money;
+        return ApiMoney::of($money);
     }
 }

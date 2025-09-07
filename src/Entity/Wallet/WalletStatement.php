@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Wallet;
 
 use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Gateway\Wallet\StatementDirection;
-use App\Repository\WalletStatementRepository;
+use App\Repository\Wallet\WalletStatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -40,8 +41,8 @@ class WalletStatement
      * For incoming Statements, the balance tells the available money.\
      * i.e: money not used yet by outgoing Statements.
      */
-    #[ORM\Embedded(class: Money::class)]
-    private ?Money $balance = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    private ?EmbeddableMoney $balance = null;
 
     /**
      * A collection of Financements for outgoing Statements that were made using money from this Statement.
@@ -103,12 +104,12 @@ class WalletStatement
         return $this;
     }
 
-    public function getBalance(): ?Money
+    public function getBalance(): ?EmbeddableMoney
     {
         return $this->balance;
     }
 
-    public function setBalance(Money $balance): static
+    public function setBalance(EmbeddableMoney $balance): static
     {
         $this->balance = $balance;
 

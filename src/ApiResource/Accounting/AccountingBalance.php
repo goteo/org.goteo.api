@@ -3,8 +3,7 @@
 namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Metadata as API;
-use App\Entity\Accounting\Accounting;
-use App\Entity\Money;
+use App\ApiResource\ApiMoney;
 use App\State\Accounting\AccountingBalanceStateProvider;
 
 /**
@@ -35,5 +34,5 @@ class AccountingBalance
      * The money currently held by the Accounting.
      */
     #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object.accounting)')]
-    public Money $balance;
+    public ApiMoney $balance;
 }

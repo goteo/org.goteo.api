@@ -14,7 +14,7 @@ services:
     _instanceof:
         App\Gateway\GatewayInterface:
             tags: ['app.gateway.gateway']
-        App\Library\Economy\Currency\ExchangeInterface:
+        App\Money\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
         App\Matchfunding\Formula\FormulaInterface:
             tags: ['app.matchfunding.formula']
@@ -94,7 +94,7 @@ services:
             $hosts:
                 - 'peertube.plataformess.org'
 
-    App\Library\Economy\Currency\ExchangeLocator:
+    App\Money\Currency\ExchangeLocator:
         arguments:
             - !tagged 'app.lib.economy.currency.exchange'
 

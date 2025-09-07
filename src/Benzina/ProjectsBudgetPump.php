@@ -2,7 +2,7 @@
 
 namespace App\Benzina;
 
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
@@ -64,7 +64,7 @@ class ProjectsBudgetPump implements PumpInterface
         $budgetItem->setType($this->getCostType($record));
         $budgetItem->setTitle($record['cost']);
         $budgetItem->setDescription($record['description'] ?? $record['cost']);
-        $budgetItem->setMoney(new Money($record['amount'] * 100, 'EUR'));
+        $budgetItem->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
         $budgetItem->setDeadline($this->getDeadline($record));
 
         $localizations = $this->getCostLocalizations($budgetItem, $context);
