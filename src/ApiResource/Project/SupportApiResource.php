@@ -10,6 +10,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
 use App\ApiResource\ApiMoney;
 use App\Entity\Project\Support;
+use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
 use App\State\MoneyTotalStateProvider;
 use App\State\Project\SupportStateProcessor;
@@ -30,6 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection(
     uriTemplate: '/project_supports/money_total',
     provider: MoneyTotalStateProvider::class,
+    output: TotalizedMoney::class,
     paginationEnabled: false,
 )]
 #[API\Get()]
