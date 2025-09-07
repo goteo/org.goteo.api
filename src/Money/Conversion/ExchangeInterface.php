@@ -20,7 +20,7 @@ interface ExchangeInterface
     public function getWeight(): int;
 
     /**
-     * @param MoneyInterface $money      The money to be converted
+     * @param MoneyInterface $from       The money to be converted
      * @param string         $toCurrency The currency to convert to
      *
      * @return MoneyInterface The converted MoneyInterface
@@ -28,7 +28,7 @@ interface ExchangeInterface
      * @throws CurrencyConversionException If the exchange rate is not available
      */
     public function convert(
-        MoneyInterface $money,
+        MoneyInterface $from,
         string $toCurrency,
         ?Context $context = null,
         RoundingMode $roundingMode = RoundingMode::UP,
@@ -48,9 +48,9 @@ interface ExchangeInterface
      * @param string $fromCurrency The currency to convert from
      * @param string $toCurrency   The currency to convert to
      *
-     * @return \DateTimeInterface The date and time at which the rate was last updated
+     * @return string The date and time at which the rate was last updated as given by the rate provider
      *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
-    public function getConversionDate(string $fromCurrency, string $toCurrency): \DateTimeInterface;
+    public function getConversionDate(string $fromCurrency, string $toCurrency): string;
 }
