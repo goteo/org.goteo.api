@@ -64,7 +64,6 @@ class SupportApiResource
     /**
      * The total monetary value of the Transactions going to the Project.
      */
-    #[MapFrom(Support::class, transformer: SupportMoneyMapTransformer::class)]
     public ApiMoney $money;
 
     /**
