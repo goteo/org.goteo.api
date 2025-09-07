@@ -3,6 +3,7 @@
 namespace App\Money\Conversion;
 
 use App\Money\Money;
+use App\Money\MoneyInterface;
 use Brick\Math\RoundingMode;
 
 class Conversion
@@ -15,8 +16,8 @@ class Conversion
      * @param ?RoundingMode $roundingMode if supplied, then `rounding` will be set from here
      */
     public function __construct(
-        private Money $from,
-        private Money $to,
+        private MoneyInterface $from,
+        private MoneyInterface $to,
         private float $rate,
         private string $date,
         private string $provider,
