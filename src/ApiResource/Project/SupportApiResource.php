@@ -33,6 +33,22 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: MoneyTotalStateProvider::class,
     output: TotalizedMoney::class,
     paginationEnabled: false,
+    openapi: new \ApiPlatform\OpenApi\Model\Operation(
+        summary: 'Get money total',
+        description: 'Returns a single TotalizedMoney object',
+        responses: [
+            '200' => [
+                'description' => 'Totalized money',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/ProjectSupport.TotalizedMoney',
+                        ],
+                    ],
+                ],
+            ],
+        ]
+    )
 )]
 #[API\Get()]
 #[API\Patch(
