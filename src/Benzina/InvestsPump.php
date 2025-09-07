@@ -31,12 +31,12 @@ use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
 
-class CheckoutsPump implements PumpInterface
+class InvestsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DatabasePumpTrait;
     use DoctrinePumpTrait;
-    use CheckoutsPumpTrait;
+    use InvestsPumpTrait;
 
     public const TRACKING_TITLE_V3 = 'v3 Invest ID';
     public const TRACKING_TITLE_PAYMENT = 'v3 Invest Payment';

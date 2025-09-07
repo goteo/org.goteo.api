@@ -2,7 +2,7 @@
 
 namespace App\Benzina;
 
-trait CheckoutsPumpTrait
+trait InvestsPumpTrait
 {
     private const INVEST_KEYS = [
         'id',
