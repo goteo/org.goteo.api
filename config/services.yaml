@@ -96,6 +96,10 @@ services:
             $hosts:
                 - 'peertube.plataformess.org'
 
+    App\Money\MoneyService:
+        arguments:
+            - '%env(CURRENCY_DEFAULT)%'
+
     App\Money\Currency\ExchangeLocator:
         arguments:
             - !tagged 'app.money.currency.exchange'

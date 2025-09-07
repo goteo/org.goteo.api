@@ -64,15 +64,6 @@ class Accounting
         return $accounting;
     }
 
-    public function __construct()
-    {
-        /*
-         * TO-DO: This property must be loaded from App's configuration,
-         * ideally a configuration that can be updated via a frontend, not env var only
-         */
-        $this->currency = 'EUR';
-    }
-
     public function getId(): ?int
     {
         return $this->id;

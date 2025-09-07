@@ -8,8 +8,14 @@ use Brick\Money\Money as BrickMoney;
 class MoneyService
 {
     public function __construct(
+        private string $defaultCurrency,
         private ExchangeLocator $exchangeLocator,
     ) {}
+
+    public function getDefaultCurrency(): string
+    {
+        return $this->defaultCurrency;
+    }
 
     public static function toMoney(BrickMoney $brick): Money
     {
