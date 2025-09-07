@@ -1,5 +1,7 @@
 <?php
 
+namespace App\EventListener;
+
 use App\Entity\Accounting\Transaction;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
@@ -17,7 +19,7 @@ class TransactionCurrencyListener
 
         if ($money->getCurrency() !== $target->getCurrency()) {
             throw new \LogicException(\sprintf(
-                "The Accounting with ID %s can only receive Transactions in %s currency. Please do a conversion operation before targeting an Accounting in a different currency.",
+                'The Accounting with ID %s can only receive Transactions in %s currency. Please do a conversion operation before targeting an Accounting in a different currency.',
                 $target->getId(),
                 $target->getCurrency()
             ));

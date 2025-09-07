@@ -92,7 +92,7 @@ class GatewayCheckoutSupportsListener
 
     /**
      * Create ProjectSupport for the given data.
-     * 
+     *
      * @param Transaction[] $transactions
      */
     private function getSupport(Project $project, Accounting $origin, array $transactions): Support

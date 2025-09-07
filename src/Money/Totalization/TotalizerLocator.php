@@ -5,7 +5,7 @@ namespace App\Money\Totalization;
 class TotalizerLocator
 {
     /** @var array<string, TotalizerInterface> */
-    private array $totalizers;
+    private array $totalizers = [];
 
     public function __construct(
         iterable $interfaces,
