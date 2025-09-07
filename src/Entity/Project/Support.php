@@ -9,6 +9,7 @@ use App\Repository\Project\SupportRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
@@ -40,9 +41,9 @@ class Support
     private Collection $transactions;
 
     #[ORM\Column]
-    private ?bool $anonymous = null;
+    private bool $anonymous = false;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
     public function __construct()
@@ -103,7 +104,7 @@ class Support
         return $this;
     }
 
-    public function isAnonymous(): ?bool
+    public function isAnonymous(): bool
     {
         return $this->anonymous;
     }
