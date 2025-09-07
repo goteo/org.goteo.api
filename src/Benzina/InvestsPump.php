@@ -20,6 +20,8 @@ use App\Gateway\Gateway\DropGateway;
 use App\Gateway\Paypal\PaypalGateway;
 use App\Gateway\Stripe\StripeGateway;
 use App\Gateway\Wallet\WalletGateway;
+use App\Money\Money;
+use App\Money\MoneyService;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\Project\SupportRepository;
 use App\Repository\TipjarRepository;
@@ -29,12 +31,12 @@ use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
 
-class CheckoutsPump implements PumpInterface
+class InvestsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DatabasePumpTrait;
     use DoctrinePumpTrait;
-    use CheckoutsPumpTrait;
+    use InvestsPumpTrait;
 
     public const TRACKING_TITLE_V3 = 'v3 Invest ID';
     public const TRACKING_TITLE_PAYMENT = 'v3 Invest Payment';
@@ -57,6 +59,7 @@ class CheckoutsPump implements PumpInterface
         private SupportRepository $supportRepository,
         private TipjarRepository $tipjarRepository,
         private CheckoutService $checkoutService,
+        private MoneyService $moneyService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -89,7 +92,7 @@ class CheckoutsPump implements PumpInterface
 
         $project = $this->getProject($record);
         $tipjar = $this->getPlatformTipjar();
-        $invested = new \DateTime($record['invested']);
+        $invested = new \DateTime($record['datetime'] ?? $record['invested']);
 
         $checkout = new Checkout();
         $checkout->setMigrated(true);
@@ -154,6 +157,7 @@ class CheckoutsPump implements PumpInterface
                 $support->setProject($project);
                 $support->setOrigin($checkout->getOrigin());
                 $support->addTransaction($transaction);
+                $support->setMoney($this->calcSupportMoney($support));
                 $support->setAnonymous($this->getSupportAnon($record, $support));
                 $support->setMessage($this->getSupportMessage($record, $support, $context));
 
@@ -231,6 +235,20 @@ class CheckoutsPump implements PumpInterface
         }
 
         return \sprintf("\n***\n%s", $msg['msg']);
+    }
+
+    private function calcSupportMoney(Support $support): EmbeddableMoney
+    {
+        $money = null;
+
+        foreach ($support->getTransactions() as $transaction) {
+            $money = $this->moneyService->add(
+                $transaction->getMoney(),
+                $money ?? new Money(0, $transaction->getMoney()->getCurrency())
+            );
+        }
+
+        return EmbeddableMoney::of($money);
     }
 
     private function getPlatformTipjar(): Tipjar

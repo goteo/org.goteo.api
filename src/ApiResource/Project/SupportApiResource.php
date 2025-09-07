@@ -10,10 +10,10 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
 use App\ApiResource\ApiMoney;
 use App\Entity\Project\Support;
-use App\Mapping\Transformer\SupportMoneyMapTransformer;
+use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
+use App\State\MoneyTotalStateProvider;
 use App\State\Project\SupportStateProcessor;
-use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -28,6 +28,28 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
 )]
 #[API\GetCollection()]
+#[API\GetCollection(
+    uriTemplate: '/project_supports/money_total',
+    provider: MoneyTotalStateProvider::class,
+    output: TotalizedMoney::class,
+    paginationEnabled: false,
+    openapi: new \ApiPlatform\OpenApi\Model\Operation(
+        summary: 'Get money total',
+        description: 'Returns a single TotalizedMoney object',
+        responses: [
+            '200' => [
+                'description' => 'Totalized money',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/ProjectSupport.TotalizedMoney',
+                        ],
+                    ],
+                ],
+            ],
+        ]
+    )
+)]
 #[API\Get()]
 #[API\Patch(
     security: 'is_granted("SUPPORT_EDIT", previous_object)',
@@ -65,7 +87,6 @@ class SupportApiResource
     /**
      * The total monetary value of the Transactions going to the Project.
      */
-    #[MapFrom(Support::class, transformer: SupportMoneyMapTransformer::class)]
     public ApiMoney $money;
 
     /**

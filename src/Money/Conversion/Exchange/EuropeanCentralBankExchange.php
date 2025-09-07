@@ -1,13 +1,8 @@
 <?php
 
-namespace App\Money\Currency;
+namespace App\Money\Conversion\Exchange;
 
-use App\Money\Money;
-use App\Money\MoneyInterface;
-use App\Money\MoneyService;
-use Brick\Math\RoundingMode;
 use Brick\Money\CurrencyConverter;
-use Brick\Money\ExchangeRateProvider;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -19,7 +14,7 @@ use Symfony\Contracts\Cache\ItemInterface;
  *
  * @see https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
  */
-class EuropeanCentralBankExchange implements ExchangeInterface
+class EuropeanCentralBankExchange extends AbstractExchange
 {
     public const NAME = 'european_central_bank';
     public const WEIGHT = 100;
@@ -39,12 +34,6 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     private CacheInterface $cache;
 
-    private \DateTimeInterface $date;
-
-    private ExchangeRateProvider $provider;
-
-    private CurrencyConverter $converter;
-
     public function __construct()
     {
         $this->cache = new FilesystemAdapter();
@@ -57,7 +46,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
             $provider->setExchangeRate(self::ISO_4217, $rate['currency'], $rate['rate']);
         }
 
-        $this->date = $this->parseECBTime($data['@attributes']['time']);
+        $this->date = $data['@attributes']['time'];
         $this->provider = new BaseCurrencyProvider($provider, self::ISO_4217);
         $this->converter = new CurrencyConverter($this->provider);
     }
@@ -70,33 +59,6 @@ class EuropeanCentralBankExchange implements ExchangeInterface
     public function getWeight(): int
     {
         return self::WEIGHT;
-    }
-
-    public function convert(MoneyInterface $money, string $toCurrency): MoneyInterface
-    {
-        $converted = $this->converter->convert(
-            MoneyService::toBrick($money),
-            $toCurrency,
-            null,
-            RoundingMode::HALF_EVEN
-        );
-
-        return new Money(
-            $converted->getMinorAmount()->toInt(),
-            $converted->getCurrency()->getCurrencyCode()
-        );
-    }
-
-    public function getConversionRate(string $fromCurrency, string $toCurrency): float
-    {
-        return $this->provider->getExchangeRate($fromCurrency, $toCurrency)->toFloat();
-    }
-
-    public function getConversionDate(string $fromCurrency, string $toCurrency): \DateTimeInterface
-    {
-        $this->provider->getExchangeRate($fromCurrency, $toCurrency);
-
-        return $this->date;
     }
 
     public function getData(): array

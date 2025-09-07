@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Money\Conversion\Conversion;
 use App\Money\MoneyInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -27,19 +28,25 @@ class EmbeddableMoney implements MoneyInterface
     #[ORM\Column(type: 'string', nullable: true)]
     public readonly ?string $currency;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private readonly ?array $conversion;
+
     public function __construct(
         ?int $amount = null,
         ?string $currency = null,
+        ?Conversion $conversion = null,
     ) {
         $this->amount = $amount;
         $this->currency = $currency;
+        $this->conversion = $conversion?->toArray();
     }
 
     public static function of(MoneyInterface $moneyInterface): self
     {
         return new self(
             $moneyInterface->getAmount(),
-            $moneyInterface->getCurrency()
+            $moneyInterface->getCurrency(),
+            $moneyInterface->getConversion()
         );
     }
 
@@ -51,5 +58,12 @@ class EmbeddableMoney implements MoneyInterface
     public function getCurrency(): string
     {
         return $this->currency;
+    }
+
+    public function getConversion(): ?Conversion
+    {
+        return $this->conversion
+            ? Conversion::fromArray($this->conversion)
+            : null;
     }
 }

@@ -3,10 +3,14 @@
 namespace App\EventListener;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
+use App\Money\Money;
+use App\Money\MoneyService;
 use App\Repository\Project\SupportRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,6 +26,7 @@ class GatewayCheckoutSupportsListener
 {
     public function __construct(
         private SupportRepository $supportRepository,
+        private MoneyService $moneyService,
     ) {}
 
     public function preFlush(Checkout $checkout, PreFlushEventArgs $args): void
@@ -48,31 +53,6 @@ class GatewayCheckoutSupportsListener
                 $uow->computeChangeSet($em->getClassMetadata(Support::class), $support);
             }
         }
-    }
-
-    /**
-     * Create ProjectSupport for the given data.
-     */
-    private function createSupport(Project $project, Accounting $origin, array $transactions): Support
-    {
-        $projectSupport = $this->supportRepository->findOneBy([
-            'project' => $project->getId(),
-            'origin' => $origin->getId(),
-        ]);
-
-        if (!$projectSupport) {
-            $projectSupport = new Support();
-        }
-
-        $projectSupport->setProject($project);
-        $projectSupport->setOrigin($origin);
-        $projectSupport->setAnonymous(false);
-
-        foreach ($transactions as $transaction) {
-            $projectSupport->addTransaction($transaction);
-        }
-
-        return $projectSupport;
     }
 
     /**
@@ -104,9 +84,42 @@ class GatewayCheckoutSupportsListener
 
         $supports = [];
         foreach ($transactionsByProject as $projectId => $transactions) {
-            $supports[] = $this->createSupport($projects[$projectId], $origin, $transactions);
+            $supports[] = $this->getSupport($projects[$projectId], $origin, $transactions);
         }
 
         return $supports;
+    }
+
+    /**
+     * Create ProjectSupport for the given data.
+     *
+     * @param Transaction[] $transactions
+     */
+    private function getSupport(Project $project, Accounting $origin, array $transactions): Support
+    {
+        /** @var Support|null */
+        $projectSupport = $this->supportRepository->findOneBy([
+            'project' => $project->getId(),
+            'origin' => $origin->getId(),
+        ]);
+
+        if (!$projectSupport) {
+            $projectSupport = new Support();
+        }
+
+        $projectSupport->setProject($project);
+        $projectSupport->setOrigin($origin);
+        $projectSupport->setAnonymous(false);
+
+        $money = new Money(0, $project->getAccounting()->getCurrency());
+        foreach ($transactions as $transaction) {
+            $money = $this->moneyService->add($transaction->getMoney(), $money);
+
+            $projectSupport->addTransaction($transaction);
+        }
+
+        $projectSupport->setMoney(EmbeddableMoney::of($money));
+
+        return $projectSupport;
     }
 }

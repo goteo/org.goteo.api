@@ -4,6 +4,7 @@ namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\SupportRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -11,6 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Embedded;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_support')]
@@ -39,6 +41,9 @@ class Support
     #[ORM\InverseJoinColumn(name: 'transaction_id', referencedColumnName: 'id')]
     #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
+
+    #[Embedded(class: EmbeddableMoney::class)]
+    private ?EmbeddableMoney $money = null;
 
     #[ORM\Column]
     private bool $anonymous = false;
@@ -100,6 +105,18 @@ class Support
     public function removeTransaction(Transaction $transaction): static
     {
         $this->transactions->removeElement($transaction);
+
+        return $this;
+    }
+
+    public function getMoney(): ?EmbeddableMoney
+    {
+        return $this->money;
+    }
+
+    public function setMoney(EmbeddableMoney $money): static
+    {
+        $this->money = $money;
 
         return $this;
     }

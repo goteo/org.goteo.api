@@ -14,8 +14,10 @@ services:
     _instanceof:
         App\Gateway\GatewayInterface:
             tags: ['app.gateway.gateway']
-        App\Money\Currency\ExchangeInterface:
-            tags: ['app.lib.economy.currency.exchange']
+        App\Money\Conversion\ExchangeInterface:
+            tags: ['app.money.conversion.exchange']
+        App\Money\Totalization\TotalizerInterface:
+            tags: ['app.money.totalization.totalizer']
         App\Matchfunding\Formula\FormulaInterface:
             tags: ['app.matchfunding.formula']
         App\Matchfunding\Rule\RuleInterface:
@@ -94,9 +96,21 @@ services:
             $hosts:
                 - 'peertube.plataformess.org'
 
-    App\Money\Currency\ExchangeLocator:
+    App\State\MoneyTotalStateProvider:
         arguments:
-            - !tagged 'app.lib.economy.currency.exchange'
+            - !tagged 'api_platform.doctrine.orm.query_extension.collection'
+
+    App\Money\MoneyService:
+        arguments:
+            - '%env(CURRENCY_DEFAULT)%'
+
+    App\Money\Conversion\ExchangeLocator:
+        arguments:
+            - !tagged 'app.money.conversion.exchange'
+
+    App\Money\Totalization\TotalizerLocator:
+        arguments:
+            - !tagged 'app.money.totalization.totalizer'
 
     App\Mapping\AutoMapper:
         arguments:

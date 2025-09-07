@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Money;
+namespace App\Money\Totalization;
 
-use App\Money\Conversion\Conversion;
-
-class Money implements MoneyInterface
+class TotalizedMoney
 {
     public function __construct(
         private int $amount,
         private string $currency,
-        private ?Conversion $conversion = null,
+        private int $length,
     ) {}
 
     public function getAmount(): int
@@ -22,8 +20,11 @@ class Money implements MoneyInterface
         return $this->currency;
     }
 
-    public function getConversion(): ?Conversion
+    /**
+     * @return int the total number of items that were totalized to produce the Money
+     */
+    public function getLength(): int
     {
-        return $this->conversion;
+        return $this->length;
     }
 }
