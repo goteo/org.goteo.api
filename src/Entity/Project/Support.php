@@ -9,6 +9,7 @@ use App\Repository\Project\SupportRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
@@ -42,7 +43,7 @@ class Support
     #[ORM\Column]
     private ?bool $anonymous = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(Types::TEXT, nullable: true)]
     private ?string $message = null;
 
     public function __construct()
