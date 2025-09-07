@@ -2,29 +2,18 @@
 
 namespace App\Money\Conversion\Exchange;
 
-use App\Money\Conversion\ExchangeInterface;
-use App\Money\Money;
-use App\Money\MoneyInterface;
-use App\Money\MoneyService;
-use Brick\Math\RoundingMode;
-use Brick\Money\Context;
 use Brick\Money\CurrencyConverter;
-use Brick\Money\ExchangeRateProvider;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class FrankfurterExchange implements ExchangeInterface
+class FrankfurterExchange extends AbstractExchange
 {
     private const NAME = 'frankfurter';
     private const WEIGHT = 200;
 
     private const ENDPOINT = 'https://api.frankfurter.dev/v1/latest';
     private const ISO_4217 = 'EUR';
-
-    private ExchangeRateProvider $provider;
-    private CurrencyConverter $converter;
-    private \DateTimeImmutable $date;
 
     public function getName(): string
     {
@@ -47,37 +36,8 @@ class FrankfurterExchange implements ExchangeInterface
             $provider->setExchangeRate(self::ISO_4217, $currency, $rate);
         }
 
-        $this->date = new \DateTimeImmutable($data['date']);
+        $this->date = $data['date'];
         $this->provider = new BaseCurrencyProvider($provider, self::ISO_4217);
         $this->converter = new CurrencyConverter($this->provider);
-    }
-
-    public function convert(
-        MoneyInterface $money,
-        string $toCurrency,
-        ?Context $context = null,
-        RoundingMode $roundingMode = RoundingMode::UP,
-    ): MoneyInterface {
-        $converted = $this->converter->convert(
-            MoneyService::toBrick($money),
-            $toCurrency,
-            $context,
-            $roundingMode
-        );
-
-        return new Money(
-            $converted->getMinorAmount()->toInt(),
-            $converted->getCurrency()->getCurrencyCode()
-        );
-    }
-
-    public function getConversionRate(string $fromCurrency, string $toCurrency): float
-    {
-        return $this->provider->getExchangeRate($fromCurrency, $toCurrency)->toFloat();
-    }
-
-    public function getConversionDate(string $fromCurrency, string $toCurrency): \DateTimeInterface
-    {
-        return $this->date;
     }
 }
