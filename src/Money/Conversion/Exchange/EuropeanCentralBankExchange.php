@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Money\Currency;
+namespace App\Money\Conversion\Exchange;
 
+use App\Money\Conversion\ExchangeInterface;
 use App\Money\Money;
 use App\Money\MoneyInterface;
 use App\Money\MoneyService;

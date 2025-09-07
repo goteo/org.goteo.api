@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\Library\Economy\Currency;
+namespace App\Tests\Money\Conversion;
 
-use App\Money\Currency\EuropeanCentralBankExchange;
+use App\Money\Conversion\Exchange\EuropeanCentralBankExchange;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 

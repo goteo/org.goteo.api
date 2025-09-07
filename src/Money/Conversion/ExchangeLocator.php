@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Money\Currency;
+namespace App\Money\Conversion;
 
 use Brick\Money\Exception\CurrencyConversionException;
 

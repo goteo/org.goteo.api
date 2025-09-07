@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Library\Economy;
+namespace App\Tests\Money;
 
 use App\Money\Money;
 use App\Money\MoneyService;

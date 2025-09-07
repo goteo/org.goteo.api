@@ -14,8 +14,8 @@ services:
     _instanceof:
         App\Gateway\GatewayInterface:
             tags: ['app.gateway.gateway']
-        App\Money\Currency\ExchangeInterface:
-            tags: ['app.money.currency.exchange']
+        App\Money\Conversion\ExchangeInterface:
+            tags: ['app.money.conversion.exchange']
         App\Money\Totalization\TotalizerInterface:
             tags: ['app.money.totalization.totalizer']
         App\Matchfunding\Formula\FormulaInterface:
@@ -100,9 +100,9 @@ services:
         arguments:
             - '%env(CURRENCY_DEFAULT)%'
 
-    App\Money\Currency\ExchangeLocator:
+    App\Money\Conversion\ExchangeLocator:
         arguments:
-            - !tagged 'app.money.currency.exchange'
+            - !tagged 'app.money.conversion.exchange'
 
     App\Money\Totalization\TotalizerLocator:
         arguments:

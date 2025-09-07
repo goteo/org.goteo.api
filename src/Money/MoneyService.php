@@ -2,7 +2,7 @@
 
 namespace App\Money;
 
-use App\Money\Currency\ExchangeLocator;
+use App\Money\Conversion\ExchangeLocator;
 use Brick\Money\Money as BrickMoney;
 
 class MoneyService
