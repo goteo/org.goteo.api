@@ -7,6 +7,7 @@ use App\Money\Money;
 use App\Money\MoneyInterface;
 use App\Money\MoneyService;
 use Brick\Math\RoundingMode;
+use Brick\Money\Context;
 use Brick\Money\CurrencyConverter;
 use Brick\Money\ExchangeRateProvider;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
@@ -73,13 +74,17 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         return self::WEIGHT;
     }
 
-    public function convert(MoneyInterface $money, string $toCurrency): MoneyInterface
-    {
+    public function convert(
+        MoneyInterface $money,
+        string $toCurrency,
+        ?Context $context = null,
+        RoundingMode $roundingMode = RoundingMode::UP,
+    ): MoneyInterface {
         $converted = $this->converter->convert(
             MoneyService::toBrick($money),
             $toCurrency,
-            null,
-            RoundingMode::HALF_EVEN
+            $context,
+            $roundingMode
         );
 
         return new Money(

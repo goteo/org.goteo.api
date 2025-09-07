@@ -3,6 +3,8 @@
 namespace App\Money\Conversion;
 
 use App\Money\MoneyInterface;
+use Brick\Math\RoundingMode;
+use Brick\Money\Context;
 use Brick\Money\Exception\CurrencyConversionException;
 
 interface ExchangeInterface
@@ -25,7 +27,12 @@ interface ExchangeInterface
      *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
-    public function convert(MoneyInterface $money, string $toCurrency): MoneyInterface;
+    public function convert(
+        MoneyInterface $money,
+        string $toCurrency,
+        ?Context $context = null,
+        RoundingMode $roundingMode = RoundingMode::UP,
+    ): MoneyInterface;
 
     /**
      * @param string $fromCurrency The currency to convert from
