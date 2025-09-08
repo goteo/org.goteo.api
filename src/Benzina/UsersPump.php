@@ -59,20 +59,12 @@ class UsersPump implements PumpInterface
             $handle = UserService::asHandle($record['email']);
         }
 
-        $sequenceNumber = \substr($this->userCount, -2, 2);
-
-        return \sprintf('%s_%s', $handle, $sequenceNumber);
+        return \sprintf('%s_%d', $handle, $this->userCount % 100);
     }
 
     private function getDateCreated(array $record): \DateTime
     {
-        $created = new \DateTime($record['created']);
-
-        if ($created > new \DateTime('2011-01-01')) {
-            return $created;
-        }
-
-        return new \DateTime($record['modified']);
+        return new \DateTime($record['created'] ?? $record['modified']);
     }
 
     private function getUserType(array $record): UserType
