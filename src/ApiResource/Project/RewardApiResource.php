@@ -74,7 +74,7 @@ class RewardApiResource
     public ?int $unitsTotal = null;
 
     /**
-     * The total amount of claimed units.
+     * The total amount of claims on this Reward.
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(OrderFilter::class)]

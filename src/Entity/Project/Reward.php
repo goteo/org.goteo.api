@@ -62,7 +62,7 @@ class Reward implements LocalizedEntityInterface
     private ?int $unitsTotal = null;
 
     /**
-     * The total amount of claimed rewards.
+     * The total amount of claims on this Reward.
      */
     #[ORM\Column(nullable: true)]
     private ?int $unitsClaimed = null;
@@ -76,7 +76,7 @@ class Reward implements LocalizedEntityInterface
     /**
      * @var Collection<int, RewardClaim>
      */
-    #[ORM\OneToMany(mappedBy: 'reward', targetEntity: RewardClaim::class)]
+    #[ORM\OneToMany(mappedBy: 'reward', targetEntity: RewardClaim::class, cascade: ['persist'])]
     private Collection $claims;
 
     public function __construct()
@@ -199,8 +199,7 @@ class Reward implements LocalizedEntityInterface
             $this->claims->add($claim);
             $claim->setReward($this);
 
-            $this->unitsClaimed = $this->unitsClaimed + 1;
-            $this->unitsAvailable = $this->unitsAvailable - 1;
+            $this->calcUnits();
         }
 
         return $this;
@@ -214,10 +213,18 @@ class Reward implements LocalizedEntityInterface
                 $claim->setReward(null);
             }
 
-            $this->unitsClaimed = $this->unitsClaimed - 1;
-            $this->unitsAvailable = $this->unitsAvailable + 1;
+            $this->calcUnits();
         }
 
         return $this;
+    }
+
+    private function calcUnits()
+    {
+        $this->unitsClaimed = \count($this->claims);
+
+        if ($this->isFinite()) {
+            $this->unitsAvailable = $this->unitsTotal - $this->unitsClaimed;
+        }
     }
 }
