@@ -37,6 +37,11 @@ class RewardClaimStateProcessor implements ProcessorInterface
             }
 
             $claim->setOwner($owner);
+
+            $reward = $claim->getReward();
+            $reward->addClaim($claim);
+
+            $claim->setReward($reward);
         }
 
         $claim = $this->entityStateProcessor->process($claim, $operation, $uriVariables, $context);
