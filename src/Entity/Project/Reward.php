@@ -53,13 +53,19 @@ class Reward implements LocalizedEntityInterface
      * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.
      */
     #[ORM\Column]
-    private ?bool $hasUnits = null;
+    private ?bool $isFinite = null;
 
     /**
      * For finite rewards, the total amount of existing unitsTotal.
      */
     #[ORM\Column]
     private ?int $unitsTotal = null;
+
+    /**
+     * The total amount of claimed rewards.
+     */
+    #[ORM\Column]
+    private ?int $unitsClaimed = null;
 
     /**
      * For finite rewards, the currently available amount of unitsTotal that can be claimed.
@@ -131,14 +137,14 @@ class Reward implements LocalizedEntityInterface
         return $this;
     }
 
-    public function hasUnits(): bool
+    public function isFinite(): bool
     {
-        return $this->hasUnits;
+        return $this->isFinite;
     }
 
-    public function setHasUnits(bool $hasUnits): static
+    public function setIsFinite(bool $isFinite): static
     {
-        $this->hasUnits = $hasUnits;
+        $this->isFinite = $isFinite;
 
         return $this;
     }
@@ -151,6 +157,18 @@ class Reward implements LocalizedEntityInterface
     public function setUnitsTotal(int $unitsTotal): static
     {
         $this->unitsTotal = $unitsTotal;
+
+        return $this;
+    }
+
+    public function getUnitsClaimed(): ?int
+    {
+        return $this->unitsClaimed;
+    }
+
+    public function setUnitsClaimed(int $unitsClaimed): static
+    {
+        $this->unitsClaimed = $unitsClaimed;
 
         return $this;
     }
