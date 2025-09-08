@@ -110,6 +110,8 @@ class InvestsPump implements PumpInterface
         }
 
         $charge = new Charge();
+        $charge->setMigrated(true);
+        $charge->getMigratedId($record['id']);
         $charge->setDateCreated($invested);
         $charge->setDateUpdated(new \DateTime());
         $charge->setStatus($this->getChargeStatus($record));
@@ -128,6 +130,8 @@ class InvestsPump implements PumpInterface
 
         if ($record['donate_amount'] > 0) {
             $tip = new Charge();
+            $tip->setMigrated(true);
+            $tip->setMigratedId($record['id']);
             $tip->setDateCreated($invested);
             $tip->setDateUpdated(new \DateTime());
             $tip->setStatus($this->getChargeStatus($record));
