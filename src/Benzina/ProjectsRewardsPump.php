@@ -7,7 +7,6 @@ use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\Reward;
 use App\Repository\Project\ProjectRepository;
-use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -17,6 +16,7 @@ class ProjectsRewardsPump implements PumpInterface
     use ArrayPumpTrait;
     use DatabasePumpTrait;
     use DoctrinePumpTrait;
+    use LocalizedPumpTrait;
 
     private const REWARD_KEYS = [
         'id',
@@ -67,30 +67,25 @@ class ProjectsRewardsPump implements PumpInterface
         }
 
         $reward = new Reward();
-        $reward->setTranslatableLocale($project->getLocales()[0]);
+        $reward->addLocale($project->getLocales()[0]);
         $reward->setProject($project);
         $reward->setMigrated(true);
         $reward->setMigratedId($record['id']);
         $reward->setTitle($record['reward']);
         $reward->setDescription($record['description'] ?? $record['reward']);
         $reward->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
-        $reward->setHasUnits($record['units'] > 0);
+        $reward->setIsFinite($record['units'] > 0);
         $reward->setUnitsTotal($record['units'] ?? 0);
-        $reward->setUnitsAvailable($record['units'] ?? 0);
+
+        $this->setPreventFlushAndClear(true);
+        $this->persist($reward, $context);
 
         $localizations = $this->getRewardLocalizations($reward, $context);
-        $translations = $this->entityManager->getRepository(Translation::class);
-        foreach ($localizations as $localization) {
-            $locale = $localization['lang'];
 
-            $reward->addLocale($locale);
-            $translations
-                ->translate($reward, 'title', $locale, $localization['reward'] ?? $record['reward'])
-                ->translate($reward, 'description', $locale, $localization['description'] ?? $record['description'])
-            ;
-        }
-
-        $this->persist($reward, $context);
+        $this->setPreventFlushAndClear(false);
+        $this->localize($reward, $localizations, $context, [
+            'title' => fn($l) => $l['reward'],
+        ]);
     }
 
     private function getProject(array $record): ?Project

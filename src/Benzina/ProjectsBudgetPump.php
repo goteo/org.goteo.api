@@ -8,7 +8,6 @@ use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Repository\Project\ProjectRepository;
-use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -18,6 +17,7 @@ class ProjectsBudgetPump implements PumpInterface
     use ArrayPumpTrait;
     use DatabasePumpTrait;
     use DoctrinePumpTrait;
+    use LocalizedPumpTrait;
 
     private const COST_KEYS = [
         'id',
@@ -67,19 +67,15 @@ class ProjectsBudgetPump implements PumpInterface
         $budgetItem->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
         $budgetItem->setDeadline($this->getDeadline($record));
 
-        $localizations = $this->getCostLocalizations($budgetItem, $context);
-        $translations = $this->entityManager->getRepository(Translation::class);
-        foreach ($localizations as $localization) {
-            $locale = $localization['lang'];
-
-            $budgetItem->addLocale($locale);
-            $translations
-                ->translate($budgetItem, 'title', $locale, $localization['cost'] ?? $record['cost'])
-                ->translate($budgetItem, 'description', $locale, $localization['description'] ?? $record['description'])
-            ;
-        }
-
+        $this->setPreventFlushAndClear(true);
         $this->persist($budgetItem, $context);
+
+        $localizations = $this->getCostLocalizations($budgetItem, $context);
+
+        $this->setPreventFlushAndClear(false);
+        $this->localize($budgetItem, $localizations, $context, [
+            'title' => fn($l) => $l['cost'],
+        ]);
     }
 
     private function getProject(array $record): ?Project
