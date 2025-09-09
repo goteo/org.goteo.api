@@ -16,7 +16,6 @@ use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -27,6 +26,7 @@ class ProjectsPump implements PumpInterface
     use DoctrinePumpTrait;
     use DatabasePumpTrait;
     use ProjectsPumpTrait;
+    use LocalizedPumpTrait;
 
     public function __construct(
         private ProjectRepository $projectRepository,
@@ -83,24 +83,21 @@ class ProjectsPump implements PumpInterface
         $project->setDeadline($this->getProjectDeadline($conf));
         $project->setCalendar($this->getProjectCalendar($record));
 
-        $localizations = $this->getProjectLocalizations($project, $context);
-        $translations = $this->entityManager->getRepository(Translation::class);
-        foreach ($localizations as $localization) {
-            $locale = $localization['lang'];
-
-            $project->addLocale($locale);
-            $translations
-                ->translate($project, 'title', $locale, $localization['name'] ?? $record['name'])
-                ->translate($project, 'subtitle', $locale, $localization['subtitle'] ?? $record['subtitle'])
-                ->translate($project, 'description', $locale, $this->getProjectDescription($localization))
-            ;
-        }
-
+        $project->addLocale($record['lang']);
         $project->setTitle($record['name']);
         $project->setSubtitle($record['subtitle']);
         $project->setDescription($this->getProjectDescription($record));
 
+        $this->setPreventFlushAndClear(true);
         $this->persist($project, $context);
+
+        $localizations = $this->getProjectLocalizations($project, $context);
+
+        $this->setPreventFlushAndClear(false);
+        $this->localize($project, $localizations, $context, [
+            'title' => fn($l) => $l['name'],
+            'description' => fn($l) => $this->getProjectDescription($l),
+        ]);
     }
 
     private function getProject(array $record): ?Project

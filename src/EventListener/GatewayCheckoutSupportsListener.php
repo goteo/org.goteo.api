@@ -99,8 +99,8 @@ class GatewayCheckoutSupportsListener
     {
         /** @var Support|null */
         $projectSupport = $this->supportRepository->findOneBy([
-            'project' => $project->getId(),
-            'origin' => $origin->getId(),
+            'project' => $project,
+            'origin' => $origin,
         ]);
 
         if (!$projectSupport) {

@@ -5,6 +5,7 @@ namespace App\Entity\Gateway;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\EmbeddableMoney as Money;
+use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\ChargeStatus;
@@ -25,9 +26,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[MapProvider(EntityMapProvider::class)]
 #[Gedmo\Loggable()]
 #[ORM\Table(name: 'checkout_charge')]
+#[ORM\Index(fields: ['migratedId'])]
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
 {
+    use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 

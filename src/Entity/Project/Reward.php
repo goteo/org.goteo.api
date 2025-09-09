@@ -53,24 +53,30 @@ class Reward implements LocalizedEntityInterface
      * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.
      */
     #[ORM\Column]
-    private ?bool $hasUnits = null;
+    private ?bool $isFinite = null;
 
     /**
      * For finite rewards, the total amount of existing unitsTotal.
      */
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $unitsTotal = null;
+
+    /**
+     * The total amount of claims on this Reward.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?int $unitsClaimed = null;
 
     /**
      * For finite rewards, the currently available amount of unitsTotal that can be claimed.
      */
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $unitsAvailable = null;
 
     /**
      * @var Collection<int, RewardClaim>
      */
-    #[ORM\OneToMany(mappedBy: 'reward', targetEntity: RewardClaim::class)]
+    #[ORM\OneToMany(mappedBy: 'reward', targetEntity: RewardClaim::class, cascade: ['persist'])]
     private Collection $claims;
 
     public function __construct()
@@ -131,14 +137,14 @@ class Reward implements LocalizedEntityInterface
         return $this;
     }
 
-    public function hasUnits(): bool
+    public function isFinite(): bool
     {
-        return $this->hasUnits;
+        return $this->isFinite;
     }
 
-    public function setHasUnits(bool $hasUnits): static
+    public function setIsFinite(bool $isFinite): static
     {
-        $this->hasUnits = $hasUnits;
+        $this->isFinite = $isFinite;
 
         return $this;
     }
@@ -151,6 +157,18 @@ class Reward implements LocalizedEntityInterface
     public function setUnitsTotal(int $unitsTotal): static
     {
         $this->unitsTotal = $unitsTotal;
+
+        return $this;
+    }
+
+    public function getUnitsClaimed(): ?int
+    {
+        return $this->unitsClaimed;
+    }
+
+    public function setUnitsClaimed(int $unitsClaimed): static
+    {
+        $this->unitsClaimed = $unitsClaimed;
 
         return $this;
     }
@@ -180,6 +198,8 @@ class Reward implements LocalizedEntityInterface
         if (!$this->claims->contains($claim)) {
             $this->claims->add($claim);
             $claim->setReward($this);
+
+            $this->calcUnits();
         }
 
         return $this;
@@ -192,8 +212,19 @@ class Reward implements LocalizedEntityInterface
             if ($claim->getReward() === $this) {
                 $claim->setReward(null);
             }
+
+            $this->calcUnits();
         }
 
         return $this;
+    }
+
+    private function calcUnits()
+    {
+        $this->unitsClaimed = \count($this->claims);
+
+        if ($this->isFinite()) {
+            $this->unitsAvailable = $this->unitsTotal - $this->unitsClaimed;
+        }
     }
 }

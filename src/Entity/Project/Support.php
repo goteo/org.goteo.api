@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping\Embedded;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_support')]
-#[ORM\UniqueConstraint(fields: ['project', 'origin'])]
+#[ORM\UniqueConstraint(fields: ['project', 'origin'], name: 'project_origin_unique')]
 #[ORM\Entity(repositoryClass: SupportRepository::class)]
 class Support
 {

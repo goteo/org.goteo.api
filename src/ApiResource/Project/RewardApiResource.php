@@ -13,6 +13,7 @@ use App\Entity\Project\Reward;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardStateProcessor;
 use AutoMapper\Attribute\MapTo;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -64,22 +65,33 @@ class RewardApiResource
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
     #[API\ApiFilter(BooleanFilter::class)]
-    public bool $hasUnits;
+    public bool $isFinite = false;
 
     /**
-     * For finite rewards, the total amount of existing unitsTotal.\
-     * Required if `hasUnits`.
+     * For finite rewards, the total amount of existing units.\
+     * Required if `isFinite`.
      */
-    #[Assert\When(
-        'this.hasUnits == true',
-        constraints: [new Assert\Positive()]
-    )]
-    public int $unitsTotal = 0;
+    #[Assert\When('this.isFinite == true', [new Assert\Positive()])]
+    public ?int $unitsTotal = null;
 
     /**
-     * For finite rewards, the currently available amount of unitsTotal that can be claimed.
+     * The total amount of claims on this Reward.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(OrderFilter::class)]
+    public int $unitsClaimed = 0;
+
+    /**
+     * For finite rewards, the currently available amount of units that can be claimed.
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(OrderFilter::class)]
     public int $unitsAvailable = 0;
+
+    /**
+     * @var RewardClaimApiResource[]
+     */
+    #[API\ApiProperty(writable: false)]
+    #[MaxDepth(2)]
+    public array $claims;
 }

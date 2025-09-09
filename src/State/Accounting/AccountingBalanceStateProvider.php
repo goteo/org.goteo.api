@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\AccountingBalance;
+use App\ApiResource\ApiMoney;
 use App\Mapping\AutoMapper;
 use App\Repository\Accounting\AccountingRepository;
 use App\Service\AccountingService;
@@ -35,7 +36,7 @@ class AccountingBalanceStateProvider implements ProviderInterface
         $resource = $this->autoMapper->map($accounting, AccountingApiResource::class);
 
         $balance->accounting = $resource;
-        $balance->balance = $this->accountingService->calcBalance($accounting);
+        $balance->balance = ApiMoney::of($this->accountingService->calcBalance($accounting));
 
         return $balance;
     }

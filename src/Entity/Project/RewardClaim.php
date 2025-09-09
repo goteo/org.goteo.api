@@ -27,7 +27,7 @@ class RewardClaim implements UserOwnedInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Charge $charge = null;
 
-    #[ORM\ManyToOne(inversedBy: 'claims')]
+    #[ORM\ManyToOne(inversedBy: 'claims', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Reward $reward = null;
 
