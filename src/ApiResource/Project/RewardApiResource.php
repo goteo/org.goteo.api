@@ -13,6 +13,7 @@ use App\Entity\Project\Reward;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardStateProcessor;
 use AutoMapper\Attribute\MapTo;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -91,5 +92,6 @@ class RewardApiResource
      * @var RewardClaimApiResource[]
      */
     #[API\ApiProperty(writable: false)]
+    #[MaxDepth(2)]
     public array $claims;
 }

@@ -55,7 +55,7 @@ class AccountingService
      *
      * @return Transaction[]
      */
-    private function getTransactionsInPeriod(
+    private function filterTransactions(
         array $transactions,
         \DateTimeInterface $start,
         \DateTimeInterface $end,
@@ -97,13 +97,14 @@ class AccountingService
             $period->getStartDate(),
             $period->getEndDate(),
         );
+
         $points = [];
         $totalBalance = new Money(0, $accounting->getCurrency());
 
         $accountingId = $accounting->getId();
         foreach ($period as $start) {
             $end = \DateTime::createFromInterface($start)->add($period->getDateInterval());
-            $periodTrxs = $this->getTransactionsInPeriod($trxs, $start, $end);
+            $periodTrxs = $this->filterTransactions($trxs, $start, $end);
 
             $balance = $aggregate ? $totalBalance : new Money(0, $accounting->getCurrency());
             foreach ($periodTrxs as $trx) {

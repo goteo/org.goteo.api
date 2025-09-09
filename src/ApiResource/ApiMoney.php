@@ -28,7 +28,7 @@ class ApiMoney implements MoneyInterface
      * Conversion metadata.
      */
     #[API\ApiProperty(readable: true, writable: false)]
-    public ?array $conversion;
+    public ?array $conversion = null;
 
     public function __construct(
         int $amount,

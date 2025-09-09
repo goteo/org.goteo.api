@@ -64,7 +64,13 @@ class UsersPump implements PumpInterface
 
     private function getDateCreated(array $record): \DateTime
     {
-        return new \DateTime($record['created'] ?? $record['modified']);
+        $created = new \DateTime($record['created'] ?? '0000-00-00');
+
+        if ($created > new \DateTime('2011-01-01')) {
+            return $created;
+        }
+
+        return new \DateTime($record['modified'] ?? 'now');
     }
 
     private function getUserType(array $record): UserType
