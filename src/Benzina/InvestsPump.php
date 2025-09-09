@@ -8,6 +8,7 @@ use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Gateway\Tracking;
 use App\Entity\Project\Project;
+use App\Entity\Project\Reward;
 use App\Entity\Project\Support;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
@@ -23,6 +24,7 @@ use App\Gateway\Wallet\WalletGateway;
 use App\Money\Money;
 use App\Money\MoneyService;
 use App\Repository\Project\ProjectRepository;
+use App\Repository\Project\RewardRepository;
 use App\Repository\Project\SupportRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\User\UserRepository;
@@ -53,11 +55,26 @@ class InvestsPump implements PumpInterface
     private const MAX_INT = 2147483647;
     private const CURRENCY = 'EUR';
 
+    private ?int $tipjarCache = null;
+
+    /** @var array<string, int> */
+    private array $userCache = [];
+
+    /** @var array<string, int> */
+    private array $projectCache = [];
+
+    /** @var array<string, int> */
+    private array $supportCache = [];
+
+    /** @var array<string, int> */
+    private array $rewardCache = [];
+
     public function __construct(
         private UserRepository $userRepository,
         private ProjectRepository $projectRepository,
         private SupportRepository $supportRepository,
         private TipjarRepository $tipjarRepository,
+        private RewardRepository $rewardRepository,
         private CheckoutService $checkoutService,
         private MoneyService $moneyService,
     ) {}
@@ -92,13 +109,15 @@ class InvestsPump implements PumpInterface
 
         $project = $this->getProject($record);
         $tipjar = $this->getPlatformTipjar();
+
+        $now = new \DateTime();
         $invested = new \DateTime($record['datetime'] ?? $record['invested']);
 
         $checkout = new Checkout();
         $checkout->setMigrated(true);
         $checkout->setMigratedId($record['id']);
         $checkout->setDateCreated($invested);
-        $checkout->setDateUpdated(new \DateTime());
+        $checkout->setDateUpdated($now);
 
         $checkout->setOrigin($user->getAccounting());
         $checkout->setStatus($this->getCheckoutStatus($record));
@@ -111,9 +130,9 @@ class InvestsPump implements PumpInterface
 
         $charge = new Charge();
         $charge->setMigrated(true);
-        $charge->getMigratedId($record['id']);
+        $charge->setMigratedId($record['id']);
         $charge->setDateCreated($invested);
-        $charge->setDateUpdated(new \DateTime());
+        $charge->setDateUpdated($now);
         $charge->setStatus($this->getChargeStatus($record));
         $charge->setType($this->getChargeType($record));
         $charge->setMoney($this->getChargeMoney($record['amount'], self::CURRENCY));
@@ -133,7 +152,7 @@ class InvestsPump implements PumpInterface
             $tip->setMigrated(true);
             $tip->setMigratedId($record['id']);
             $tip->setDateCreated($invested);
-            $tip->setDateUpdated(new \DateTime());
+            $tip->setDateUpdated($now);
             $tip->setStatus($this->getChargeStatus($record));
             $tip->setType(ChargeType::Single);
             $tip->setTitle(self::CHARGE_TITLE_TIP);
@@ -156,9 +175,12 @@ class InvestsPump implements PumpInterface
 
             $charge->addTransaction($transaction);
 
-            if ($project) {
+            if (
+                $charge->getTarget()->getOwner() instanceof Project
+                && $charge->getStatus() === ChargeStatus::Charged
+            ) {
                 $support = $this->getSupport($charge);
-                $support->setProject($project);
+                $support->setProject($charge->getTarget()->getOwner());
                 $support->setOrigin($checkout->getOrigin());
                 $support->addTransaction($transaction);
                 $support->setMoney($this->calcSupportMoney($support));
@@ -173,7 +195,7 @@ class InvestsPump implements PumpInterface
             }
 
             $returned = new Transaction();
-            $returned->setDateCreated(new \DateTime($record['returned']));
+            $returned->setDateCreated(new \DateTime($record['returned'] ?? 'now'));
             $returned->setMoney($charge->getMoney());
             $returned->setOrigin($charge->getTarget());
             $returned->setTarget($checkout->getOrigin());
@@ -186,26 +208,87 @@ class InvestsPump implements PumpInterface
 
     private function getUser(array $record): ?User
     {
-        return $this->userRepository->findOneBy(['migratedId' => $record['user']]);
+        $id = $record['user'];
+
+        if (isset($this->userCache[$id])) {
+            return $this->userRepository->find($this->userCache[$id]);
+        }
+
+        $user = $this->userRepository->findOneBy(['migratedId' => $id]);
+
+        $this->userCache[$id] = $user->getId();
+
+        return $user;
     }
 
     private function getProject(array $record): ?Project
     {
-        if (empty($record['project'])) {
+        $id = $record['project'] ?? null;
+
+        if (!$id) {
             return null;
         }
 
-        return $this->projectRepository->findOneBy(['migratedId' => $record['project']]);
+        if (isset($this->projectCache[$id])) {
+            return $this->projectRepository->find($id);
+        }
+
+        $project = $this->projectRepository->findOneBy(['migratedId' => $id]);
+
+        if (!$project) {
+            return null;
+        }
+
+        $this->projectCache[$id] = $project->getId();
+
+        return $project;
     }
 
-    private function getSupport(Charge $charge): Support
+    private function getPlatformTipjar(): Tipjar
     {
+        if ($this->tipjarCache !== null) {
+            return $this->tipjarRepository->find($this->tipjarCache);
+        }
+
+        $tipjar = $this->tipjarRepository->findOneBy(['name' => self::PLATFORM_TIPJAR_NAME]);
+
+        if ($tipjar) {
+            $this->tipjarCache = $tipjar->getId();
+
+            return $tipjar;
+        }
+
+        $tipjar = new Tipjar();
+        $tipjar->setName(self::PLATFORM_TIPJAR_NAME);
+
+        $this->entityManager->persist($tipjar);
+        $this->entityManager->flush();
+
+        return $tipjar;
+    }
+
+    private function getSupport(Charge $charge): ?Support
+    {
+        $origin = $charge->getCheckout()->getOrigin();
+        $target = $charge->getTarget()->getOwner();
+
+        $originId = $origin->getId();
+        $projectId = $target->getId();
+
+        $cacheKey = $projectId.'-'.$originId;
+
+        if (isset($this->supportCache[$cacheKey])) {
+            return $this->supportRepository->find($this->supportCache[$cacheKey]);
+        }
+
         $support = $this->supportRepository->findOneBy([
-            'origin' => $charge->getCheckout()->getOrigin()->getId(),
-            'project' => $charge->getTarget()->getOwner()->getId(),
+            'origin' => $origin,
+            'project' => $target,
         ]);
 
-        if ($support) {
+        if ($support !== null) {
+            $this->supportCache[$cacheKey] = $support->getId();
+
             return $support;
         }
 
@@ -243,33 +326,19 @@ class InvestsPump implements PumpInterface
 
     private function calcSupportMoney(Support $support): EmbeddableMoney
     {
-        $money = null;
+        $transactions = $support->getTransactions();
+        if ($transactions->isEmpty()) {
+            return EmbeddableMoney::of(new Money(0, self::CURRENCY));
+        }
 
-        foreach ($support->getTransactions() as $transaction) {
-            $money = $this->moneyService->add(
-                $transaction->getMoney(),
-                $money ?? new Money(0, $transaction->getMoney()->getCurrency())
-            );
+        $first = $transactions->first();
+        $money = new Money(0, $first->getMoney()->getCurrency());
+
+        foreach ($transactions as $transaction) {
+            $money = $this->moneyService->add($transaction->getMoney(), $money);
         }
 
         return EmbeddableMoney::of($money);
-    }
-
-    private function getPlatformTipjar(): Tipjar
-    {
-        $tipjar = $this->tipjarRepository->findOneBy(['name' => self::PLATFORM_TIPJAR_NAME]);
-
-        if ($tipjar) {
-            return $tipjar;
-        }
-
-        $tipjar = new Tipjar();
-        $tipjar->setName(self::PLATFORM_TIPJAR_NAME);
-
-        $this->entityManager->persist($tipjar);
-        $this->entityManager->flush();
-
-        return $tipjar;
     }
 
     private function getInvestMsg(array $record, array $context)
@@ -397,5 +466,37 @@ class InvestsPump implements PumpInterface
         }
 
         return $trackings;
+    }
+
+    private function getInvestReward(array $record, array $context)
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `invest_reward` ir WHERE ir.invest = :invest'
+        );
+
+        $query->execute(['invest' => $record['id']]);
+
+        return $query->fetch(\PDO::FETCH_ASSOC);
+    }
+
+    private function getReward(array $record, array $context): ?Reward
+    {
+        $invested = $this->getInvestReward($record, $context);
+
+        if (!$invested) {
+            return null;
+        }
+
+        $id = $invested['reward'];
+
+        if (isset($this->rewardCache[$id])) {
+            return $this->rewardRepository->find($this->rewardCache[$id]);
+        }
+
+        $reward = $this->rewardRepository->findOneBy(['migratedId' => $invested['reward']]);
+
+        $this->rewardCache[$id] = $reward->getId();
+
+        return $reward;
     }
 }
