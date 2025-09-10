@@ -5,7 +5,7 @@ namespace App\ApiResource\Gateway;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\Dto\CheckoutUpdationDto;
+use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
