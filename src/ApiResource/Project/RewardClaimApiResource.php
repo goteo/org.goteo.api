@@ -6,11 +6,11 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Gateway\ChargeApiResource;
 use App\ApiResource\User\UserApiResource;
+use App\Dto\RewardClaimCreationDto;
 use App\Entity\Project\RewardClaim;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardClaimStateProcessor;
 use App\Validator\AvailableRewardUnits;
-use App\Validator\EnoughRewardCharge;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -22,7 +22,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: RewardClaimStateProcessor::class
 )]
-#[EnoughRewardCharge()]
+#[API\GetCollection()]
+#[API\Post(input: RewardClaimCreationDto::class)]
+#[API\Get()]
+#[API\Delete()]
 class RewardClaimApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
