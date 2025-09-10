@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto;
+namespace App\Dto\Gateway;
 
 use ApiPlatform\Metadata as API;
 use App\Entity\Gateway\Checkout;

@@ -6,7 +6,7 @@ use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Gateway\CheckoutApiResource;
-use App\Dto\CheckoutUpdationDto;
+use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\EmbeddableMoney;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\GatewayLocator;

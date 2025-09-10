@@ -86,13 +86,15 @@ class ChargeApiResource
     /**
      * The status of the charge item with the Gateway.
      */
-    #[Assert\NotBlank()]
+    #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public ChargeStatus $status = ChargeStatus::InPending;
 
+    #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\DateFilter::class)]
     public \DateTimeInterface $dateCreated;
 
+    #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\DateFilter::class)]
     public \DateTimeInterface $dateUpdated;
 }

@@ -2,33 +2,21 @@
 
 namespace App\Dto\Gateway;
 
+use ApiPlatform\Metadata as API;
 use App\Gateway\ChargeStatus;
-use App\Gateway\ChargeType;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class ChargeUpdationDto
 {
     /**
-     * The unique identifier for the charge.
+     * The unique identifier for the GatewayCharge.
      */
+    #[API\ApiProperty(writable: false)]
     public int $id;
 
     /**
-     * The type of the charge.
+     * To ask for a refund, set the status `to_refund`.
      */
-    public ChargeType $type;
-
-    /**
-     * The title or name of the charge.
-     */
-    public string $title;
-
-    /**
-     * A detailed description of the charge.
-     */
-    public string $description;
-
-    /**
-     * The current payment status of the charge.
-     */
+    #[Assert\Choice([ChargeStatus::ToRefund])]
     public ChargeStatus $status;
 }
