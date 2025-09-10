@@ -153,8 +153,8 @@ class ProjectsPump implements PumpInterface
     {
         $calendar = new ProjectCalendar();
         $calendar->release = new \DateTimeImmutable($record['published']);
-        $calendar->minimum = new \DateTimeImmutable($record['passed']);
-        $calendar->optimum = new \DateTimeImmutable($record['success']);
+        $calendar->minimum = new \DateTimeImmutable($record['passed'] ?? $record['closed']);
+        $calendar->optimum = new \DateTimeImmutable($record['success'] ?? $record['closed']);
 
         return $calendar;
     }

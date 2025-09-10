@@ -230,7 +230,7 @@ class InvestsPump implements PumpInterface
         }
 
         if (isset($this->projectCache[$id])) {
-            return $this->projectRepository->find($id);
+            return $this->projectRepository->find($this->projectCache[$id]);
         }
 
         $project = $this->projectRepository->findOneBy(['migratedId' => $id]);
