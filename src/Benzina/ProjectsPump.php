@@ -51,7 +51,12 @@ class ProjectsPump implements PumpInterface
         }
 
         $status = $this->getProjectStatus($record);
-        if (\in_array($status, [ProjectStatus::InEditing, ProjectStatus::Rejected])) {
+        if (\in_array($status, [ProjectStatus::Rejected])) {
+            return;
+        }
+
+        $created = new \DateTime($record['created']);
+        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InEditing]) && $created < new \DateTime('2024-01-01')) {
             return;
         }
 
@@ -73,7 +78,7 @@ class ProjectsPump implements PumpInterface
         $project->setStatus($status);
         $project->setMigrated(true);
         $project->setMigratedId($record['id']);
-        $project->setDateCreated(new \DateTime($record['created']));
+        $project->setDateCreated($created);
         $project->setDateUpdated(new \DateTime());
         $project->setTranslatableLocale($record['lang']);
         $project->setUpdates(new ArrayCollection($this->getProjectUpdates($project, $context)));
@@ -84,8 +89,8 @@ class ProjectsPump implements PumpInterface
         $project->setCalendar($this->getProjectCalendar($record));
 
         $project->addLocale($record['lang']);
-        $project->setTitle($record['name']);
-        $project->setSubtitle($record['subtitle']);
+        $project->setTitle($record['name'] ?? '');
+        $project->setSubtitle($record['subtitle'] ?? '');
         $project->setDescription($this->getProjectDescription($record));
 
         $this->setPreventFlushAndClear(true);
@@ -213,6 +218,10 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectTerritory(array $record): Territory
     {
+        if ($record['project_location'] === null) {
+            return Territory::unknown();
+        }
+
         $cleanAddress = $this->cleanProjectLocation($record['project_location'], 2);
 
         if ($cleanAddress === '') {

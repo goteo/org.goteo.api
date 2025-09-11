@@ -59,7 +59,7 @@ class UsersPump implements PumpInterface
             $handle = UserService::asHandle($record['email']);
         }
 
-        return \sprintf('%s_%d', $handle, $this->userCount % 100);
+        return \sprintf('%s_%02d', $handle, $this->userCount % 100);
     }
 
     private function getDateCreated(array $record): \DateTime
