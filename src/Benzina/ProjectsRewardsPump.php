@@ -2,7 +2,7 @@
 
 namespace App\Benzina;
 
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\Reward;
@@ -14,7 +14,9 @@ use Goteo\Benzina\Pump\PumpInterface;
 class ProjectsRewardsPump implements PumpInterface
 {
     use ArrayPumpTrait;
+    use DatabasePumpTrait;
     use DoctrinePumpTrait;
+    use LocalizedPumpTrait;
 
     private const REWARD_KEYS = [
         'id',
@@ -59,24 +61,34 @@ class ProjectsRewardsPump implements PumpInterface
             return;
         }
 
-        $project = $this->getBudgetProject($record);
+        $project = $this->getProject($record);
         if ($project === null) {
             return;
         }
 
         $reward = new Reward();
+        $reward->addLocale($project->getLocales()[0]);
         $reward->setProject($project);
+        $reward->setMigrated(true);
+        $reward->setMigratedId($record['id']);
         $reward->setTitle($record['reward']);
         $reward->setDescription($record['description'] ?? $record['reward']);
-        $reward->setMoney(new Money($record['amount'] * 100, 'EUR'));
-        $reward->setHasUnits($record['units'] > 0);
+        $reward->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
+        $reward->setIsFinite($record['units'] > 0);
         $reward->setUnitsTotal($record['units'] ?? 0);
-        $reward->setUnitsAvailable($record['units'] ?? 0);
 
+        $this->setPreventFlushAndClear(true);
         $this->persist($reward, $context);
+
+        $localizations = $this->getRewardLocalizations($reward, $context);
+
+        $this->setPreventFlushAndClear(false);
+        $this->localize($reward, $localizations, $context, [
+            'title' => fn($l) => $l['reward'],
+        ]);
     }
 
-    private function getBudgetProject(array $record): ?Project
+    private function getProject(array $record): ?Project
     {
         return $this->projectRepository->findOneBy(['migratedId' => $record['project']]);
     }
@@ -91,5 +103,16 @@ class ProjectsRewardsPump implements PumpInterface
             default:
                 return BudgetItemType::Infrastructure;
         }
+    }
+
+    private function getRewardLocalizations(Reward $reward, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `reward_lang` l WHERE l.id = :reward'
+        );
+
+        $query->execute(['reward' => $reward->getMigratedId()]);
+
+        return $query->fetchAll();
     }
 }

@@ -9,7 +9,6 @@ use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\RefundStrategy;
-use App\Gateway\Tracking;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\CheckoutRepository;
 use App\Validator\SupportedChargeTypes;
@@ -77,8 +76,6 @@ class Checkout
     /**
      * The address to where the user must be redirected to.
      */
-    #[Assert\NotBlank()]
-    #[Assert\Url()]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $returnUrl = null;
 
@@ -99,18 +96,16 @@ class Checkout
     private array $links = [];
 
     /**
-     * A list of tracking codes provided by the Gateway for this checkout.\
-     * e.g: Order ID, Payment Capture ID, Checkout Session Token.
-     *
-     * @var Tracking[]
+     * @var Collection<int, Tracking>
      */
-    #[ORM\Column]
-    private array $trackings = [];
+    #[ORM\OneToMany(targetEntity: Tracking::class, mappedBy: 'checkout', cascade: ['persist'])]
+    private Collection $trackings;
 
     public function __construct()
     {
         $this->status = CheckoutStatus::InPending;
         $this->charges = new ArrayCollection();
+        $this->trackings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -268,41 +263,31 @@ class Checkout
     }
 
     /**
-     * @return Tracking[]
+     * @return Collection<int, Tracking>
      */
-    public function getTrackings(): array
+    public function getTrackings(): Collection
     {
-        return array_map(fn($t) => Tracking::tryFrom($t), $this->trackings);
-    }
-
-    /**
-     * @param Tracking[] $trackings
-     */
-    public function setTrackings(array $trackings): static
-    {
-        $this->trackings = $trackings;
-
-        return $this;
+        return $this->trackings;
     }
 
     public function addTracking(Tracking $tracking): static
     {
-        $this->removeTracking($tracking);
-
-        $this->trackings = [...$this->trackings, $tracking];
+        if (!$this->trackings->contains($tracking)) {
+            $this->trackings->add($tracking);
+            $tracking->setCheckout($this);
+        }
 
         return $this;
     }
 
     public function removeTracking(Tracking $tracking): static
     {
-        $this->trackings = \array_filter(
-            \array_map(fn($t) => Tracking::tryFrom($t), $this->trackings),
-            function (Tracking $existingTracking) use ($tracking) {
-                return $existingTracking->title !== $tracking->title
-                    && $existingTracking->value !== $tracking->value;
+        if ($this->trackings->removeElement($tracking)) {
+            // set the owning side to null (unless already changed)
+            if ($tracking->getCheckout() === $this) {
+                $tracking->setCheckout(null);
             }
-        );
+        }
 
         return $this;
     }

@@ -6,6 +6,9 @@ use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Matchfunding\MatchCallSubmission;
+use App\Entity\Matchfunding\MatchCallSubmissionStatus;
+use App\Entity\Territory;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
@@ -22,6 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[MapProvider(EntityMapProvider::class)]
+#[ORM\Index(fields: ['migratedId'])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedEntityInterface
 {
@@ -66,8 +70,8 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * Project's territory of interest.
      */
-    #[ORM\Embedded(class: ProjectTerritory::class)]
-    private ?ProjectTerritory $territory;
+    #[ORM\Embedded(class: Territory::class)]
+    private ?Territory $territory;
 
     /**
      * The description body for the Project.
@@ -110,6 +114,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private Collection $rewards;
 
     /**
+     * @var Collection<int, MatchCallSubmission>
+     */
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: MatchCallSubmission::class)]
+    private Collection $matchCallSubmissions;
+
+    /**
      * @var Collection<int, BudgetItem>
      */
     #[ORM\OneToMany(targetEntity: BudgetItem::class, mappedBy: 'project')]
@@ -131,6 +141,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     {
         $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
+        $this->matchCallSubmissions = new ArrayCollection();
         $this->budgetItems = new ArrayCollection();
         $this->updates = new ArrayCollection();
         $this->supports = new ArrayCollection();
@@ -220,12 +231,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getTerritory(): ?ProjectTerritory
+    public function getTerritory(): ?Territory
     {
         return $this->territory;
     }
 
-    public function setTerritory(ProjectTerritory $territory): static
+    public function setTerritory(Territory $territory): static
     {
         $this->territory = $territory;
 
@@ -311,6 +322,44 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     }
 
     /**
+     * @return Collection<int, MatchCallSubmission>
+     */
+    public function getMatchCallSubmissions(): Collection
+    {
+        return $this->matchCallSubmissions;
+    }
+
+    /**
+     * @return Collection<int, MatchCallSubmission>
+     */
+    public function getMatchCallSubmissionsBy(MatchCallSubmissionStatus $status): Collection
+    {
+        return $this->matchCallSubmissions->filter(fn($s) => $s->getStatus() === $status);
+    }
+
+    public function addMatchCallSubmission(MatchCallSubmission $MatchCallSubmission): static
+    {
+        if (!$this->matchCallSubmissions->contains($MatchCallSubmission)) {
+            $this->matchCallSubmissions->add($MatchCallSubmission);
+            $MatchCallSubmission->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMatchCallSubmission(MatchCallSubmission $MatchCallSubmission): static
+    {
+        if ($this->matchCallSubmissions->removeElement($MatchCallSubmission)) {
+            // set the owning side to null (unless already changed)
+            if ($MatchCallSubmission->getProject() === $this) {
+                $MatchCallSubmission->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, BudgetItem>
      */
     public function getBudgetItems(): Collection
@@ -346,6 +395,16 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function getUpdates(): Collection
     {
         return $this->updates;
+    }
+
+    /**
+     * @param Collection<int, Update> $updates
+     */
+    public function setUpdates(Collection $updates): static
+    {
+        $this->updates = $updates;
+
+        return $this;
     }
 
     public function addUpdate(Update $update): static

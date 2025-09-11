@@ -23,33 +23,21 @@ class RewardClaim implements UserOwnedInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Charge $charge = null;
+    private ?User $owner = null;
 
-    #[ORM\ManyToOne(inversedBy: 'claims')]
+    #[ORM\ManyToOne(inversedBy: 'claims', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Reward $reward = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $owner = null;
+    private ?Charge $charge = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCharge(): ?Charge
-    {
-        return $this->charge;
-    }
-
-    public function setCharge(Charge $charge): static
-    {
-        $this->charge = $charge;
-
-        return $this;
     }
 
     public function getReward(): ?Reward
@@ -60,6 +48,18 @@ class RewardClaim implements UserOwnedInterface
     public function setReward(?Reward $reward): static
     {
         $this->reward = $reward;
+
+        return $this;
+    }
+
+    public function getCharge(): ?Charge
+    {
+        return $this->charge;
+    }
+
+    public function setCharge(?Charge $charge): static
+    {
+        $this->charge = $charge;
 
         return $this;
     }

@@ -10,7 +10,6 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Mapping\AutoMapper;
-use App\Service\AccountingService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AccountingStateProvider implements ProviderInterface
@@ -21,7 +20,6 @@ class AccountingStateProvider implements ProviderInterface
         #[Autowire(service: CollectionProvider::class)]
         private ProviderInterface $collectionProvider,
         private AutoMapper $autoMapper,
-        private AccountingService $accountingService,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null

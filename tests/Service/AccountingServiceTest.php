@@ -4,7 +4,7 @@ namespace App\Tests\Service;
 
 use App\ApiResource\Accounting\AccountingBalancePoint;
 use App\Entity\Accounting\Transaction;
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Tipjar;
 use App\Service\AccountingService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,7 +46,7 @@ class AccountingServiceTest extends KernelTestCase
             $target = $i % 2 ? $tipjars[\random_int(5, 9)] : $tipjars[\random_int(0, 5)];
 
             $trx = new Transaction();
-            $trx->setMoney(new Money(random_int(100, 999), 'EUR'));
+            $trx->setMoney(new EmbeddableMoney(random_int(100, 999), 'EUR'));
             $trx->setOrigin($origin->getAccounting());
             $trx->setTarget($target->getAccounting());
 

@@ -4,13 +4,15 @@ namespace App\Mapping;
 
 use AutoMapper\AutoMapper as InnerMapper;
 use AutoMapper\AutoMapperInterface;
+use AutoMapper\MapperContext;
 
 class AutoMapper implements AutoMapperInterface
 {
     public const CACHE_DIR = 'automapper';
 
     public const DEFAULT_CONTEXT = [
-        'skip_null_values' => true,
+        MapperContext::DEPTH => 1,
+        MapperContext::SKIP_NULL_VALUES => true,
     ];
 
     private AutoMapperInterface $innerMapper;

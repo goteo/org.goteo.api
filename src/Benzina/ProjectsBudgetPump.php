@@ -2,7 +2,7 @@
 
 namespace App\Benzina;
 
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
@@ -15,7 +15,11 @@ use Goteo\Benzina\Pump\PumpInterface;
 class ProjectsBudgetPump implements PumpInterface
 {
     use ArrayPumpTrait;
+    use DatabasePumpTrait;
     use DoctrinePumpTrait;
+    use LocalizedPumpTrait;
+
+    private const MAX_INT = 2147483647;
 
     private const COST_KEYS = [
         'id',
@@ -49,24 +53,34 @@ class ProjectsBudgetPump implements PumpInterface
             return;
         }
 
-        $project = $this->getBudgetProject($record);
+        $project = $this->getProject($record);
         if ($project === null) {
             return;
         }
 
         $budgetItem = new BudgetItem();
+        $budgetItem->setMigrated(true);
+        $budgetItem->setMigratedId($record['id']);
         $budgetItem->setTranslatableLocale($project->getLocales()[0]);
         $budgetItem->setProject($project);
         $budgetItem->setType($this->getCostType($record));
         $budgetItem->setTitle($record['cost']);
         $budgetItem->setDescription($record['description'] ?? $record['cost']);
-        $budgetItem->setMoney(new Money($record['amount'] * 100, 'EUR'));
+        $budgetItem->setMoney($this->getCostMoney($record['amount'], 'EUR'));
         $budgetItem->setDeadline($this->getDeadline($record));
 
+        $this->setPreventFlushAndClear(true);
         $this->persist($budgetItem, $context);
+
+        $localizations = $this->getCostLocalizations($budgetItem, $context);
+
+        $this->setPreventFlushAndClear(false);
+        $this->localize($budgetItem, $localizations, $context, [
+            'title' => fn($l) => $l['cost'],
+        ]);
     }
 
-    private function getBudgetProject(array $record): ?Project
+    private function getProject(array $record): ?Project
     {
         return $this->projectRepository->findOneBy(['migratedId' => $record['project']]);
     }
@@ -90,5 +104,27 @@ class ProjectsBudgetPump implements PumpInterface
         }
 
         return ProjectDeadline::Optimum;
+    }
+
+    private function getCostLocalizations(BudgetItem $budgetItem, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `cost_lang` l WHERE l.id = :cost'
+        );
+
+        $query->execute(['cost' => $budgetItem->getMigratedId()]);
+
+        return $query->fetchAll();
+    }
+
+    private function getCostMoney(int $amount, string $currency): EmbeddableMoney
+    {
+        $amount = $amount * 100;
+
+        if ($amount >= self::MAX_INT) {
+            $amount = self::MAX_INT;
+        }
+
+        return new EmbeddableMoney($amount, $currency);
     }
 }

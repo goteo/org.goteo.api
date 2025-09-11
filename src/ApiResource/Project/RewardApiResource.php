@@ -2,11 +2,13 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\ApiMoney;
 use App\ApiResource\LocalizedApiResourceTrait;
-use App\Entity\Money;
 use App\Entity\Project\Reward;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardStateProcessor;
@@ -53,28 +55,35 @@ class RewardApiResource
      * The minimal monetary sum to be able to claim this reward.
      */
     #[Assert\NotBlank()]
-    public Money $money;
+    #[API\ApiFilter(OrderFilter::class, properties: ['money.amount'])]
+    public ApiMoney $money;
 
     /**
      * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.
      */
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
-    public bool $hasUnits;
+    #[API\ApiFilter(BooleanFilter::class)]
+    public bool $isFinite = false;
 
     /**
-     * For finite rewards, the total amount of existing unitsTotal.\
-     * Required if `hasUnits`.
+     * For finite rewards, the total amount of existing units.\
+     * Required if `isFinite`.
      */
-    #[Assert\When(
-        'this.hasUnits == true',
-        constraints: [new Assert\Positive()]
-    )]
-    public int $unitsTotal = 0;
+    #[Assert\When('this.isFinite == true', [new Assert\Positive()])]
+    public ?int $unitsTotal = null;
 
     /**
-     * For finite rewards, the currently available amount of unitsTotal that can be claimed.
+     * The total amount of claims on this Reward.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(OrderFilter::class)]
+    public int $unitsClaimed = 0;
+
+    /**
+     * For finite rewards, the currently available amount of units that can be claimed.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(OrderFilter::class)]
     public int $unitsAvailable = 0;
 }

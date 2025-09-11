@@ -3,12 +3,14 @@
 namespace App\Service;
 
 use App\ApiResource\Accounting\AccountingBalancePoint;
+use App\ApiResource\ApiMoney;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
-use App\Entity\Money;
 use App\Entity\User\User;
 use App\Gateway\Wallet\WalletService;
-use App\Library\Economy\MoneyService;
+use App\Money\Money;
+use App\Money\MoneyInterface;
+use App\Money\MoneyService;
 use App\Repository\Accounting\TransactionRepository;
 
 class AccountingService
@@ -27,16 +29,19 @@ class AccountingService
             return $this->wallet->getBalance($accounting);
         }
 
-        $balance = new Money(0, $accounting->getCurrency());
-        $trxs = $this->transactionRepository->findByAccounting($accounting);
+        $trxs = $this->transactionRepository->findForBalanceCalc($accounting);
 
-        foreach ($trxs as $transaction) {
-            if ($transaction->getTarget() === $accounting) {
-                $balance = $this->money->add($transaction->getMoney(), $balance);
+        $accountingId = $accounting->getId();
+        $balance = new Money(0, $accounting->getCurrency());
+        foreach ($trxs as $trx) {
+            $transaction = new Money($trx['money.amount'], $trx['money.currency']);
+
+            if ($trx['target_id'] === $accountingId) {
+                $balance = $this->money->add($transaction, $balance);
             }
 
-            if ($transaction->getOrigin() === $accounting) {
-                $balance = $this->money->substract($transaction->getMoney(), $balance);
+            if ($trx['origin_id'] === $accountingId) {
+                $balance = $this->money->substract($transaction, $balance);
             }
         }
 
@@ -50,7 +55,7 @@ class AccountingService
      *
      * @return Transaction[]
      */
-    private function getTransactionsInPeriod(
+    private function filterTransactions(
         array $transactions,
         \DateTimeInterface $start,
         \DateTimeInterface $end,
@@ -61,13 +66,13 @@ class AccountingService
     private function createPoint(
         \DateTimeInterface $lowerBound,
         \DateTimeInterface $upperBound,
-        Money $balance,
+        MoneyInterface $balance,
         array $transactions,
     ): AccountingBalancePoint {
         $point = new AccountingBalancePoint();
         $point->start = $lowerBound;
         $point->end = $upperBound;
-        $point->balance = $balance;
+        $point->balance = ApiMoney::of($balance);
         $point->length = count($transactions);
 
         return $point;
@@ -92,22 +97,24 @@ class AccountingService
             $period->getStartDate(),
             $period->getEndDate(),
         );
+
         $points = [];
         $totalBalance = new Money(0, $accounting->getCurrency());
 
+        $accountingId = $accounting->getId();
         foreach ($period as $start) {
             $end = \DateTime::createFromInterface($start)->add($period->getDateInterval());
-            $periodTrxs = $this->getTransactionsInPeriod($trxs, $start, $end);
+            $periodTrxs = $this->filterTransactions($trxs, $start, $end);
 
             $balance = $aggregate ? $totalBalance : new Money(0, $accounting->getCurrency());
             foreach ($periodTrxs as $trx) {
                 $trxMoney = $trx->getMoney();
 
-                if ($trx->getTarget() === $accounting) {
+                if ($trx->getTarget()->getId() === $accountingId) {
                     $balance = $this->money->add($trxMoney, $balance);
                 }
 
-                if ($trx->getOrigin() === $accounting) {
+                if ($trx->getOrigin()->getId() === $accountingId) {
                     $balance = $this->money->substract($trxMoney, $balance);
                 }
             }

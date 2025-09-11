@@ -3,17 +3,19 @@
 namespace App\Benzina;
 
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
-use App\Entity\Project\ProjectTerritory;
 use App\Entity\Project\ProjectVideo;
 use App\Entity\Project\Update;
+use App\Entity\Territory;
 use App\Entity\User\User;
+use App\Repository\Project\ProjectRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Embed\EmbedService;
-use App\Service\Project\CalendarService;
 use App\Service\Project\TerritoryService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -24,12 +26,13 @@ class ProjectsPump implements PumpInterface
     use DoctrinePumpTrait;
     use DatabasePumpTrait;
     use ProjectsPumpTrait;
+    use LocalizedPumpTrait;
 
     public function __construct(
+        private ProjectRepository $projectRepository,
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
         private EmbedService $embedService,
-        private CalendarService $calendarService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -48,7 +51,12 @@ class ProjectsPump implements PumpInterface
         }
 
         $status = $this->getProjectStatus($record);
-        if (\in_array($status, [ProjectStatus::InEditing, ProjectStatus::Rejected])) {
+        if (\in_array($status, [ProjectStatus::Rejected])) {
+            return;
+        }
+
+        $created = new \DateTime($record['created']);
+        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InEditing]) && $created < new \DateTime('2024-01-01')) {
             return;
         }
 
@@ -57,43 +65,103 @@ class ProjectsPump implements PumpInterface
             return;
         }
 
-        $project = new Project();
-        $project->setTranslatableLocale($record['lang']);
-        $project->setTitle($record['name']);
+        $project = $this->getProject($record);
+        if ($project === null) {
+            $project = new Project();
+        }
+
         $project->setSlug($record['id']);
-        $project->setSubtitle($record['subtitle']);
         $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
-        $project->setDescription($record['description']);
         $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
         $project->setStatus($status);
         $project->setMigrated(true);
         $project->setMigratedId($record['id']);
-        $project->setDateCreated(new \DateTime($record['created']));
+        $project->setDateCreated($created);
         $project->setDateUpdated(new \DateTime());
-
-        $updates = $this->getProjectUpdates($project, $context);
-        foreach ($updates as $update) {
-            $project->addUpdate($update);
-        }
+        $project->setTranslatableLocale($record['lang']);
+        $project->setUpdates(new ArrayCollection($this->getProjectUpdates($project, $context)));
 
         $conf = $this->getProjectConf($project, $context);
 
         $project->setDeadline($this->getProjectDeadline($conf));
-        $project->setCalendar($this->calendarService->makeCalendar(
-            $project->getDeadline(),
-            new \DateTimeImmutable($record['published']),
-            $conf['days_round1'],
-            $conf['days_round2'],
-        ));
+        $project->setCalendar($this->getProjectCalendar($record));
 
+        $project->addLocale($record['lang']);
+        $project->setTitle($record['name'] ?? '');
+        $project->setSubtitle($record['subtitle'] ?? '');
+        $project->setDescription($this->getProjectDescription($record));
+
+        $this->setPreventFlushAndClear(true);
         $this->persist($project, $context);
+
+        $localizations = $this->getProjectLocalizations($project, $context);
+
+        $this->setPreventFlushAndClear(false);
+        $this->localize($project, $localizations, $context, [
+            'title' => fn($l) => $l['name'],
+            'description' => fn($l) => $this->getProjectDescription($l),
+        ]);
+    }
+
+    private function getProject(array $record): ?Project
+    {
+        return $this->projectRepository->findOneBy(['migratedId' => $record['id']]);
     }
 
     private function getProjectOwner(array $record): ?User
     {
         return $this->userRepository->findOneBy(['migratedId' => $record['owner']]);
+    }
+
+    private function getProjectDescription(array $record): string
+    {
+        $lang = $record['lang'];
+        $hasTitles = \array_key_exists($lang, self::PROJECT_DESC_TITLES);
+
+        $description = $record['description'];
+
+        if ($hasTitles) {
+            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['about']);
+        }
+
+        $description .= \sprintf("\n%s", $record['about']);
+
+        if ($hasTitles) {
+            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['motivation']);
+        }
+
+        $description .= \sprintf("\n\n%s", $record['motivation']);
+
+        if ($hasTitles) {
+            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['related']);
+        }
+
+        $description .= \sprintf("\n%s", $record['related']);
+
+        return $description;
+    }
+
+    private function getProjectLocalizations(Project $project, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `project_lang` l WHERE l.id = :project'
+        );
+
+        $query->execute(['project' => $project->getMigratedId()]);
+
+        return $query->fetchAll();
+    }
+
+    private function getProjectCalendar(array $record): ProjectCalendar
+    {
+        $calendar = new ProjectCalendar();
+        $calendar->release = new \DateTimeImmutable($record['published']);
+        $calendar->minimum = new \DateTimeImmutable($record['passed'] ?? $record['closed']);
+        $calendar->optimum = new \DateTimeImmutable($record['success'] ?? $record['closed']);
+
+        return $calendar;
     }
 
     private function getProjectStatus(array $record): ProjectStatus
@@ -148,24 +216,37 @@ class ProjectsPump implements PumpInterface
         }
     }
 
-    private function getProjectTerritory(array $record): ProjectTerritory
+    private function getProjectTerritory(array $record): Territory
     {
+        if ($record['project_location'] === null) {
+            return Territory::unknown();
+        }
+
         $cleanAddress = $this->cleanProjectLocation($record['project_location'], 2);
 
         if ($cleanAddress === '') {
-            return ProjectTerritory::unknown();
+            return Territory::unknown();
         }
 
         return $this->territoryService->search($cleanAddress);
     }
 
-    private function getProjectVideo(array $record): ?ProjectVideo
+    private function getProjectVideoSource(array $record): ?string
     {
-        if ($record['video'] === null) {
-            return null;
+        if ($record['video'] !== null) {
+            return \trim($record['video']);
         }
 
-        $url = \trim($record['video']);
+        if ($record['media'] !== null) {
+            return \trim($record['media']);
+        }
+
+        return null;
+    }
+
+    private function getProjectVideo(array $record): ?ProjectVideo
+    {
+        $url = $this->getProjectVideoSource($record);
 
         if ($url === '') {
             return null;
@@ -206,12 +287,16 @@ class ProjectsPump implements PumpInterface
 
         $posts = $this->getProjectBlogPosts($project, $context);
         foreach ($posts as $post) {
+            if ($post['publish'] == 0) {
+                continue;
+            }
+
             $update = new Update();
             $update->setProject($project);
             $update->setTranslatableLocale($project->getLocales()[0]);
             $update->setTitle($post['title']);
             $update->setSubtitle($post['subtitle'] ?? '');
-            $update->setBody($post['text']);
+            $update->setBody($post['text'] ?? '');
             $update->setDate(new \DateTime($post['date']));
 
             $updates[] = $update;

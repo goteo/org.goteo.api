@@ -5,6 +5,7 @@ namespace App\State\Project;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\RewardClaimApiResource;
+use App\Dto\RewardClaimCreationDto;
 use App\Entity\Project\RewardClaim;
 use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
@@ -20,7 +21,7 @@ class RewardClaimStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param RewardClaimApiResource $data
+     * @param RewardClaimApiResource|RewardClaimCreationDto $data
      *
      * @return RewardClaimApiResource|null
      */
@@ -29,7 +30,7 @@ class RewardClaimStateProcessor implements ProcessorInterface
         /** @var RewardClaim */
         $claim = $this->autoMapper->map($data, RewardClaim::class);
 
-        if (!$claim->getId()) {
+        if ($data instanceof RewardClaimCreationDto) {
             $owner = $this->authService->getUser();
 
             if (!$owner) {
@@ -37,6 +38,11 @@ class RewardClaimStateProcessor implements ProcessorInterface
             }
 
             $claim->setOwner($owner);
+
+            $reward = $claim->getReward();
+            $reward->addClaim($claim);
+
+            $claim->setReward($reward);
         }
 
         $claim = $this->entityStateProcessor->process($claim, $operation, $uriVariables, $context);

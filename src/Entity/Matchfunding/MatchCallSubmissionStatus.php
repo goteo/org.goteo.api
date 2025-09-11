@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Entity\Matchfunding;
+
+enum MatchCallSubmissionStatus: string
+{
+    public const DEFAULT = self::ToReview;
+
+    /**
+     * The MatchCallSubmission is pending review.
+     */
+    case ToReview = 'to_review';
+
+    /**
+     * The MatchCallSubmission is under review for the MatchCall.
+     */
+    case InReview = 'in_review';
+
+    /**
+     * The MatchCallSubmission was accepted into the MatchCall.
+     */
+    case Accepted = 'accepted';
+
+    /**
+     * The MatchCallSubmission was rejected out of the MatchCall.
+     */
+    case Rejected = 'rejected';
+}

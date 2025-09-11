@@ -3,7 +3,7 @@
 namespace App\Tests\Gateway\Wallet;
 
 use App\Entity\Accounting\Transaction;
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
 use App\Gateway\Wallet\StatementDirection;
@@ -62,19 +62,19 @@ class WalletServiceTest extends KernelTestCase
 
         $balance = $this->walletService->getBalance($user);
 
-        $this->assertEquals(0, $balance->amount);
-        $this->assertEquals($user->getCurrency(), $balance->currency);
+        $this->assertEquals(0, $balance->getAmount());
+        $this->assertEquals($user->getCurrency(), $balance->getCurrency());
 
         $incoming = new Transaction();
-        $incoming->setMoney(new Money(100, 'EUR'));
+        $incoming->setMoney(new EmbeddableMoney(100, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
         $income = $this->walletService->save($incoming);
 
-        $this->assertEquals(100, $income->getBalance()->amount);
+        $this->assertEquals(100, $income->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $income->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $income->getFinancesTo());
         $this->assertCount(0, $income->getFinancedBy());
 
@@ -83,17 +83,17 @@ class WalletServiceTest extends KernelTestCase
 
         $balance = $this->walletService->getBalance($user);
 
-        $this->assertEquals(100, $balance->amount);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals(100, $balance->getAmount());
+        $this->assertEquals('EUR', $balance->getCurrency());
 
         $statements = $this->walletService->getStatements($user);
 
         $this->assertCount(1, $statements);
 
         $statement = $statements[0];
-        $this->assertEquals(100, $statement->getBalance()->amount);
+        $this->assertEquals(100, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(0, $statement->getFinancedBy());
     }
@@ -109,11 +109,11 @@ class WalletServiceTest extends KernelTestCase
 
         $balance = $this->walletService->getBalance($user);
 
-        $this->assertEquals(0, $balance->amount);
-        $this->assertEquals($user->getCurrency(), $balance->currency);
+        $this->assertEquals(0, $balance->getAmount());
+        $this->assertEquals($user->getCurrency(), $balance->getCurrency());
 
         $incoming = new Transaction();
-        $incoming->setMoney(new Money(100, 'EUR'));
+        $incoming->setMoney(new EmbeddableMoney(100, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
@@ -122,17 +122,17 @@ class WalletServiceTest extends KernelTestCase
 
         $balance = $this->walletService->getBalance($user);
 
-        $this->assertEquals(100, $balance->amount);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals(100, $balance->getAmount());
+        $this->assertEquals('EUR', $balance->getCurrency());
 
         $statements = $this->walletService->getStatements($user);
 
         $this->assertCount(1, $statements);
 
         $statement = $statements[0];
-        $this->assertEquals(100, $statement->getBalance()->amount);
+        $this->assertEquals(100, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(0, $statement->getFinancedBy());
     }
@@ -143,7 +143,7 @@ class WalletServiceTest extends KernelTestCase
         $user = $this->getUser()->getAccounting();
 
         $incoming = new Transaction();
-        $incoming->setMoney(new Money(100, 'EUR'));
+        $incoming->setMoney(new EmbeddableMoney(100, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
@@ -151,7 +151,7 @@ class WalletServiceTest extends KernelTestCase
         $this->entityManager->flush();
 
         $outgoing = new Transaction();
-        $outgoing->setMoney(new Money(20, 'EUR'));
+        $outgoing->setMoney(new EmbeddableMoney(20, 'EUR'));
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
 
@@ -162,29 +162,29 @@ class WalletServiceTest extends KernelTestCase
 
         $balance = $this->walletService->getBalance($user);
 
-        $this->assertEquals(80, $balance->amount);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals(80, $balance->getAmount());
+        $this->assertEquals('EUR', $balance->getCurrency());
 
         $statements = $this->walletService->getStatements($user);
 
         $this->assertCount(2, $statements);
 
         $statement = $statements[0];
-        $this->assertEquals(80, $statement->getBalance()->amount);
+        $this->assertEquals(80, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(1, $statement->getFinancesTo());
         $this->assertCount(0, $statement->getFinancedBy());
 
         $statement = $statements[1];
-        $this->assertEquals(20, $statement->getBalance()->amount);
+        $this->assertEquals(20, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Outgoing->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(1, $statement->getFinancedBy());
 
         $outgoing = new Transaction();
-        $outgoing->setMoney(new Money(30, 'EUR'));
+        $outgoing->setMoney(new EmbeddableMoney(30, 'EUR'));
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
 
@@ -195,43 +195,43 @@ class WalletServiceTest extends KernelTestCase
 
         $balance = $this->walletService->getBalance($user);
 
-        $this->assertEquals(50, $balance->amount);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals(50, $balance->getAmount());
+        $this->assertEquals('EUR', $balance->getCurrency());
 
         $statements = $this->walletService->getStatements($user);
 
         $this->assertCount(3, $statements);
 
         $statement = $statements[0];
-        $this->assertEquals(50, $statement->getBalance()->amount);
+        $this->assertEquals(50, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(2, $statement->getFinancesTo());
         $this->assertCount(0, $statement->getFinancedBy());
 
         $statement = $statements[1];
-        $this->assertEquals(20, $statement->getBalance()->amount);
+        $this->assertEquals(20, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Outgoing->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(1, $statement->getFinancedBy());
 
         $financement = $statements[0]->getFinancesTo()[0];
-        $this->assertEquals(20, $financement->getMoney()->amount);
-        $this->assertEquals('EUR', $financement->getMoney()->currency);
+        $this->assertEquals(20, $financement->getMoney()->getAmount());
+        $this->assertEquals('EUR', $financement->getMoney()->getCurrency());
         $this->assertSame($financement, $statement->getFinancedBy()[0]);
         $this->assertEquals($financement->getId(), $statement->getFinancedBy()[0]->getId());
 
         $statement = $statements[2];
-        $this->assertEquals(30, $statement->getBalance()->amount);
+        $this->assertEquals(30, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Outgoing->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(1, $statement->getFinancedBy());
 
         $financement = $statements[0]->getFinancesTo()[1];
-        $this->assertEquals(30, $financement->getMoney()->amount);
-        $this->assertEquals('EUR', $financement->getMoney()->currency);
+        $this->assertEquals(30, $financement->getMoney()->getAmount());
+        $this->assertEquals('EUR', $financement->getMoney()->getCurrency());
         $this->assertSame($financement, $statement->getFinancedBy()[0]);
         $this->assertEquals($financement->getId(), $statement->getFinancedBy()[0]->getId());
     }
@@ -242,7 +242,7 @@ class WalletServiceTest extends KernelTestCase
         $user = $this->getUser()->getAccounting();
 
         $incoming = new Transaction();
-        $incoming->setMoney(new Money(10, 'EUR'));
+        $incoming->setMoney(new EmbeddableMoney(10, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
@@ -250,7 +250,7 @@ class WalletServiceTest extends KernelTestCase
         $this->entityManager->flush();
 
         $incoming = new Transaction();
-        $incoming->setMoney(new Money(11, 'EUR'));
+        $incoming->setMoney(new EmbeddableMoney(11, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
@@ -258,7 +258,7 @@ class WalletServiceTest extends KernelTestCase
         $this->entityManager->flush();
 
         $outgoing = new Transaction();
-        $outgoing->setMoney(new Money(12, 'EUR'));
+        $outgoing->setMoney(new EmbeddableMoney(12, 'EUR'));
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
 
@@ -268,7 +268,7 @@ class WalletServiceTest extends KernelTestCase
         $this->entityManager->flush();
 
         $incoming = new Transaction();
-        $incoming->setMoney(new Money(13, 'EUR'));
+        $incoming->setMoney(new EmbeddableMoney(13, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
@@ -277,38 +277,38 @@ class WalletServiceTest extends KernelTestCase
 
         $balance = $this->walletService->getBalance($user);
 
-        $this->assertEquals(22, $balance->amount);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals(22, $balance->getAmount());
+        $this->assertEquals('EUR', $balance->getCurrency());
 
         $statements = $this->walletService->getStatements($user);
 
         $this->assertCount(4, $statements);
 
         $statement = $statements[0];
-        $this->assertEquals(0, $statement->getBalance()->amount);
+        $this->assertEquals(0, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(1, $statement->getFinancesTo());
         $this->assertCount(0, $statement->getFinancedBy());
 
         $statement = $statements[1];
-        $this->assertEquals(9, $statement->getBalance()->amount);
+        $this->assertEquals(9, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(1, $statement->getFinancesTo());
         $this->assertCount(0, $statement->getFinancedBy());
 
         $statement = $statements[2];
-        $this->assertEquals(12, $statement->getBalance()->amount);
+        $this->assertEquals(12, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Outgoing->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(2, $statement->getFinancedBy());
 
         $statement = $statements[3];
-        $this->assertEquals(13, $statement->getBalance()->amount);
+        $this->assertEquals(13, $statement->getBalance()->getAmount());
         $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
+        $this->assertEquals('EUR', $balance->getCurrency());
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(0, $statement->getFinancedBy());
     }

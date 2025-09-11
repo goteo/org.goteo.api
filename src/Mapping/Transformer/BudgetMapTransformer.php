@@ -2,20 +2,20 @@
 
 namespace App\Mapping\Transformer;
 
+use App\ApiResource\ApiMoney;
 use App\ApiResource\Project\Budget;
 use App\ApiResource\Project\BudgetSummary;
-use App\Entity\Money;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
-use App\Library\Economy\MoneyService;
+use App\Service\Project\BudgetService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class BudgetMapTransformer implements PropertyTransformerInterface
 {
     public function __construct(
-        private MoneyService $moneyService,
+        private BudgetService $budgetService,
     ) {}
 
     /**
@@ -40,64 +40,31 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         });
     }
 
-    /**
-     * @param BudgetItem[] $items
-     *
-     * @return array{minimum: Money, optimum: Money}
-     */
-    private function calcItemsTotal(array $items, string $currency): array
-    {
-        $totalMinimum = new Money(0, $currency);
-        $totalOptimum = new Money(0, $currency);
-
-        foreach ($items as $item) {
-            $itemMoney = $item->getMoney();
-            $itemDeadline = $item->getDeadline();
-
-            if ($itemDeadline == ProjectDeadline::Minimum) {
-                $totalMinimum = $this->moneyService->add($itemMoney, $totalMinimum);
-            }
-
-            $totalOptimum = $this->moneyService->add($itemMoney, $totalOptimum);
-        }
-
-        return [
-            ProjectDeadline::Minimum->value => $totalMinimum,
-            ProjectDeadline::Optimum->value => $totalOptimum,
-        ];
-    }
-
     private function getItemsSummary(array $items, string $currency, ProjectDeadline $deadline)
     {
-        $deadlineValue = $deadline->value;
+        $deadline = $deadline->value;
 
         $summary = new BudgetSummary();
 
-        $summary->money = $this->calcItemsTotal($items, $currency)[$deadlineValue];
-
-        $summary->task = $this->calcItemsTotal(
-            $this->filterItemsByType(
-                $items,
-                BudgetItemType::Task
-            ),
+        $summary->money = ApiMoney::of($this->budgetService->calcBudget(
+            $items,
             $currency
-        )[$deadlineValue];
+        )[$deadline]);
 
-        $summary->material = $this->calcItemsTotal(
-            $this->filterItemsByType(
-                $items,
-                BudgetItemType::Material
-            ),
+        $summary->task = ApiMoney::of($this->budgetService->calcBudget(
+            $this->filterItemsByType($items, BudgetItemType::Task),
             $currency
-        )[$deadlineValue];
+        )[$deadline]);
 
-        $summary->infra = $this->calcItemsTotal(
-            $this->filterItemsByType(
-                $items,
-                BudgetItemType::Infrastructure
-            ),
+        $summary->material = ApiMoney::of($this->budgetService->calcBudget(
+            $this->filterItemsByType($items, BudgetItemType::Material),
             $currency
-        )[$deadlineValue];
+        )[$deadline]);
+
+        $summary->infra = ApiMoney::of($this->budgetService->calcBudget(
+            $this->filterItemsByType($items, BudgetItemType::Infrastructure),
+            $currency
+        )[$deadline]);
 
         return $summary;
     }

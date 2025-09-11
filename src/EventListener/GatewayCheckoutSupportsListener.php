@@ -2,74 +2,57 @@
 
 namespace App\EventListener;
 
+use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Project\Project;
 use App\Entity\Project\Support;
-use App\Entity\User\User;
+use App\Money\Money;
+use App\Money\MoneyService;
+use App\Repository\Project\SupportRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsEntityListener(
-    event: Events::preUpdate,
-    method: 'preUpdate',
-    entity: Checkout::class
-)]
-#[AsEntityListener(
-    event: Events::postUpdate,
-    method: 'postUpdate',
+    event: Events::preFlush,
+    method: 'preFlush',
     entity: Checkout::class
 )]
 class GatewayCheckoutSupportsListener
 {
-    /** @var array<int, Support> */
-    private array $supports;
+    public function __construct(
+        private SupportRepository $supportRepository,
+        private MoneyService $moneyService,
+    ) {}
 
-    public function preUpdate(Checkout $checkout, PreUpdateEventArgs $args): void
+    public function preFlush(Checkout $checkout, PreFlushEventArgs $args): void
     {
-        if (!$args->hasChangedField('status')) {
-            return;
+        /** @var EntityManagerInterface */
+        $em = $args->getObjectManager();
+        $uow = $em->getUnitOfWork();
+
+        foreach ($uow->getScheduledEntityUpdates() as $entity) {
+            if (!$entity instanceof Checkout) {
+                continue;
+            }
+
+            $changes = $uow->getEntityChangeSet($entity);
+
+            if (!isset($changes['status']) || !$entity->isCharged()) {
+                continue;
+            }
+
+            $supports = $this->prepareSupports($entity);
+
+            foreach ($supports as $support) {
+                $em->persist($support);
+                $uow->computeChangeSet($em->getClassMetadata(Support::class), $support);
+            }
         }
-
-        if ($checkout->isCharged()) {
-            $this->supports = $this->prepareSupports($checkout, $args->getObjectManager());
-        }
-    }
-
-    public function postUpdate(Checkout $checkout, PostUpdateEventArgs $args): void
-    {
-        if (empty($this->supports)) {
-            return;
-        }
-
-        foreach ($this->supports as $key => $support) {
-            $args->getObjectManager()->persist($support);
-
-            unset($this->supports[$key]);
-        }
-
-        $args->getObjectManager()->flush();
-    }
-
-    /**
-     * Create ProjectSupport for the given data.
-     *
-     * @param Charge[] $charges
-     */
-    private function createSupport(Project $project, User $owner, array $charges): Support
-    {
-        $projectSupport = new Support();
-        $projectSupport->setProject($project);
-        $projectSupport->setOwner($owner);
-        $projectSupport->setAnonymous(false);
-
-        foreach ($charges as $charge) {
-            $projectSupport->addCharge($charge);
-        }
-
-        return $projectSupport;
     }
 
     /**
@@ -77,26 +60,66 @@ class GatewayCheckoutSupportsListener
      */
     public function prepareSupports(Checkout $checkout): array
     {
+        /** @var Charge[] */
         $charges = $checkout->getCharges()->toArray();
-        $owner = $checkout->getOrigin()->getUser();
+        $origin = $checkout->getOrigin();
 
-        // Group charges for projects
-        $chargesInProjectMap = [];
+        $projects = [];
+        $transactionsByProject = [];
         foreach ($charges as $charge) {
             $project = $charge->getTarget()->getProject();
-            if ($project === null) {
+
+            if (!$project) {
                 continue;
             }
 
-            $chargesInProjectMap[$project->getId()][] = $charge;
+            $projectId = $project->getId();
+
+            $projects[$projectId] = $project;
+            $transactionsByProject[$projectId] = [
+                ...$transactionsByProject[$projectId] ?? [],
+                ...$charge->getTransactions(),
+            ];
         }
 
         $supports = [];
-        foreach ($chargesInProjectMap as $chargesInProject) {
-            $project = $chargesInProject[0]->getTarget()->getProject();
-            $supports[] = $this->createSupport($project, $owner, $chargesInProject);
+        foreach ($transactionsByProject as $projectId => $transactions) {
+            $supports[] = $this->getSupport($projects[$projectId], $origin, $transactions);
         }
 
         return $supports;
+    }
+
+    /**
+     * Create ProjectSupport for the given data.
+     *
+     * @param Transaction[] $transactions
+     */
+    private function getSupport(Project $project, Accounting $origin, array $transactions): Support
+    {
+        /** @var Support|null */
+        $projectSupport = $this->supportRepository->findOneBy([
+            'project' => $project,
+            'origin' => $origin,
+        ]);
+
+        if (!$projectSupport) {
+            $projectSupport = new Support();
+        }
+
+        $projectSupport->setProject($project);
+        $projectSupport->setOrigin($origin);
+        $projectSupport->setAnonymous(false);
+
+        $money = new Money(0, $project->getAccounting()->getCurrency());
+        foreach ($transactions as $transaction) {
+            $money = $this->moneyService->add($transaction->getMoney(), $money);
+
+            $projectSupport->addTransaction($transaction);
+        }
+
+        $projectSupport->setMoney(EmbeddableMoney::of($money));
+
+        return $projectSupport;
     }
 }

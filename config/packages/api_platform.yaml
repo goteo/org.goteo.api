@@ -32,7 +32,7 @@ api_platform:
             standard_put: true
             pagination_enabled: true
         pagination_items_per_page: 30
-        pagination_client_enabled: true
+        pagination_maximum_items_per_page: 100
         pagination_client_items_per_page: true
     use_symfony_listeners: true
     swagger:

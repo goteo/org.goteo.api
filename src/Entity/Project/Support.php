@@ -2,17 +2,21 @@
 
 namespace App\Entity\Project;
 
-use App\Entity\Gateway\Charge;
-use App\Entity\User\User;
+use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\SupportRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Embedded;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_support')]
+#[ORM\UniqueConstraint(fields: ['project', 'origin'], name: 'project_origin_unique')]
 #[ORM\Entity(repositoryClass: SupportRepository::class)]
 class Support
 {
@@ -23,30 +27,33 @@ class Support
 
     #[ORM\ManyToOne(inversedBy: 'supports')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $owner = null;
-
-    #[ORM\ManyToOne(inversedBy: 'supports')]
-    #[ORM\JoinColumn(nullable: false)]
     private ?Project $project = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Accounting $origin = null;
+
     /**
-     * @var Collection<int, Charge>
+     * @var Collection<int, Transaction>
      */
-    #[ORM\JoinTable(name: 'project_support_charges')]
+    #[ORM\JoinTable(name: 'project_support_trxs')]
     #[ORM\JoinColumn(name: 'support_id', referencedColumnName: 'id')]
-    #[ORM\InverseJoinColumn(name: 'charge_id', referencedColumnName: 'id')]
-    #[ORM\ManyToMany(targetEntity: Charge::class)]
-    private Collection $charges;
+    #[ORM\InverseJoinColumn(name: 'transaction_id', referencedColumnName: 'id')]
+    #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
+    private Collection $transactions;
+
+    #[Embedded(class: EmbeddableMoney::class)]
+    private ?EmbeddableMoney $money = null;
 
     #[ORM\Column]
-    private ?bool $anonymous = null;
+    private bool $anonymous = false;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
     public function __construct()
     {
-        $this->charges = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -54,14 +61,14 @@ class Support
         return $this->id;
     }
 
-    public function getOwner(): ?User
+    public function getOrigin(): ?Accounting
     {
-        return $this->owner;
+        return $this->origin;
     }
 
-    public function setOwner(?User $owner): static
+    public function setOrigin(?Accounting $origin): static
     {
-        $this->owner = $owner;
+        $this->origin = $origin;
 
         return $this;
     }
@@ -79,30 +86,42 @@ class Support
     }
 
     /**
-     * @return Collection<int, Charge>
+     * @return Collection<int, Transaction>
      */
-    public function getCharges(): Collection
+    public function getTransactions(): Collection
     {
-        return $this->charges;
+        return $this->transactions;
     }
 
-    public function addCharge(Charge $charge): static
+    public function addTransaction(Transaction $transaction): static
     {
-        if (!$this->charges->contains($charge)) {
-            $this->charges->add($charge);
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
         }
 
         return $this;
     }
 
-    public function removeCharge(Charge $charge): static
+    public function removeTransaction(Transaction $transaction): static
     {
-        $this->charges->removeElement($charge);
+        $this->transactions->removeElement($transaction);
 
         return $this;
     }
 
-    public function isAnonymous(): ?bool
+    public function getMoney(): ?EmbeddableMoney
+    {
+        return $this->money;
+    }
+
+    public function setMoney(EmbeddableMoney $money): static
+    {
+        $this->money = $money;
+
+        return $this;
+    }
+
+    public function isAnonymous(): bool
     {
         return $this->anonymous;
     }

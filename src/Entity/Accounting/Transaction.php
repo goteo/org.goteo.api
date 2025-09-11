@@ -2,7 +2,7 @@
 
 namespace App\Entity\Accounting;
 
-use App\Entity\Money;
+use App\Entity\EmbeddableMoney as Money;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\TransactionRepository;
@@ -21,6 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'accounting_transaction')]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Index(fields: ['origin'])]
+#[ORM\Index(fields: ['target'])]
 class Transaction
 {
     use TimestampedCreationEntity;

@@ -3,7 +3,7 @@
 namespace App\Validator;
 
 use App\ApiResource\Project\RewardClaimApiResource;
-use App\Library\Economy\MoneyService;
+use App\Money\MoneyService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 

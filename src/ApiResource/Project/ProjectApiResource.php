@@ -16,6 +16,7 @@ use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
+use App\Entity\Territory;
 use App\Mapping\Transformer\BudgetMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
@@ -118,7 +119,7 @@ class ProjectApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public ProjectTerritoryApiResource $territory;
+    public Territory $territory;
 
     /**
      * Free-form rich text description for the Project.

@@ -5,7 +5,7 @@ namespace App\ApiResource\Gateway;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\Dto\CheckoutUpdationDto;
+use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
@@ -60,7 +60,7 @@ class CheckoutApiResource
      *
      * @var ChargeApiResource[]
      */
-    #[API\ApiProperty(readableLink: true, writableLink: true)]
+    #[API\ApiProperty(readableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
     public array $charges = [];
@@ -106,20 +106,16 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
-    #[MapTo(Checkout::class, transformer: 'parseTrackings')]
-    #[MapFrom(Checkout::class, transformer: 'parseTrackings')]
     public array $trackings = [];
 
+    #[API\ApiProperty(writable: false)]
     public \DateTimeInterface $dateCreated;
+
+    #[API\ApiProperty(writable: false)]
     public \DateTimeInterface $dateUpdated;
 
     public static function parseLinks(array $values)
     {
         return \array_map(fn($value) => Link::tryFrom($value), $values);
-    }
-
-    public static function parseTrackings(array $values)
-    {
-        return \array_map(fn($value) => Tracking::tryFrom($value), $values);
     }
 }

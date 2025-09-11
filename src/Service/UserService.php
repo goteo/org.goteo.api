@@ -18,8 +18,8 @@ class UserService
             $value = $matches[0];
         }
 
-        // Only lowercase a-z, numbers and underscore in user handles
-        $value = \preg_replace('/[^a-z0-9_]/', '_', \strtolower($value));
+        // Only lowercase a-z, numbers, underscore and middle dots in user handles
+        $value = \preg_replace('/[^a-z0-9_.]|^\.|\.$/', '_', \strtolower($value));
 
         // Min length 4
         $value = \str_pad($value, 4, '_');

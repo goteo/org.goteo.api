@@ -4,18 +4,17 @@ namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\Matchfunding\MatchCallApiResource;
 use App\ApiResource\Project\ProjectApiResource;
 use App\ApiResource\TipjarApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Accounting\Accounting;
-use App\Entity\Money;
+use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
-use App\Mapping\Transformer\AccountingBalanceMapTransformer;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
-use AutoMapper\Attribute\MapFrom;
 
 /**
  * v4 features an advanced economy model under the hood.
@@ -44,15 +43,20 @@ class AccountingApiResource
      */
     public string $currency;
 
-    /**
-     * The money currently held by the Accounting.
-     */
-    #[MapFrom(Accounting::class, transformer: AccountingBalanceMapTransformer::class)]
-    #[API\ApiProperty(writable: false, security: 'is_granted("ACCOUNTING_VIEW", object)')]
-    public Money $balance;
-
     #[API\ApiProperty(readable: false, writable: false)]
     public string $ownerClass;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?UserApiResource $user = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?ProjectApiResource $project = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?TipjarApiResource $tipjar = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?MatchCallApiResource $matchCall;
 
     /**
      * The resource owning this Accounting.
@@ -68,17 +72,10 @@ class AccountingApiResource
                 return $this->project;
             case Tipjar::class:
                 return $this->tipjar;
+            case MatchCall::class:
+                return $this->matchCall;
         }
 
         return null;
     }
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?UserApiResource $user = null;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?ProjectApiResource $project = null;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?TipjarApiResource $tipjar = null;
 }

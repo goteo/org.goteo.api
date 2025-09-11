@@ -13,11 +13,11 @@ final class AvailableRewardUnitsValidator extends ConstraintValidator
      */
     public function validate(mixed $value, Constraint $constraint): void
     {
-        if (!$value->hasUnits) {
+        if (!$value->isFinite) {
             return;
         }
 
-        if ($value->hasUnits && $value->unitsAvailable > 0) {
+        if ($value->isFinite && $value->unitsAvailable > 0) {
             return;
         }
 
