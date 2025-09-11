@@ -19,6 +19,8 @@ class ProjectsBudgetPump implements PumpInterface
     use DoctrinePumpTrait;
     use LocalizedPumpTrait;
 
+    private const MAX_INT = 2147483647;
+
     private const COST_KEYS = [
         'id',
         'project',
@@ -64,7 +66,7 @@ class ProjectsBudgetPump implements PumpInterface
         $budgetItem->setType($this->getCostType($record));
         $budgetItem->setTitle($record['cost']);
         $budgetItem->setDescription($record['description'] ?? $record['cost']);
-        $budgetItem->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
+        $budgetItem->setMoney($this->getCostMoney($record['amount'], 'EUR'));
         $budgetItem->setDeadline($this->getDeadline($record));
 
         $this->setPreventFlushAndClear(true);
@@ -113,5 +115,16 @@ class ProjectsBudgetPump implements PumpInterface
         $query->execute(['cost' => $budgetItem->getMigratedId()]);
 
         return $query->fetchAll();
+    }
+
+    private function getCostMoney(int $amount, string $currency): EmbeddableMoney
+    {
+        $amount = $amount * 100;
+
+        if ($amount >= self::MAX_INT) {
+            $amount = self::MAX_INT;
+        }
+
+        return new EmbeddableMoney($amount, $currency);
     }
 }
