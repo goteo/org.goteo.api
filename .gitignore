@@ -32,3 +32,4 @@
 ###< doctrineencryptbundle/doctrine-encrypt-bundle
 
 .php-version
+*.sql
