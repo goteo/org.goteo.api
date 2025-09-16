@@ -85,7 +85,7 @@ class ProjectsRewardsPump implements PumpInterface
         $this->setPreventFlushAndClear(false);
         $this->localize($reward, $localizations, $context, [
             'title' => fn($l) => $l['reward'],
-            'description' => fn($l) => $l['description']
+            'description' => fn($l) => $l['description'],
         ]);
     }
 

@@ -77,7 +77,7 @@ class ProjectsBudgetPump implements PumpInterface
         $this->setPreventFlushAndClear(false);
         $this->localize($budgetItem, $localizations, $context, [
             'title' => fn($l) => $l['cost'],
-            'description' => fn($l) => $l['description']
+            'description' => fn($l) => $l['description'],
         ]);
     }
 
