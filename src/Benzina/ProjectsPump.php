@@ -101,6 +101,7 @@ class ProjectsPump implements PumpInterface
         $this->setPreventFlushAndClear(false);
         $this->localize($project, $localizations, $context, [
             'title' => fn($l) => $l['name'],
+            'subtitle' => fn($l) => $l['subtitle'],
             'description' => fn($l) => $this->getProjectDescription($l),
         ]);
     }

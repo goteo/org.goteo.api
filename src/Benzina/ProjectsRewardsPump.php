@@ -67,10 +67,10 @@ class ProjectsRewardsPump implements PumpInterface
         }
 
         $reward = new Reward();
-        $reward->addLocale($project->getLocales()[0]);
         $reward->setProject($project);
         $reward->setMigrated(true);
         $reward->setMigratedId($record['id']);
+        $reward->setTranslatableLocale($project->getLocales()[0]);
         $reward->setTitle($record['reward']);
         $reward->setDescription($record['description'] ?? $record['reward']);
         $reward->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
@@ -85,6 +85,7 @@ class ProjectsRewardsPump implements PumpInterface
         $this->setPreventFlushAndClear(false);
         $this->localize($reward, $localizations, $context, [
             'title' => fn($l) => $l['reward'],
+            'description' => fn($l) => $l['description']
         ]);
     }
 
