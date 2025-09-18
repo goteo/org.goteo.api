@@ -2,6 +2,7 @@
 
 namespace App\Entity\Accounting;
 
+use App\Entity\EmbeddableMoney;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Project\Project;
@@ -37,6 +38,9 @@ class Accounting
     #[Assert\Currency()]
     #[ORM\Column(length: 3)]
     private ?string $currency = null;
+
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    private ?EmbeddableMoney $balance = null;
 
     #[ORM\Column(length: 255)]
     private ?string $ownerClass = null;
@@ -77,6 +81,18 @@ class Accounting
     public function setCurrency(string $currency): static
     {
         $this->currency = $currency;
+
+        return $this;
+    }
+
+    public function getBalance(): ?EmbeddableMoney
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(EmbeddableMoney $money): static
+    {
+        $this->balance = $money;
 
         return $this;
     }
