@@ -12,6 +12,8 @@ use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
+use Doctrine\Common\Util\ClassUtils;
+use Doctrine\Persistence\Proxy;
 
 class AccountingOwnerMapTransformer implements PropertyTransformerInterface
 {
@@ -28,7 +30,13 @@ class AccountingOwnerMapTransformer implements PropertyTransformerInterface
 
     private static function getAsResource(object $entity): object
     {
-        switch ($entity::class) {
+        $entityClass = $entity::class;
+
+        if ($entity instanceof Proxy) {
+            $entityClass = ClassUtils::getRealClass($entityClass);
+        }
+
+        switch ($entityClass) {
             case User::class:
                 return self::buildFromEntityWithId($entity, UserApiResource::class);
             case Project::class:
@@ -40,7 +48,7 @@ class AccountingOwnerMapTransformer implements PropertyTransformerInterface
             default:
                 throw new \Exception(\sprintf(
                     'Object of class %s could not be mapped to an Accounting owner resource',
-                    $entity::class
+                    $entityClass
                 ));
         }
     }
