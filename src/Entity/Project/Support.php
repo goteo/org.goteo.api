@@ -12,7 +12,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\Embedded;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_support')]
@@ -42,7 +41,7 @@ class Support
     #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
 
-    #[Embedded(class: EmbeddableMoney::class)]
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
     private ?EmbeddableMoney $money = null;
 
     #[ORM\Column]
