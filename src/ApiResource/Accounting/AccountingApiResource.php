@@ -10,6 +10,7 @@ use App\Mapping\Transformer\AccountingOwnerMapTransformer;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
 use AutoMapper\Attribute\MapFrom;
+use AutoMapper\Attribute\MapTo;
 
 /**
  * v4 features an advanced economy model under the hood.
@@ -35,8 +36,13 @@ class AccountingApiResource
     /**
      * IRI of the resource owning this Accounting.
      */
-    #[MapFrom(transformer: AccountingOwnerMapTransformer::class)]
+    #[MapFrom(Accounting::class, transformer: AccountingOwnerMapTransformer::class)]
     public string $owner;
+
+    #[MapTo(Accounting::class, 'owner')]
+    #[MapFrom(Accounting::class, 'owner')]
+    #[API\ApiProperty(readable: false)]
+    public object $ownerObject;
 
     /**
      * The preferred currency for monetary operations.\
