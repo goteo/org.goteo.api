@@ -3,6 +3,8 @@
 namespace App\Tests\Entity\Accounting;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Tipjar;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -72,5 +74,42 @@ class AccountingTest extends KernelTestCase
 
         $this->assertEquals(null, $accountingB->getUser());
         $this->assertEquals(null, $accountingB->getProject());
+    }
+
+    public function testTransactionUpdatesBalances()
+    {
+        $tipjarA = new Tipjar();
+        $tipjarA->setName('TEST_TIPJAR_A');
+
+        $origin = Accounting::of($tipjarA);
+        $origin->setCurrency('EUR');
+        $origin->setBalance(new EmbeddableMoney(1000, 'EUR'));
+
+        $tipjarB = new Tipjar();
+        $tipjarB->setName('TEST_TIPJAR_B');
+
+        $target = Accounting::of($tipjarB);
+        $target->setCurrency('EUR');
+        $target->setBalance(new EmbeddableMoney(500, 'EUR'));
+
+        $this->entityManager->persist($origin);
+        $this->entityManager->persist($target);
+        $this->entityManager->flush();
+
+        $transaction = new Transaction();
+        $transaction
+            ->setOrigin($origin)
+            ->setTarget($target)
+            ->setMoney(new EmbeddableMoney(200, 'EUR'))
+        ;
+
+        $this->entityManager->persist($transaction);
+        $this->entityManager->flush();
+
+        $this->entityManager->refresh($origin);
+        $this->entityManager->refresh($target);
+
+        $this->assertSame(800, $origin->getBalance()->getAmount());
+        $this->assertSame(700, $target->getBalance()->getAmount());
     }
 }
