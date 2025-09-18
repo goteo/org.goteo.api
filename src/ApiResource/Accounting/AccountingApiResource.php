@@ -44,5 +44,6 @@ class AccountingApiResource
      */
     public string $currency;
 
+    #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object)')]
     public ApiMoney $balance;
 }
