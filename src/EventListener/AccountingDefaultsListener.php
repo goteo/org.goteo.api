@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\EmbeddableMoney;
 use App\Money\MoneyService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
@@ -22,6 +23,10 @@ class AccountingDefaultsListener
     {
         if ($accounting->getCurrency() === null) {
             $accounting->setCurrency($this->moneyService->getDefaultCurrency());
+        }
+
+        if ($accounting->getBalance() === null) {
+            $accounting->setBalance(new EmbeddableMoney(0, $accounting->getCurrency()));
         }
     }
 }

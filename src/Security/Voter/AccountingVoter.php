@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use ApiPlatform\Metadata\IriConverterInterface;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\User\User;
@@ -15,6 +16,10 @@ class AccountingVoter extends Voter
     public const EDIT = 'ACCOUNTING_EDIT';
     public const VIEW = 'ACCOUNTING_VIEW';
 
+    public function __construct(
+        private IriConverterInterface $iriConverter,
+    ) {}
+
     protected function supports(string $attribute, mixed $subject): bool
     {
         return in_array($attribute, [self::EDIT, self::VIEW])
@@ -27,7 +32,7 @@ class AccountingVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        $owner = $subject->getOwner();
+        $owner = $this->iriConverter->getResourceFromIri($subject->owner);
 
         switch ($owner::class) {
             case UserApiResource::class:

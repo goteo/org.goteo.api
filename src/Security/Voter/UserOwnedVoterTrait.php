@@ -28,8 +28,7 @@ trait UserOwnedVoterTrait
         }
 
         if ($subject instanceof AccountingApiResource) {
-            return $subject->getOwner() instanceof UserApiResource
-                && $subject->getOwner()->id === $user->getId();
+            return $subject->id === $user->getAccounting()->getId();
         }
 
         if ($subject instanceof UserOwnedInterface) {
