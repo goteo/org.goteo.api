@@ -15,7 +15,10 @@ class VimeoEmbedFilter implements EmbedFilterInterface
             return $data;
         }
 
-        $data['thumbnail_url'] = \preg_replace('/_\d+x\d+$/', '_900x500', $data['thumbnail_url']);
+        $lowResPath = \parse_url($data['thumbnail_url'], \PHP_URL_PATH);
+        $highResPath = \preg_replace('/_\d+x\d+$/', '_900x500', $lowResPath);
+
+        $data['thumbnail_url'] = \str_replace($lowResPath, $highResPath, $data['thumbnail_url']);
 
         return $data;
     }

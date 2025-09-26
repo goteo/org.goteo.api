@@ -1,0 +1,43 @@
+name: Database dump
+
+# This workflow is triggered manually
+on:
+  workflow_dispatch:
+    inputs:
+      appenv:
+        description: 'Database environment to dump'
+        required: true
+        type: choice
+        options:
+          - prod
+          - staging
+          - testing
+        default: testing
+
+permissions: read-all
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch'
+
+    name: Dumping the database
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Environment message
+      run: echo "Dumping the database for the ${{ github.event.inputs.appenv }} environment."
+
+    # https://github.com/actions/checkout
+    - name: Checkout repo
+      uses: actions/checkout@v5
+
+    # https://github.com/appleboy/ssh-action
+    - name: Run the database dump
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ secrets.DB_DUMP_HOST }}
+        port: ${{ secrets.DB_DUMP_PORT }}
+        username: ${{ secrets.DB_DUMP_USERNAME }}
+        key: ${{ secrets.DB_DUMP_SSHKEY }}
+        script: |
+          bash ${{ secrets.DB_DUMP_PATH_SCRIPT }} ${{ github.event.inputs.appenv }}
