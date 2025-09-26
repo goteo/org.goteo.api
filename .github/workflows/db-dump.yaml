@@ -35,9 +35,9 @@ jobs:
     - name: Run the database dump
       uses: appleboy/ssh-action@v1
       with:
-        host: ${{ secrets.HOST_DB_DUMP }}
-        port: ${{ secrets.PORT_DB_DUMP }}
-        username: ${{ secrets.USERNAME_DB_DUMP }}
-        key: ${{ secrets.SSHKEY_DB_DUMP }}
+        host: ${{ secrets.DB_DUMP_HOST }}
+        port: ${{ secrets.DB_DUMP_PORT }}
+        username: ${{ secrets.DB_DUMP_USERNAME }}
+        key: ${{ secrets.DB_DUMP_SSHKEY }}
         script: |
-          bash ${{ secrets.PATH_DB_DUMP_SCRIPT }} ${{ github.event.inputs.appenv }}
+          bash ${{ secrets.DB_DUMP_PATH_SCRIPT }} ${{ github.event.inputs.appenv }}
