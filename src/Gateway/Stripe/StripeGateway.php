@@ -50,6 +50,11 @@ class StripeGateway extends AbstractGateway
         ];
     }
 
+    public static function getAllowedRoles(): array
+    {
+        return ['PUBLIC_ACCESS'];
+    }
+
     public function process(Checkout $checkout): Checkout
     {
         $session = $this->stripe->checkout->sessions->create([

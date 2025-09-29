@@ -56,6 +56,11 @@ class PaypalGateway extends AbstractGateway
         ];
     }
 
+    public static function getAllowedRoles(): array
+    {
+        return ['PUBLIC_ACCESS'];
+    }
+
     public function process(Checkout $checkout): Checkout
     {
         $order = $this->paypal->postOrder([

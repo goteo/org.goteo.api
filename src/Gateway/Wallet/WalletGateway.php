@@ -30,6 +30,11 @@ class WalletGateway implements GatewayInterface
         ];
     }
 
+    public static function getAllowedRoles(): array
+    {
+        return ['ROLE_USER'];
+    }
+
     public function __construct(
         private WalletService $wallet,
         private MoneyService $money,

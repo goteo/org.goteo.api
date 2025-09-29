@@ -35,6 +35,11 @@ interface GatewayInterface
     public static function getSupportedChargeTypes(): array;
 
     /**
+     * @return string[] The roles that are allowed to process Checkouts with this Gateway
+     */
+    public static function getAllowedRoles(): array;
+
+    /**
      * Connects with the payment gateway and creates a checkout session so the gateway can process the payment.
      *
      * @param Checkout $checkout The Checkout with the data for the payment to be charged
