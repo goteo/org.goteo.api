@@ -28,7 +28,7 @@ class GatewayLocator
     }
 
     /**
-     * @return <string, GatewayInterface>
+     * @return array<string, GatewayInterface>
      */
     public function getAll(): array
     {
