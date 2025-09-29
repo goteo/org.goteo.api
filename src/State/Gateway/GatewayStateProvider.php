@@ -8,12 +8,14 @@ use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Gateway\GatewayApiResource;
 use App\Gateway\GatewayInterface;
 use App\Gateway\GatewayLocator;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GatewayStateProvider implements ProviderInterface
 {
     public function __construct(
         private GatewayLocator $gateways,
+        private Security $security,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -23,6 +25,8 @@ class GatewayStateProvider implements ProviderInterface
                 return $this->getGateways();
             case API\Get::class:
                 return $this->getGateway($uriVariables['name']);
+            default:
+                return $this->getGateways();
         }
     }
 
@@ -30,6 +34,14 @@ class GatewayStateProvider implements ProviderInterface
     {
         $gateways = [];
         foreach ($this->gateways->getAll() as $gateway) {
+            foreach ($gateway::getAllowedRoles() as $role) {
+                $isGranted = $this->security->isGranted($role, $this->security->getUser());
+
+                if (!$isGranted) {
+                    continue 2;
+                }
+            }
+
             $gateways[] = $this->toResource($gateway);
         }
 
@@ -40,6 +52,14 @@ class GatewayStateProvider implements ProviderInterface
     {
         try {
             $gateway = $this->gateways->get($name);
+
+            foreach ($gateway::getAllowedRoles() as $role) {
+                $isGranted = $this->security->isGranted($role, $this->security->getUser());
+
+                if (!$isGranted) {
+                    throw new \Exception('Unauthorized Gateway role');
+                }
+            }
 
             return $this->toResource($gateway);
         } catch (\Exception $e) {
