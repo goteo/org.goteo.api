@@ -26,6 +26,14 @@ class CecaGateway implements GatewayInterface
         ];
     }
 
+    public static function getAllowedRoles(): array
+    {
+        // This Gateway only exists for historical purposes
+        // DO NOT USE
+        // DO NOT IMPLEMENT
+        return [''];
+    }
+
     public function process(Checkout $checkout): Checkout
     {
         throw new \Exception(self::LEGACY_MESSAGE);

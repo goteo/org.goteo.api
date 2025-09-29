@@ -21,6 +21,11 @@ class CashGateway implements GatewayInterface
         return [];
     }
 
+    public static function getAllowedRoles(): array
+    {
+        return ['ROLE_ADMIN'];
+    }
+
     public function process(Checkout $checkout): Checkout
     {
         return $checkout;
