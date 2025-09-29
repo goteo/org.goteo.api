@@ -111,5 +111,5 @@ bin/docker mariadb mysql -u root -pgoteo goteo
 
 2. Grant *goteo* all privileges.
 ```mysql
-GRANT ALL PRIVILEGES ON *.* TO 'goteo'@'%'
+GRANT ALL PRIVILEGES ON *.* TO 'goteo'@'%';
 ```
