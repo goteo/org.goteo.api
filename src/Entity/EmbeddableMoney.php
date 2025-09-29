@@ -20,16 +20,16 @@ class EmbeddableMoney implements MoneyInterface
      * Expressed as the minor unit, e.g: cents, pennies, etc.
      */
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $amount;
+    public ?int $amount;
 
     /**
      * 3-letter ISO 4217 currency code.
      */
     #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $currency;
+    public ?string $currency;
 
     #[ORM\Column(type: 'json', nullable: true)]
-    private ?array $conversion;
+    public ?array $conversion;
 
     public function __construct(
         ?int $amount = null,
