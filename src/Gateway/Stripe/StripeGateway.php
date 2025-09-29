@@ -6,6 +6,7 @@ use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Gateway\Tracking;
 use App\Entity\Project\Project;
+use App\Entity\Tipjar;
 use App\Entity\User\User;
 use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
@@ -24,6 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
 class StripeGateway extends AbstractGateway
 {
     public const TRACKING_TITLE_CHECKOUT = 'Stripe Checkout Session ID';
+
+    public const SUPPORTED_TARGETS = [Project::class, Tipjar::class];
 
     private StripeClient $stripe;
 
@@ -170,16 +173,22 @@ class StripeGateway extends AbstractGateway
 
     private function getStripeProduct(Charge $charge)
     {
+        /** @var Project|Tipjar */
         $target = $charge->getTarget()->getOwner();
 
-        if (!$target instanceof Project) {
+        if (!\in_array($target::class, self::SUPPORTED_TARGETS)) {
             throw new \Exception(\sprintf(
-                "Charges with Stripe must be to Projects, instance of '%s' supplied",
-                $target::class
+                "Charges instance of class '%s' not in supported Stripe targets: %s",
+                $target::class,
+                join(',', self::SUPPORTED_TARGETS)
             ));
         }
 
-        $id = \sprintf('P%d', $target->getId());
+        $id = \sprintf(
+            '%s%d',
+            (new \ReflectionClass($target::class))->getShortName(),
+            $target->getId()
+        );
 
         try {
             $product = $this->stripe->products->retrieve($id);
@@ -188,13 +197,10 @@ class StripeGateway extends AbstractGateway
                 throw $e;
             }
 
-            $name = $target->getTitle();
-            $description = $target->getSubtitle();
-
             $product = $this->stripe->products->create([
                 'id' => $id,
-                'name' => $name,
-                'description' => $description,
+                'name' => $charge->getTitle(),
+                'description' => $charge->getDescription(),
             ]);
         }
 
