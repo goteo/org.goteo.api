@@ -60,7 +60,7 @@ class CheckoutApiResource
      *
      * @var ChargeApiResource[]
      */
-    #[API\ApiProperty(readableLink: true)]
+    #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
     public array $charges = [];
