@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Matchfunding;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -72,11 +73,13 @@ class MatchCallApiResource
      * Main display title.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
     public string $title;
 
     /**
      * Long-form secondary display text.
      */
+    #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
     public string $description;
 
     /**
@@ -84,10 +87,16 @@ class MatchCallApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid]
+    #[API\ApiFilter(
+        SearchFilter::class,
+        strategy: 'exact',
+        properties: ['territory.country', 'territory.subLvl1', 'territory.subLvl2'],
+    )]
     public Territory $territory;
 
     /**
      * The current status of the MatchCall.
      */
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public MatchCallStatus $status = MatchCallStatus::InEditing;
 }
