@@ -20,7 +20,6 @@ class GetOneTest extends ProjectTestCase
             'id' => $project->getId(),
             'title' => $project->getTitle(),
             'subtitle' => $project->getSubtitle(),
-            'category' => $project->getCategory()->value,
             'territory' => ['country' => $project->getTerritory()->country],
             'description' => $project->getDescription(),
             'deadline' => $project->getDeadline()->value,

@@ -2,8 +2,8 @@
 
 namespace App\Dto;
 
+use App\ApiResource\CategoryApiResource;
 use App\Entity\Project\Project;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Territory;
 use App\Mapping\Transformer\ProjectVideoMapTransformer;
@@ -27,9 +27,12 @@ class ProjectCreationDto
 
     /**
      * One of the available categories.
+     *
+     * @var array<int, CategoryApiResource>
      */
     #[Assert\NotBlank()]
-    public ProjectCategory $category;
+    #[Assert\Count(min: 1, max: 2)]
+    public array $categories;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

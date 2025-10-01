@@ -4,7 +4,6 @@ namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
 use App\Entity\Project\Project;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
@@ -20,6 +19,7 @@ class ProjectUpdationDto
     /**
      * Main headline for the Project.
      */
+    #[Assert\Regex('/[a-zA-Z]{1,}/')]
     public string $title;
 
     /**
@@ -30,7 +30,8 @@ class ProjectUpdationDto
     /**
      * One of the available categories.
      */
-    public ProjectCategory $category;
+    #[Assert\Count(min: 1, max: 2)]
+    public array $categories;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

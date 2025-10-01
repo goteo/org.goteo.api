@@ -4,7 +4,6 @@ namespace App\Benzina;
 
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
@@ -71,7 +70,6 @@ class ProjectsPump implements PumpInterface
         }
 
         $project->setSlug($record['id']);
-        $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
         $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
@@ -182,38 +180,6 @@ class ProjectsPump implements PumpInterface
             case 0:
             default:
                 return ProjectStatus::Rejected;
-        }
-    }
-
-    private function getProjectCategory(array $record): ProjectCategory
-    {
-        switch ($record['social_commitment']) {
-            case 1:
-                return ProjectCategory::Solidary;
-            case 2:
-                return ProjectCategory::LibreSoftware;
-            case 3:
-            case 16:
-                return ProjectCategory::Employment;
-            case 5:
-                return ProjectCategory::Journalism;
-            case 6:
-                return ProjectCategory::Education;
-            case 7:
-                return ProjectCategory::Culture;
-            case 8:
-            case 15:
-                return ProjectCategory::Ecology;
-            case 11:
-            case 12:
-                return ProjectCategory::Democracy;
-            case 13:
-                return ProjectCategory::Equity;
-            case 14:
-                return ProjectCategory::HealthCares;
-            case 10:
-            default:
-                return ProjectCategory::OpenData;
         }
     }
 

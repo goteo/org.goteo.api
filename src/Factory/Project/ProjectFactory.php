@@ -3,7 +3,6 @@
 namespace App\Factory\Project;
 
 use App\Entity\Project\Project;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
@@ -41,7 +40,6 @@ final class ProjectFactory extends PersistentProxyObjectFactory
     protected static function defaultsOptimized(): array|callable
     {
         return [
-            'category' => ProjectCategory::Design,
             'deadline' => ProjectDeadline::Minimum,
             'description' => '',
             'territory' => new Territory('ES'),
@@ -55,7 +53,6 @@ final class ProjectFactory extends PersistentProxyObjectFactory
     protected static function defaultsFull(): array|callable
     {
         return [
-            'category' => self::faker()->randomElement(ProjectCategory::cases()),
             'deadline' => self::faker()->randomElement(ProjectDeadline::cases()),
             'description' => self::faker()->text(),
             'territory' => new Territory('ES'),
