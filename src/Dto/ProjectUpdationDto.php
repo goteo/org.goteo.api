@@ -3,6 +3,7 @@
 namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
+use App\ApiResource\CategoryApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
@@ -29,6 +30,8 @@ class ProjectUpdationDto
 
     /**
      * One of the available categories.
+     *
+     * @var array<int, CategoryApiResource>
      */
     #[Assert\Count(min: 1, max: 2)]
     public array $categories;

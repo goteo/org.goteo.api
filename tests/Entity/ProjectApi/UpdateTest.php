@@ -51,7 +51,7 @@ class UpdateTest extends ProjectTestCase
         $this->createTestProjectOptimized();
         $invalidInput = [
             'title' => 'New project title',
-            'category' => 'invalid-category',
+            'categories' => ['invalid-category'],
         ];
 
         $client = static::createClient();
