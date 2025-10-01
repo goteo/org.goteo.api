@@ -3,6 +3,7 @@
 namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Category;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
@@ -64,8 +65,11 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Embedded(class: ProjectCalendar::class)]
     private ?ProjectCalendar $calendar = null;
 
-    #[ORM\Column(enumType: ProjectCategory::class)]
-    private ?ProjectCategory $category = null;
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    private Collection $categories;
 
     /**
      * Project's territory of interest.
@@ -145,6 +149,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         $this->budgetItems = new ArrayCollection();
         $this->updates = new ArrayCollection();
         $this->supports = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -219,14 +224,26 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getCategory(): ?ProjectCategory
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
     {
-        return $this->category;
+        return $this->categories;
     }
 
-    public function setCategory(ProjectCategory $category): static
+    public function addCategory(Category $category): static
     {
-        $this->category = $category;
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        $this->categories->removeElement($category);
 
         return $this;
     }

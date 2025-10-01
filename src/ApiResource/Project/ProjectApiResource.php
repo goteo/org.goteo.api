@@ -13,7 +13,6 @@ use App\Dto\ProjectCreationDto;
 use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
@@ -109,11 +108,11 @@ class ProjectApiResource
     public ProjectCalendar $calendar;
 
     /**
-     * One of the available categories.
+     * A list of the available categories most relevant to this Project.
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    public ProjectCategory $category;
+    public array $categories;
 
     /**
      * ISO 3166 data about the Project's territory of interest.
