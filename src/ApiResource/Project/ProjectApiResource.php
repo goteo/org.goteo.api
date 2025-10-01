@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\CategoryApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\Matchfunding\MatchCallSubmissionApiResource;
 use App\ApiResource\User\UserApiResource;
@@ -109,6 +110,8 @@ class ProjectApiResource
 
     /**
      * A list of the available categories most relevant to this Project.
+     *
+     * @var array<int, CategoryApiResource>
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
