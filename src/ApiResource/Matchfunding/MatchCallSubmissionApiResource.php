@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Matchfunding;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Project\ProjectApiResource;
@@ -40,17 +41,20 @@ class MatchCallSubmissionApiResource
      * The MatchCall to which this MatchCallSubmission belongs to.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public MatchCallApiResource $call;
 
     /**
      * The Project that applied for the MatchCall.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public ProjectApiResource $project;
 
     /**
      * The status of the Project's application for the MatchCall.\
      * Only MatchCallSubmissions with an status `accepted` will receive matchfunding.
      */
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public MatchCallSubmissionStatus $status = MatchCallSubmissionStatus::DEFAULT;
 }
