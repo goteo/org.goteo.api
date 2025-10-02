@@ -30,4 +30,12 @@ class ProjectCreationDto
     #[Assert\Count(min: 1, max: 2)]
     #[API\ApiProperty(writableLink: false)]
     public array $categories;
+
+    /**
+     * Desired date-time of release for the created Project.\
+     * By default 28 days from now, at minimum 14 days from now.
+     */
+    #[Assert\DateTime()]
+    #[Assert\GreaterThan('+14 days')]
+    public \DateTimeInterface $release;
 }

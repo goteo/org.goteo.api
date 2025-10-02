@@ -30,23 +30,11 @@ class ProjectStateProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         if ($data instanceof ProjectCreationDto) {
-            /** @var Project */
-            $project = $this->autoMapper->map($data, Project::class);
-
-            $owner = $this->authService->getUser();
-
-            if (!$owner) {
-                throw new AuthenticationException();
-            }
-
-            $project->setOwner($owner);
+            $project = $this->getProjectFromCreation($data);
         }
 
         if ($data instanceof ProjectUpdationDto) {
-            $data = $this->autoMapper->map($uriVariables, $data);
-
-            /** @var Project */
-            $project = $this->autoMapper->map($data, Project::class);
+            $project = $this->getProjectFromUpdate($data, $uriVariables);
         }
 
         $project = $this->entityStateProcessor->process($project, $operation, $uriVariables, $context);
@@ -56,5 +44,35 @@ class ProjectStateProcessor implements ProcessorInterface
         }
 
         return $this->autoMapper->map($project, ProjectApiResource::class);
+    }
+
+    private function getProjectFromCreation(ProjectCreationDto $data): Project
+    {
+        if (!isset($data->release)) {
+            $data->release = new \DateTimeImmutable('+28 days');
+        }
+
+        /** @var Project */
+        $project = $this->autoMapper->map($data, Project::class);
+
+        $owner = $this->authService->getUser();
+
+        if (!$owner) {
+            throw new AuthenticationException();
+        }
+
+        $project->setOwner($owner);
+
+        return $project;
+    }
+
+    private function getProjectFromUpdate(ProjectUpdationDto $data, array $uriVariables): Project
+    {
+        $data = $this->autoMapper->map($uriVariables, $data);
+
+        /** @var Project */
+        $project = $this->autoMapper->map($data, Project::class);
+
+        return $project;
     }
 }
