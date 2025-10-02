@@ -60,7 +60,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private ?string $subtitle = null;
 
     #[ORM\Column(enumType: ProjectDeadline::class)]
-    private ?ProjectDeadline $deadline = null;
+    private ?ProjectDeadline $deadline = ProjectDeadline::Minimum;
 
     #[ORM\Embedded(class: ProjectCalendar::class)]
     private ?ProjectCalendar $calendar = null;
@@ -80,7 +80,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * The description body for the Project.
      */
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Gedmo\Translatable()]
     private ?string $description = null;
 
