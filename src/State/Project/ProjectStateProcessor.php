@@ -8,6 +8,7 @@ use App\ApiResource\Project\ProjectApiResource;
 use App\Dto\ProjectCreationDto;
 use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Mapping\AutoMapper;
 use App\Service\Auth\AuthService;
 use App\State\EntityStateProcessor;
@@ -62,6 +63,11 @@ class ProjectStateProcessor implements ProcessorInterface
         }
 
         $project->setOwner($owner);
+
+        $calendar = new ProjectCalendar();
+        $calendar->release = $data->release;
+
+        $project->setCalendar($calendar);
 
         return $project;
     }

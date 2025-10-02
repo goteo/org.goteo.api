@@ -35,7 +35,6 @@ class ProjectCreationDto
      * Desired date-time of release for the created Project.\
      * By default 28 days from now, at minimum 14 days from now.
      */
-    #[Assert\DateTime()]
     #[Assert\GreaterThan('+14 days')]
     public \DateTimeInterface $release;
 }
