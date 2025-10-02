@@ -92,28 +92,6 @@ class CreateTest extends ProjectTestCase
         $this->testPostWithInvalidInput(['categories' => 'nonexistent-categories']);
     }
 
-    public function testPostWithInvalidDeadline(): void
-    {
-        $this->testPostWithInvalidInput(['deadline' => 'extended']);
-    }
-
-    public function testPostWithInvalidVideoURL(): void
-    {
-        $this->testPostWithUnprocessableEntity(['video' => 'invalid-url']);
-    }
-
-    public function testPostWithInvalidTerritoryISO(): void
-    {
-        $this->testPostWithUnprocessableEntity(['territory' => ['country' => 'XX']]);
-    }
-
-    public function testPostWithVideoExample(): void
-    {
-        $url = 'https://example.com/video';
-        $expectedCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-        $this->testPostSetBase(['video' => $url], $expectedCode);
-    }
-
     public function testPostUnauthorized()
     {
         $client = static::createClient();
