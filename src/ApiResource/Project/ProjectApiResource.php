@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
+use App\ApiResource\Matchfunding\MatchCallSubmissionApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\ProjectCreationDto;
 use App\Dto\ProjectUpdationDto;
@@ -172,4 +173,10 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $updates;
+
+    /**
+     * @var array<int, MatchCallSubmissionApiResource>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $matchCallSubmissions;
 }
