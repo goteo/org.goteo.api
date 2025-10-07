@@ -2,9 +2,9 @@
 
 namespace App\Entity\Project;
 
-use App\ApiResource\TimestampedCreationApiResource;
-use App\ApiResource\TimestampedUpdationApiResource;
 use App\Entity\Trait\LocalizedEntityTrait;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\CollaborationRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -18,8 +18,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Collaboration
 {
     use LocalizedEntityTrait;
-    use TimestampedCreationApiResource;
-    use TimestampedUpdationApiResource;
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

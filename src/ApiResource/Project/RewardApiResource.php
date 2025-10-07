@@ -9,6 +9,8 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\Entity\Project\Reward;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardStateProcessor;
@@ -29,6 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class RewardApiResource
 {
     use LocalizedApiResourceTrait;
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
 
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
