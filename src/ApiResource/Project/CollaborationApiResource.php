@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
     securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
-    securityPostDenormalizeMessage: 'You do not have permission to add collaborations to that Project'
+    securityPostDenormalizeMessage: 'You do not have permission to add Collaborations to that Project'
 )]
 class CollaborationApiResource
 {

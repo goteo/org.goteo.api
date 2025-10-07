@@ -22,7 +22,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectReward',
     stateOptions: new Options(entityClass: Reward::class),
     provider: ApiResourceStateProvider::class,
-    processor: RewardStateProcessor::class
+    processor: RewardStateProcessor::class,
+    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
+    securityPostDenormalizeMessage: 'You do not have permission to add Rewards to that Project'
 )]
 class RewardApiResource
 {

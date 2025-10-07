@@ -7,6 +7,8 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\LocalizedApiResourceTrait;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\Entity\Project\Update;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
@@ -20,14 +22,17 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'ProjectUpdate',
-    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
     stateOptions: new Options(entityClass: Update::class),
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
+    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
+    securityPostDenormalizeMessage: 'You do not have permission to add Updates to that Project'
 )]
 class UpdateApiResource
 {
     use LocalizedApiResourceTrait;
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
 
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;

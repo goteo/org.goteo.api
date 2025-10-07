@@ -23,7 +23,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectBudgetItem',
     stateOptions: new Options(entityClass: BudgetItem::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class
+    processor: ApiResourceStateProcessor::class,
+    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
+    securityPostDenormalizeMessage: 'You do not have permission to add BudgetItems to that Project'
 )]
 class BudgetItemApiResource
 {
