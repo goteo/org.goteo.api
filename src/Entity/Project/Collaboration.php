@@ -39,7 +39,7 @@ class Collaboration
     private ?string $description = null;
 
     #[ORM\Column]
-    private ?bool $fulfilled = null;
+    private ?bool $isFulfilled = null;
 
     public function getId(): ?int
     {
@@ -84,12 +84,12 @@ class Collaboration
 
     public function isFulfilled(): ?bool
     {
-        return $this->fulfilled;
+        return $this->isFulfilled;
     }
 
-    public function setFulfilled(bool $fulfilled): static
+    public function setFulfilled(bool $isFulfilled): static
     {
-        $this->fulfilled = $fulfilled;
+        $this->isFulfilled = $isFulfilled;
 
         return $this;
     }
