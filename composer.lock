@@ -2992,16 +2992,16 @@
         },
         {
             "name": "goteo/benzina",
-            "version": "0.5",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goteo/benzina.git",
-                "reference": "9422fcbce6d1f9d7fb266bf5fc0cd1a44c0adf62"
+                "reference": "3744833b3233a42fa8fb261fdf02958eb615876f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goteo/benzina/zipball/9422fcbce6d1f9d7fb266bf5fc0cd1a44c0adf62",
-                "reference": "9422fcbce6d1f9d7fb266bf5fc0cd1a44c0adf62",
+                "url": "https://api.github.com/repos/goteo/benzina/zipball/3744833b3233a42fa8fb261fdf02958eb615876f",
+                "reference": "3744833b3233a42fa8fb261fdf02958eb615876f",
                 "shasum": ""
             },
             "require": {
@@ -3047,9 +3047,9 @@
             "description": "Migration tool to pump v3 data into a v4 schema",
             "support": {
                 "issues": "https://github.com/goteo/benzina/issues",
-                "source": "https://github.com/goteo/benzina/tree/0.5"
+                "source": "https://github.com/goteo/benzina/tree/0.5.1"
             },
-            "time": "2025-09-08T10:27:32+00:00"
+            "time": "2025-10-01T12:52:00+00:00"
         },
         {
             "name": "jolicode/automapper",

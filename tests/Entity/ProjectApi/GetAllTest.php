@@ -2,7 +2,6 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
 use App\Factory\Project\ProjectFactory;
@@ -24,9 +23,9 @@ class GetAllTest extends ProjectTestCase
         return $pageSize * ($page - 1);
     }
 
-    private function getString(string|ProjectCategory|ProjectStatus $data)
+    private function getString(string|ProjectStatus $data)
     {
-        $isEnum = $data instanceof ProjectCategory || $data instanceof ProjectStatus;
+        $isEnum = $data instanceof ProjectStatus;
 
         return $isEnum ? $data->value : (string) $data;
     }
@@ -46,8 +45,8 @@ class GetAllTest extends ProjectTestCase
 
     private function testGetAllByParam(
         string $param,
-        string|ProjectCategory|ProjectStatus $searchValue,
-        string|ProjectCategory|ProjectStatus $otherValue,
+        string|ProjectStatus $searchValue,
+        string|ProjectStatus $otherValue,
         $searchCount = 2,
         int $responseCode = Response::HTTP_OK,
     ) {
@@ -78,7 +77,7 @@ class GetAllTest extends ProjectTestCase
     private function testGetAllByParamList(
         string $param,
         array $searchValues,
-        string|ProjectCategory|ProjectStatus $otherValue,
+        string|ProjectStatus $otherValue,
     ) {
         $owner = $this->createTestUser();
         $territory = new Territory('ES');
@@ -207,20 +206,6 @@ class GetAllTest extends ProjectTestCase
         $this->testGetAllByParam('title', 'Free Software Project', 'Education');
     }
 
-    public function testGetAllByCategory()
-    {
-        $this->testGetAllByParam('category', ProjectCategory::Education, ProjectCategory::Culture);
-    }
-
-    public function testGetAllByCategorySolidary()
-    {
-        $this->testGetAllByParam(
-            'category',
-            ProjectCategory::Solidary,
-            ProjectCategory::Education
-        );
-    }
-
     public function testGetAllByCategoryWithInvalidCategory()
     {
         $this->createTestUser();
@@ -268,12 +253,6 @@ class GetAllTest extends ProjectTestCase
     public function testGetAllByStatusFulfilled()
     {
         $this->testGetAllByParam('status', ProjectStatus::Funded, ProjectStatus::InCampaign);
-    }
-
-    public function testGetAllByCategoryList()
-    {
-        $searchValues = [ProjectCategory::Education, ProjectCategory::HealthCares];
-        $this->testGetAllByParamList('category', $searchValues, ProjectCategory::LibreSoftware);
     }
 
     public function testGetAllByStatusList()

@@ -6,14 +6,16 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\CategoryApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\Matchfunding\MatchCallSubmissionApiResource;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\ProjectCreationDto;
 use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
@@ -57,6 +59,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ProjectApiResource
 {
     use LocalizedApiResourceTrait;
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
 
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
@@ -78,6 +82,7 @@ class ProjectApiResource
      * The User who owns this Project.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public UserApiResource $owner;
 
     /**
@@ -109,11 +114,13 @@ class ProjectApiResource
     public ProjectCalendar $calendar;
 
     /**
-     * One of the available categories.
+     * A list of the available categories most relevant to this Project.
+     *
+     * @var array<int, CategoryApiResource>
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
-    public ProjectCategory $category;
+    public array $categories;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

@@ -4,7 +4,7 @@ namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\QueryParameter;
-use App\ApiResource\ApiMoney;
+use App\ApiResource\MoneyWithConversion;
 use App\State\Accounting\AccountingBalancePointStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -57,7 +57,7 @@ class AccountingBalancePoint
     /**
      * Resulting balance for items in this point.
      */
-    public ApiMoney $balance;
+    public MoneyWithConversion $balance;
 
     /**
      * The number of items aggregated in this point.

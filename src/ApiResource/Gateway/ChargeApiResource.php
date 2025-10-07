@@ -6,7 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\ApiResource\ApiMoney;
+use App\ApiResource\MoneyWithConversion;
 use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Filter\GatewayFilter;
@@ -81,7 +81,7 @@ class ChargeApiResource
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
     #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.currency' => 'exact'])]
-    public ApiMoney $money;
+    public MoneyWithConversion $money;
 
     /**
      * The status of the charge item with the Gateway.

@@ -6,6 +6,8 @@ use App\Entity\EmbeddableMoney as Money;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\RewardRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -25,6 +27,8 @@ class Reward implements LocalizedEntityInterface
 {
     use MigratedEntity;
     use LocalizedEntityTrait;
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
