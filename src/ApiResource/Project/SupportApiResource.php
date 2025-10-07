@@ -8,7 +8,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
-use App\ApiResource\ApiMoney;
+use App\ApiResource\MoneyWithConversion;
 use App\Entity\Project\Support;
 use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
@@ -87,7 +87,7 @@ class SupportApiResource
     /**
      * The total monetary value of the Transactions going to the Project.
      */
-    public ApiMoney $money;
+    public MoneyWithConversion $money;
 
     /**
      * User's will to have their support to the Project be shown publicly.

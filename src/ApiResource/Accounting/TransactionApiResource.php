@@ -5,7 +5,7 @@ namespace App\ApiResource\Accounting;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\ApiMoney;
+use App\ApiResource\MoneyWithConversion;
 use App\Entity\Accounting\Transaction;
 use App\State\ApiResourceStateProvider;
 
@@ -33,7 +33,7 @@ class TransactionApiResource
     /**
      * The monetary value received at target and issued at origin.
      */
-    public ApiMoney $money;
+    public MoneyWithConversion $money;
 
     /**
      * The Accounting from which the Transaction comes from.

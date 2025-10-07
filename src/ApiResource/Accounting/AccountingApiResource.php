@@ -4,7 +4,7 @@ namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\ApiMoney;
+use App\ApiResource\MoneyWithConversion;
 use App\Entity\Accounting\Accounting;
 use App\Mapping\Transformer\AccountingOwnerMapTransformer;
 use App\State\Accounting\AccountingStateProcessor;
@@ -51,5 +51,5 @@ class AccountingApiResource
     public string $currency;
 
     #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object)')]
-    public ApiMoney $balance;
+    public MoneyWithConversion $balance;
 }
