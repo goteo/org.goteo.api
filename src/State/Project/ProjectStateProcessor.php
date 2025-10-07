@@ -49,10 +49,6 @@ class ProjectStateProcessor implements ProcessorInterface
 
     private function getProjectFromCreation(ProjectCreationDto $data): Project
     {
-        if (!isset($data->release)) {
-            $data->release = new \DateTimeImmutable('+28 days');
-        }
-
         /** @var Project */
         $project = $this->autoMapper->map($data, Project::class);
 
@@ -63,6 +59,10 @@ class ProjectStateProcessor implements ProcessorInterface
         }
 
         $project->setOwner($owner);
+
+        if (!isset($data->release)) {
+            $data->release = new \DateTimeImmutable('+28 days');
+        }
 
         $calendar = new ProjectCalendar();
         $calendar->release = $data->release;

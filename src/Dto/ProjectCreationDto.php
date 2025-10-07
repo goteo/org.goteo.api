@@ -4,6 +4,7 @@ namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
+use App\Entity\Project\ProjectStatus;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectCreationDto
@@ -37,4 +38,7 @@ class ProjectCreationDto
      */
     #[Assert\GreaterThan('+14 days')]
     public \DateTimeInterface $release;
+
+    #[API\ApiProperty(writable: false)]
+    public ProjectStatus $status = ProjectStatus::InDraft;
 }
