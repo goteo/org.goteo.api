@@ -9,6 +9,8 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\CategoryApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\Matchfunding\MatchCallSubmissionApiResource;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\ProjectCreationDto;
 use App\Dto\ProjectUpdationDto;
@@ -57,6 +59,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ProjectApiResource
 {
     use LocalizedApiResourceTrait;
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
 
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
