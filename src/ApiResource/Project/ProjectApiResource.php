@@ -82,6 +82,7 @@ class ProjectApiResource
      * The User who owns this Project.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public UserApiResource $owner;
 
     /**
