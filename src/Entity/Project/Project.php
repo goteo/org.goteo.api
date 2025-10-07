@@ -141,6 +141,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\OneToMany(targetEntity: Support::class, mappedBy: 'project')]
     private Collection $supports;
 
+    /**
+     * @var Collection<int, Collaboration>
+     */
+    #[ORM\OneToMany(targetEntity: Collaboration::class, mappedBy: 'project')]
+    private Collection $collaborations;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -150,6 +156,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         $this->updates = new ArrayCollection();
         $this->supports = new ArrayCollection();
         $this->categories = new ArrayCollection();
+        $this->collaborations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -470,6 +477,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($support->getProject() === $this) {
                 $support->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Collaboration>
+     */
+    public function getCollaborations(): Collection
+    {
+        return $this->collaborations;
+    }
+
+    public function addCollaboration(Collaboration $collaboration): static
+    {
+        if (!$this->collaborations->contains($collaboration)) {
+            $this->collaborations->add($collaboration);
+            $collaboration->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollaboration(Collaboration $collaboration): static
+    {
+        if ($this->collaborations->removeElement($collaboration)) {
+            // set the owning side to null (unless already changed)
+            if ($collaboration->getProject() === $this) {
+                $collaboration->setProject(null);
             }
         }
 
