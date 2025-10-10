@@ -22,10 +22,6 @@ final class Version20251007164144 extends AbstractMigration
         $this->addSql('ALTER TABLE project_category ADD CONSTRAINT FK_3B02921A166D1F9C FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE project_category ADD CONSTRAINT FK_3B02921A12469DE2 FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE project_collaboration ADD CONSTRAINT FK_EAB7425166D1F9C FOREIGN KEY (project_id) REFERENCES project (id)');
-        $this->addSql('DROP INDEX general_translations_lookup_idx ON ext_translations');
-        $this->addSql('DROP INDEX translations_lookup_idx ON ext_translations');
-        $this->addSql('DROP INDEX lookup_unique_idx ON ext_translations');
-        $this->addSql('CREATE UNIQUE INDEX lookup_unique_idx ON ext_translations (foreign_key, locale, object_class, field)');
         $this->addSql('ALTER TABLE match_call CHANGE territory_country territory_country VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE project DROP category, CHANGE description description LONGTEXT DEFAULT NULL, CHANGE territory_country territory_country VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE project_reward ADD date_created DATETIME NOT NULL, ADD date_updated DATETIME NOT NULL');
@@ -54,9 +50,5 @@ final class Version20251007164144 extends AbstractMigration
         $this->addSql('ALTER TABLE project_reward DROP date_created, DROP date_updated');
         $this->addSql('ALTER TABLE match_call CHANGE territory_country territory_country VARCHAR(255) NOT NULL');
         $this->addSql('ALTER TABLE project ADD category VARCHAR(255) NOT NULL, CHANGE description description LONGTEXT NOT NULL, CHANGE territory_country territory_country VARCHAR(255) NOT NULL');
-        $this->addSql('DROP INDEX lookup_unique_idx ON ext_translations');
-        $this->addSql('CREATE INDEX general_translations_lookup_idx ON ext_translations (object_class, foreign_key)');
-        $this->addSql('CREATE INDEX translations_lookup_idx ON ext_translations (locale, object_class, foreign_key)');
-        $this->addSql('CREATE UNIQUE INDEX lookup_unique_idx ON ext_translations (locale, object_class, field, foreign_key)');
     }
 }
