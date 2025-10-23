@@ -39,7 +39,7 @@ class UserApiResource
 
     #[Assert\NotBlank()]
     #[Assert\Email()]
-    #[API\ApiProperty(security: 'is_granted("USER_EDIT", user)')]
+    #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
     public string $email;
 
     /**
