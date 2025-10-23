@@ -25,16 +25,17 @@ class SupportTotalizer implements TotalizerInterface
     public function totalize(iterable $items): TotalizedMoney
     {
         $length = 0;
-        $money = null;
+        $money = new Money(0, $this->moneyService->getDefaultCurrency());
 
         foreach ($items as $support) {
             ++$length;
-            $money = $this->moneyService->add(
-                $support->getMoney(),
-                $money ?? new Money(0, 'EUR')
-            );
+            $money = $this->moneyService->add($support->getMoney(), $money);
         }
 
-        return new TotalizedMoney($money->getAmount(), 'EUR', $length);
+        return new TotalizedMoney(
+            $money->getAmount(),
+            $money->getCurrency(),
+            $length
+        );
     }
 }
