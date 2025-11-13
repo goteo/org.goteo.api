@@ -148,7 +148,7 @@ class ProjectApiResource
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("PROJECT_EDIT", previous_object)')]
-    public ProjectStatus $status = ProjectStatus::InEditing;
+    public ProjectStatus $status = ProjectStatus::InDraft;
 
     /**
      * List of the ProjectRewards this Project offers.

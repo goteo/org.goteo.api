@@ -50,12 +50,12 @@ class ProjectsPump implements PumpInterface
         }
 
         $status = $this->getProjectStatus($record);
-        if (\in_array($status, [ProjectStatus::Rejected])) {
+        if (\in_array($status, [ProjectStatus::CampaignReviewRejected])) {
             return;
         }
 
         $created = new \DateTime($record['created']);
-        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InEditing]) && $created < new \DateTime('2024-01-01')) {
+        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InDraft]) && $created < new \DateTime('2024-01-01')) {
             return;
         }
 
@@ -167,19 +167,19 @@ class ProjectsPump implements PumpInterface
     {
         switch ($record['status']) {
             case 1:
-                return ProjectStatus::InEditing;
+                return ProjectStatus::InDraft;
             case 2:
-                return ProjectStatus::InReview;
+                return ProjectStatus::InCampaignReview;
             case 3:
                 return ProjectStatus::InCampaign;
             case 6:
-                return ProjectStatus::Unfunded;
+                return ProjectStatus::CampaignFailed;
             case 4:
             case 5:
-                return ProjectStatus::Funded;
+                return ProjectStatus::FundingPaid;
             case 0:
             default:
-                return ProjectStatus::Rejected;
+                return ProjectStatus::CampaignReviewRejected;
         }
     }
 

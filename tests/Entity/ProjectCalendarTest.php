@@ -47,7 +47,7 @@ class ProjectCalendarTest extends ApiTestCase
         $project->setDescription('Test Project Description');
         $project->setTerritory(new Territory('ES'));
         $project->setOwner($this->owner);
-        $project->setStatus(ProjectStatus::InReview);
+        $project->setStatus(ProjectStatus::InCampaignReview);
 
         return $project;
     }
