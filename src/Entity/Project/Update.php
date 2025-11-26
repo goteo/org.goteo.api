@@ -5,6 +5,7 @@ namespace App\Entity\Project;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\UpdateRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -47,6 +48,9 @@ class Update
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $cover = null;
+
+    #[ORM\ManyToOne]
+    private ?User $author = null;
 
     public function __construct()
     {
@@ -126,6 +130,18 @@ class Update
     public function setCover(?string $cover): static
     {
         $this->cover = $cover;
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
 
         return $this;
     }
