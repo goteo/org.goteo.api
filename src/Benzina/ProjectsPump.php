@@ -265,6 +265,7 @@ class ProjectsPump implements PumpInterface
             $update->setSubtitle($post['subtitle'] ?? '');
             $update->setBody($post['text'] ?? '');
             $update->setDate(new \DateTime($post['date']));
+            $update->setAuthor($project->getOwner());
 
             $updates[] = $update;
         }
