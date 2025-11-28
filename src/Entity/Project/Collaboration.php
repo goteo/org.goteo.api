@@ -2,6 +2,7 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -15,7 +16,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_collaboration')]
 #[ORM\Entity(repositoryClass: CollaborationRepository::class)]
-class Collaboration
+class Collaboration implements LocalizedEntityInterface
 {
     use LocalizedEntityTrait;
     use TimestampedCreationEntity;
