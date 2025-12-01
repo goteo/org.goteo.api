@@ -4,6 +4,8 @@ namespace App\Entity\Project;
 
 use App\Entity\User\User;
 use App\Repository\Project\ReviewRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
@@ -23,6 +25,17 @@ class Review
 
     #[ORM\Column(enumType: ReviewType::class)]
     private ?ReviewType $type = null;
+
+    /**
+     * @var Collection<int, ReviewArea>
+     */
+    #[ORM\OneToMany(targetEntity: ReviewArea::class, mappedBy: 'review')]
+    private Collection $areas;
+
+    public function __construct()
+    {
+        $this->areas = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -61,6 +74,36 @@ class Review
     public function setType(ReviewType $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReviewArea>
+     */
+    public function getAreas(): Collection
+    {
+        return $this->areas;
+    }
+
+    public function addArea(ReviewArea $area): static
+    {
+        if (!$this->areas->contains($area)) {
+            $this->areas->add($area);
+            $area->setReview($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArea(ReviewArea $area): static
+    {
+        if ($this->areas->removeElement($area)) {
+            // set the owning side to null (unless already changed)
+            if ($area->getReview() === $this) {
+                $area->setReview(null);
+            }
+        }
 
         return $this;
     }
