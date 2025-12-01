@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -95,6 +96,7 @@ class UserApiResource
      * The Accounting for this User monetary movements.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public AccountingApiResource $accounting;
 
     /**
