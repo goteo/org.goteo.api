@@ -3,6 +3,8 @@
 namespace App\Entity\Project;
 
 use App\Repository\Project\ReviewAreaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -26,6 +28,17 @@ class ReviewArea
 
     #[ORM\Column(enumType: ReviewAreaRisk::class)]
     private ?ReviewAreaRisk $risk = null;
+
+    /**
+     * @var Collection<int, ReviewComment>
+     */
+    #[ORM\OneToMany(targetEntity: ReviewComment::class, mappedBy: 'area')]
+    private Collection $comments;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -76,6 +89,36 @@ class ReviewArea
     public function setRisk(?ReviewAreaRisk $risk): static
     {
         $this->risk = $risk;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReviewComment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(ReviewComment $comment): static
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setArea($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(ReviewComment $comment): static
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getArea() === $this) {
+                $comment->setArea(null);
+            }
+        }
 
         return $this;
     }
