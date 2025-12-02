@@ -2,6 +2,8 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Entity\User\User;
 use App\Repository\Project\ReviewRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,6 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
 {
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

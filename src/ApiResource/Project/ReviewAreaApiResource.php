@@ -5,6 +5,8 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\Entity\Project\ReviewArea;
 use App\Entity\Project\ReviewAreaRisk;
 use App\State\ApiResourceStateProcessor;
@@ -24,6 +26,9 @@ use App\State\ApiResourceStateProvider;
 )]
 class ReviewAreaApiResource
 {
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
+
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
