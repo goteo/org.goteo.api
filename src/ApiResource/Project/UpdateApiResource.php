@@ -9,9 +9,10 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
+use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\Update;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\State\Project\UpdateStateProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -24,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectUpdate',
     stateOptions: new Options(entityClass: Update::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class,
+    processor: UpdateStateProcessor::class,
     securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
     securityPostDenormalizeMessage: 'You do not have permission to add Updates to that Project'
 )]
@@ -76,4 +77,12 @@ class UpdateApiResource
      */
     #[Assert\Url()]
     public string $cover;
+
+    /**
+     * Author is automatically detected from the request's User.\
+     * Non-authored updates are system-generated.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
+    public ?UserApiResource $author;
 }

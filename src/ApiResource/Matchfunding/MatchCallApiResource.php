@@ -44,6 +44,7 @@ class MatchCallApiResource
      * The Accounting which holds and spends the funds for this MatchCall.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public AccountingApiResource $accounting;
 
     /**
