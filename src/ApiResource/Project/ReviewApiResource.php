@@ -21,7 +21,7 @@ use App\State\ApiResourceStateProvider;
  * \
  * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
  * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
- * - `to_financial_review`: will launch a related ProjectReview of `financial` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
  */
 #[API\ApiResource(
     shortName: 'ProjectReview',

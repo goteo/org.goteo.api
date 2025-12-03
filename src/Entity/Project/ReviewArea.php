@@ -32,7 +32,7 @@ class ReviewArea
     private ?string $summary = null;
 
     #[ORM\Column(enumType: ReviewAreaRisk::class)]
-    private ?ReviewAreaRisk $risk = null;
+    private ReviewAreaRisk $risk = ReviewAreaRisk::High;
 
     /**
      * @var Collection<int, ReviewComment>
