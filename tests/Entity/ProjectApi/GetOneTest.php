@@ -72,7 +72,7 @@ class GetOneTest extends ProjectTestCase
 
     public function testGetOneFilteredByStatusFunded(): void
     {
-        $this->testGetOneFilteredByStatus(ProjectStatus::Funded);
+        $this->testGetOneFilteredByStatus(ProjectStatus::FundingPaid);
     }
 
     public function testGetOneUnauthorized(): void
