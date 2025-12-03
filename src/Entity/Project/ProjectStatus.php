@@ -13,47 +13,72 @@ enum ProjectStatus: string
     case InDraft = 'in_draft';
 
     /**
-     * Owner finished editing and Project is ready for review.
+     * Owner finished editing and Project is ready for campaign review.
      */
-    case ToReview = 'to_review';
+    case ToCampaignReview = 'to_campaign_review';
 
     /**
-     * An admin is reviewing the Project.
+     * A reviewer is reviewing the Project for campaign.
      */
-    case InReview = 'in_review';
+    case InCampaignReview = 'in_campaign_review';
 
     /**
-     * Admin asked for changes and the Project is under edition by it's owner.
+     * Owner requested to do changes by the campaign reviewer.
      */
-    case InEditing = 'in_editing';
+    case InCampaignReviewRequestChange = 'in_campaign_review.request_change';
 
     /**
-     * An admin reviewed it and rejected it. Final.
+     * Project is KO for campaign by the reviewer, final.
      */
-    case Rejected = 'rejected';
+    case CampaignReviewRejected = 'campaign_review.rejected';
 
     /**
-     * An admin reviewed it and deemed worthy to campaign.
+     * Project is OK for campaign by the reviewer, can move forward.
      */
     case ToCampaign = 'to_campaign';
 
     /**
-     * Project was reviewed and is in campaign for funding.
+     * Project is in live campaign and raising funds.
      */
     case InCampaign = 'in_campaign';
 
     /**
-     * Project finished campaigning but didn't meet funding goals. Final.
+     * Project failed to raise enough funds, final.
      */
-    case Unfunded = 'unfunded';
+    case CampaignFailed = 'campaign.failed';
 
     /**
-     * Project successfully finished campaigning and owner can receive funds.
+     * Project raised enough funds, can move forward.
+     */
+    case ToFundingReview = 'to_funding_review';
+
+    /**
+     * Project is under financial review.
+     */
+    case InFundingReview = 'in_funding_review';
+
+    /**
+     * Owner requested to do changes by the financial reviewer.
+     */
+    case InFundingReviewRequestChange = 'in_funding_review.request_change';
+
+    /**
+     * Project is KO for funding by the reviewer, final.
+     */
+    case FundinReviewRejected = 'funding_review.rejected';
+
+    /**
+     * Project is OK for funding by the reviewer, can move forward.
+     */
+    case ToFunding = 'to_funding';
+
+    /**
+     * Project is being funded.
      */
     case InFunding = 'in_funding';
 
     /**
-     * Project owner received all raised funds. Final.
+     * Project's funds were paid. Final.
      */
-    case Funded = 'funded';
+    case FundingPaid = 'funding.paid';
 }

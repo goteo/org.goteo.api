@@ -120,7 +120,7 @@ class GetAllTest extends ProjectTestCase
 
     public function testGetCollection(): void
     {
-        $status = ProjectStatus::InEditing;
+        $status = ProjectStatus::InDraft;
         $attributes = [
             'title' => 'Test Project',
             'status' => $status,
@@ -247,18 +247,18 @@ class GetAllTest extends ProjectTestCase
 
     public function testGetAllByStatusInEditing()
     {
-        $this->testGetAllByParam('status', ProjectStatus::InEditing, ProjectStatus::InCampaign);
+        $this->testGetAllByParam('status', ProjectStatus::InDraft, ProjectStatus::InCampaign);
     }
 
     public function testGetAllByStatusFulfilled()
     {
-        $this->testGetAllByParam('status', ProjectStatus::Funded, ProjectStatus::InCampaign);
+        $this->testGetAllByParam('status', ProjectStatus::FundingPaid, ProjectStatus::InCampaign);
     }
 
     public function testGetAllByStatusList()
     {
-        $searchValues = [ProjectStatus::InCampaign, ProjectStatus::Funded];
-        $this->testGetAllByParamList('status', $searchValues, ProjectStatus::Rejected);
+        $searchValues = [ProjectStatus::InCampaign, ProjectStatus::FundingPaid];
+        $this->testGetAllByParamList('status', $searchValues, ProjectStatus::CampaignReviewRejected);
     }
 
     public function testGetAllByPartialDescription()

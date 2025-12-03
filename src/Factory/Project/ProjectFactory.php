@@ -44,7 +44,7 @@ final class ProjectFactory extends PersistentProxyObjectFactory
             'description' => '',
             'territory' => new Territory('ES'),
             'owner' => new User(),
-            'status' => ProjectStatus::InEditing,
+            'status' => ProjectStatus::InDraft,
             'subtitle' => 'Subtitle',
             'title' => 'Title',
         ];

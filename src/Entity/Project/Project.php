@@ -109,7 +109,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
      */
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
-    private ProjectStatus $status = ProjectStatus::InEditing;
+    private ProjectStatus $status = ProjectStatus::InDraft;
 
     /**
      * @var Collection<int, Reward>
