@@ -17,7 +17,11 @@ use App\State\ApiResourceStateProvider;
  * ProjectReviews are launched as health-checks for Projects.\
  * \
  * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
- * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type
  */
 #[API\ApiResource(
     shortName: 'ProjectReview',
@@ -25,6 +29,10 @@ use App\State\ApiResourceStateProvider;
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class
 )]
+#[API\GetCollection()]
+#[API\Get()]
+#[API\Delete()]
+#[API\Patch()]
 class ReviewApiResource
 {
     use TimestampedCreationApiResource;
