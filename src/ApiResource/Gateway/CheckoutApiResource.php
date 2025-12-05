@@ -88,7 +88,7 @@ class CheckoutApiResource
      * The status of this Checkout, as confirmed by the Gateway.
      */
     #[API\ApiProperty(writable: false)]
-    public CheckoutStatus $status = CheckoutStatus::InPending;
+    public CheckoutStatus $status = CheckoutStatus::ToCharge;
 
     /**
      * A list of related hyperlinks, as provided by the Gateway.

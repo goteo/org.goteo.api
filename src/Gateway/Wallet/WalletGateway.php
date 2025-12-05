@@ -62,7 +62,7 @@ class WalletGateway implements GatewayInterface
             $this->entityManager->persist($expenditure);
             $this->entityManager->flush();
 
-            $charge->setStatus(ChargeStatus::Charged);
+            $charge->setStatus(ChargeStatus::InCharge);
             $charge->addTransaction($transaction);
         }
 

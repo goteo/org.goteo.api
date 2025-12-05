@@ -32,7 +32,7 @@ class ChargeService
         $chargeTarget = $charge->getTarget();
 
         [$origin, $target] = match ($status) {
-            ChargeStatus::Charged => [$checkoutOrigin, $chargeTarget],
+            ChargeStatus::InCharge => [$checkoutOrigin, $chargeTarget],
             ChargeStatus::Refunded => [$chargeTarget, $checkoutOrigin],
             default => throw new \InvalidArgumentException('Invalid charge status'),
         };
@@ -47,6 +47,6 @@ class ChargeService
 
     public function addChargeTransaction(Charge $charge): Charge
     {
-        return $this->addTransactionByStatus($charge, ChargeStatus::Charged);
+        return $this->addTransactionByStatus($charge, ChargeStatus::InCharge);
     }
 }
