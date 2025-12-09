@@ -25,6 +25,11 @@ enum ChargeStatus: string
     case Refunded = 'refunded';
 
     /**
+     * The charged money needs to be moved to the Wallet.
+     */
+    case ToWallet = 'to_wallet';
+
+    /**
      * The charged money has been moved to the Wallet.
      */
     case Walleted = 'walleted';
