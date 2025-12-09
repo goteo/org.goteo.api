@@ -265,7 +265,7 @@ class PaypalGateway extends AbstractGateway
         ];
     }
 
-    public function processRefund(Charge $charge): void
+    public function processRefund(Charge $charge): Charge
     {
         $trackings = $charge->getCheckout()->getTrackings();
         $captureTracking = $trackings->filter(function (Tracking $t) {
@@ -286,6 +286,6 @@ class PaypalGateway extends AbstractGateway
             throw new \Exception(sprintf('Refund failed. PayPal status: %s', $response['status']));
         }
 
-        $this->chargeService->addRefundTransaction($charge);
+        return $this->chargeService->addRefundTransaction($charge);
     }
 }

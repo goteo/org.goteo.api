@@ -212,7 +212,7 @@ class StripeGateway extends AbstractGateway
         return $product;
     }
 
-    public function processRefund(Charge $charge): void
+    public function processRefund(Charge $charge): Charge
     {
         $trackings = $charge->getCheckout()->getTrackings();
         $sessionTracking = $trackings->filter(function (Tracking $t) {
@@ -234,6 +234,6 @@ class StripeGateway extends AbstractGateway
             'amount' => $charge->getMoney()->amount,
         ]);
 
-        $this->chargeService->addRefundTransaction($charge);
+        return $this->chargeService->addRefundTransaction($charge);
     }
 }

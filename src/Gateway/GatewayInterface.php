@@ -75,5 +75,5 @@ interface GatewayInterface
      * Process a partial refund based on failed project charges in a checkout.
      * The method should use the refund strategy defined in the Checkout.
      */
-    public function processRefund(Charge $charge): void;
+    public function processRefund(Charge $charge): Charge;
 }
