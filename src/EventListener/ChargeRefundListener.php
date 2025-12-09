@@ -44,7 +44,7 @@ class ChargeRefundListener
     {
         $gateway = $this->gatewayLocator->getForCheckout($charge->getCheckout());
 
-        $charge = $gateway->processRefund($charge);
+        $charge = $gateway->refund($charge);
         $charge->setStatus(ChargeStatus::Refunded);
 
         return $charge;
@@ -52,7 +52,7 @@ class ChargeRefundListener
 
     private function processWalletRefund(Charge $charge): Charge
     {
-        $charge = $this->walletGateway->processRefund($charge);
+        $charge = $this->walletGateway->refund($charge);
         $charge->setStatus(ChargeStatus::Walleted);
 
         return $charge;

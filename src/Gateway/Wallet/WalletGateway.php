@@ -74,6 +74,14 @@ class WalletGateway implements GatewayInterface
         return $checkout;
     }
 
+    public function refund(Charge $charge): Charge
+    {
+        throw new \LogicException(sprintf(
+            'The refund operation is not implemented for the %s gateway.',
+            static::getName()
+        ));
+    }
+
     public function handleRedirect(Request $request): RedirectResponse
     {
         return new RedirectResponse('');
@@ -94,13 +102,5 @@ class WalletGateway implements GatewayInterface
         }
 
         return $total;
-    }
-
-    public function processRefund(Charge $charge): Charge
-    {
-        throw new \LogicException(sprintf(
-            'The refund operation is not implemented for the %s gateway.',
-            static::getName()
-        ));
     }
 }
