@@ -41,6 +41,12 @@ class WalletGateway implements GatewayInterface
         private EntityManagerInterface $entityManager,
     ) {}
 
+    /**
+     * In Wallet process means the money spent will be moved out of the balance of the origin.
+     * No actual payment is issued here as the money already exists in-wallet.
+     *
+     * {@inheritdoc}
+     */
     public function process(Checkout $checkout): Checkout
     {
         $origin = $checkout->getOrigin();
@@ -62,7 +68,7 @@ class WalletGateway implements GatewayInterface
             $this->entityManager->persist($expenditure);
             $this->entityManager->flush();
 
-            $charge->setStatus(ChargeStatus::Charged);
+            $charge->setStatus(ChargeStatus::InCharge);
             $charge->addTransaction($transaction);
         }
 
@@ -72,6 +78,33 @@ class WalletGateway implements GatewayInterface
         $this->entityManager->flush();
 
         return $checkout;
+    }
+
+    /**
+     * In Wallet refund means the money re-imbursed will be moved into the balance of the origin.
+     * No actual refund is issued here as the money shall remain in-wallet.
+     *
+     * {@inheritdoc}
+     */
+    public function refund(Charge $charge): Charge
+    {
+        $checkout = $charge->getCheckout();
+
+        $transaction = new Transaction();
+        $transaction->setMoney($charge->getMoney());
+        $transaction->setOrigin($charge->getTarget());
+        $transaction->setTarget($checkout->getOrigin());
+
+        $income = $this->wallet->save($transaction);
+
+        $charge->setStatus(ChargeStatus::Walleted);
+        $charge->addTransaction($transaction);
+
+        $this->entityManager->persist($income);
+        $this->entityManager->persist($charge);
+        $this->entityManager->flush();
+
+        return $charge;
     }
 
     public function handleRedirect(Request $request): RedirectResponse
@@ -94,13 +127,5 @@ class WalletGateway implements GatewayInterface
         }
 
         return $total;
-    }
-
-    public function processRefund(Charge $charge): void
-    {
-        throw new \LogicException(sprintf(
-            'The refund operation is not implemented for the %s gateway.',
-            static::getName()
-        ));
     }
 }

@@ -49,6 +49,15 @@ interface GatewayInterface
     public function process(Checkout $checkout): Checkout;
 
     /**
+     * Connects with the payment gateway and issues a reimbursement.
+     *
+     * @param Charge $charge The Charge that must refunded
+     *
+     * @return Charge The Charge updated with the result of the refund operation
+     */
+    public function refund(Charge $charge): Charge;
+
+    /**
      * When a user is redirected by the gateway we must handle the redirection
      * and then redirect the user back to a GUI.\
      * \
@@ -70,10 +79,4 @@ interface GatewayInterface
      * @return Response A Response object to send back to the gateway
      */
     public function handleWebhook(Request $request): Response;
-
-    /**
-     * Process a partial refund based on failed project charges in a checkout.
-     * The method should use the refund strategy defined in the Checkout.
-     */
-    public function processRefund(Charge $charge): void;
 }

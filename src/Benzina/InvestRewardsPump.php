@@ -69,7 +69,7 @@ class InvestRewardsPump implements PumpInterface
             return;
         }
 
-        if ($charge->getStatus() !== ChargeStatus::Charged) {
+        if ($charge->getStatus() !== ChargeStatus::InCharge) {
             return;
         }
 

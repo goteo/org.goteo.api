@@ -88,7 +88,7 @@ class ChargeApiResource
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    public ChargeStatus $status = ChargeStatus::InPending;
+    public ChargeStatus $status = ChargeStatus::ToCharge;
 
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\DateFilter::class)]
