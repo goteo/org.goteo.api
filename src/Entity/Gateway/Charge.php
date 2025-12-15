@@ -39,7 +39,7 @@ class Charge
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'charges')]
+    #[ORM\ManyToOne(inversedBy: 'charges', fetch: 'LAZY')]
     private ?Checkout $checkout = null;
 
     /**
