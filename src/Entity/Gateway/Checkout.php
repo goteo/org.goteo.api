@@ -28,8 +28,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[MapProvider(EntityMapProvider::class)]
 #[Gedmo\Loggable()]
-#[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
+#[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 class Checkout
 {
     use MigratedEntity;
