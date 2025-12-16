@@ -7,8 +7,10 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\ApiMoney;
 use App\ApiResource\LocalizedApiResourceTrait;
+use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\Entity\Project\Reward;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardStateProcessor;
@@ -22,11 +24,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectReward',
     stateOptions: new Options(entityClass: Reward::class),
     provider: ApiResourceStateProvider::class,
-    processor: RewardStateProcessor::class
+    processor: RewardStateProcessor::class,
+    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
+    securityPostDenormalizeMessage: 'You do not have permission to add Rewards to that Project'
 )]
 class RewardApiResource
 {
     use LocalizedApiResourceTrait;
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
 
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
@@ -56,7 +62,7 @@ class RewardApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(OrderFilter::class, properties: ['money.amount'])]
-    public ApiMoney $money;
+    public MoneyWithConversion $money;
 
     /**
      * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.

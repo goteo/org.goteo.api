@@ -36,11 +36,13 @@ trait LocalizedStateProcessorTrait
 
     private function isLocalizedRequest(array $context): bool
     {
+        $request = $this->requestStack->getCurrentRequest();
+
         if (\array_key_exists('request', $context)) {
-            return $context['request']->headers->has('Content-Language');
+            $request = $context['request'];
         }
 
-        return false;
+        return $request->headers->has('Content-Language');
     }
 
     private function getContentLanguages(array $context): ?array

@@ -37,6 +37,8 @@ trait RedocExtensionsTrait
                     'ProjectBudgetItem',
                     'ProjectUpdate',
                     'ProjectSupport',
+                    'ProjectCollaboration',
+                    'Category',
                 ],
             ],
             [

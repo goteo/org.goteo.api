@@ -7,7 +7,7 @@ use App\Money\Conversion\Conversion;
 use App\Money\MoneyInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ApiMoney implements MoneyInterface
+class MoneyWithConversion implements MoneyInterface
 {
     /**
      * An amount of currency.\

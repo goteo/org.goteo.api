@@ -39,7 +39,7 @@ class Charge
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'charges')]
+    #[ORM\ManyToOne(inversedBy: 'charges', fetch: 'LAZY')]
     private ?Checkout $checkout = null;
 
     /**
@@ -89,7 +89,7 @@ class Charge
      */
     #[Gedmo\Versioned]
     #[ORM\Column()]
-    private ?ChargeStatus $status = ChargeStatus::InPending;
+    private ?ChargeStatus $status = ChargeStatus::ToCharge;
 
     public function __construct()
     {

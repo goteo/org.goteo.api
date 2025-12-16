@@ -3,6 +3,7 @@
 namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Category;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
@@ -59,13 +60,16 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private ?string $subtitle = null;
 
     #[ORM\Column(enumType: ProjectDeadline::class)]
-    private ?ProjectDeadline $deadline = null;
+    private ?ProjectDeadline $deadline = ProjectDeadline::Minimum;
 
     #[ORM\Embedded(class: ProjectCalendar::class)]
     private ?ProjectCalendar $calendar = null;
 
-    #[ORM\Column(enumType: ProjectCategory::class)]
-    private ?ProjectCategory $category = null;
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    private Collection $categories;
 
     /**
      * Project's territory of interest.
@@ -76,7 +80,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * The description body for the Project.
      */
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Gedmo\Translatable()]
     private ?string $description = null;
 
@@ -105,7 +109,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
      */
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
-    private ProjectStatus $status = ProjectStatus::InEditing;
+    private ProjectStatus $status = ProjectStatus::InDraft;
 
     /**
      * @var Collection<int, Reward>
@@ -137,6 +141,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\OneToMany(targetEntity: Support::class, mappedBy: 'project')]
     private Collection $supports;
 
+    /**
+     * @var Collection<int, Collaboration>
+     */
+    #[ORM\OneToMany(targetEntity: Collaboration::class, mappedBy: 'project')]
+    private Collection $collaborations;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -145,6 +155,8 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         $this->budgetItems = new ArrayCollection();
         $this->updates = new ArrayCollection();
         $this->supports = new ArrayCollection();
+        $this->categories = new ArrayCollection();
+        $this->collaborations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -219,14 +231,26 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getCategory(): ?ProjectCategory
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
     {
-        return $this->category;
+        return $this->categories;
     }
 
-    public function setCategory(ProjectCategory $category): static
+    public function addCategory(Category $category): static
     {
-        $this->category = $category;
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        $this->categories->removeElement($category);
 
         return $this;
     }
@@ -453,6 +477,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
             // set the owning side to null (unless already changed)
             if ($support->getProject() === $this) {
                 $support->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Collaboration>
+     */
+    public function getCollaborations(): Collection
+    {
+        return $this->collaborations;
+    }
+
+    public function addCollaboration(Collaboration $collaboration): static
+    {
+        if (!$this->collaborations->contains($collaboration)) {
+            $this->collaborations->add($collaboration);
+            $collaboration->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollaboration(Collaboration $collaboration): static
+    {
+        if ($this->collaborations->removeElement($collaboration)) {
+            // set the owning side to null (unless already changed)
+            if ($collaboration->getProject() === $this) {
+                $collaboration->setProject(null);
             }
         }
 

@@ -43,8 +43,7 @@ trait LocalizedExtensionTrait
 
         $query->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, TranslationWalker::class);
 
-        \array_reverse($locales);
-        foreach ($locales as $locale) {
+        foreach (\array_reverse($locales) as $locale) {
             $query->setHint(TranslatableListener::HINT_TRANSLATABLE_LOCALE, $locale);
         }
 

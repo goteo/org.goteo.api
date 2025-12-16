@@ -4,7 +4,6 @@ namespace App\Benzina;
 
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
@@ -51,12 +50,12 @@ class ProjectsPump implements PumpInterface
         }
 
         $status = $this->getProjectStatus($record);
-        if (\in_array($status, [ProjectStatus::Rejected])) {
+        if (\in_array($status, [ProjectStatus::CampaignReviewRejected])) {
             return;
         }
 
         $created = new \DateTime($record['created']);
-        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InEditing]) && $created < new \DateTime('2024-01-01')) {
+        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InDraft]) && $created < new \DateTime('2024-01-01')) {
             return;
         }
 
@@ -71,7 +70,6 @@ class ProjectsPump implements PumpInterface
         }
 
         $project->setSlug($record['id']);
-        $project->setCategory($this->getProjectCategory($record));
         $project->setTerritory($this->getProjectTerritory($record));
         $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
@@ -169,51 +167,19 @@ class ProjectsPump implements PumpInterface
     {
         switch ($record['status']) {
             case 1:
-                return ProjectStatus::InEditing;
+                return ProjectStatus::InDraft;
             case 2:
-                return ProjectStatus::InReview;
+                return ProjectStatus::InCampaignReview;
             case 3:
                 return ProjectStatus::InCampaign;
             case 6:
-                return ProjectStatus::Unfunded;
+                return ProjectStatus::CampaignFailed;
             case 4:
             case 5:
-                return ProjectStatus::Funded;
+                return ProjectStatus::FundingPaid;
             case 0:
             default:
-                return ProjectStatus::Rejected;
-        }
-    }
-
-    private function getProjectCategory(array $record): ProjectCategory
-    {
-        switch ($record['social_commitment']) {
-            case 1:
-                return ProjectCategory::Solidary;
-            case 2:
-                return ProjectCategory::LibreSoftware;
-            case 3:
-            case 16:
-                return ProjectCategory::Employment;
-            case 5:
-                return ProjectCategory::Journalism;
-            case 6:
-                return ProjectCategory::Education;
-            case 7:
-                return ProjectCategory::Culture;
-            case 8:
-            case 15:
-                return ProjectCategory::Ecology;
-            case 11:
-            case 12:
-                return ProjectCategory::Democracy;
-            case 13:
-                return ProjectCategory::Equity;
-            case 14:
-                return ProjectCategory::HealthCares;
-            case 10:
-            default:
-                return ProjectCategory::OpenData;
+                return ProjectStatus::CampaignReviewRejected;
         }
     }
 
@@ -299,6 +265,7 @@ class ProjectsPump implements PumpInterface
             $update->setSubtitle($post['subtitle'] ?? '');
             $update->setBody($post['text'] ?? '');
             $update->setDate(new \DateTime($post['date']));
+            $update->setAuthor($project->getOwner());
 
             $updates[] = $update;
         }

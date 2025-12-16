@@ -5,12 +5,15 @@ namespace App\Tests\Entity\ProjectApi;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Territory;
+use App\Factory\CategoryFactory;
 use App\Factory\Project\ProjectFactory;
 use App\Factory\User\UserFactory;
 use App\Tests\Traits\TestHelperTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
+
+use function Zenstruck\Foundry\Persistence\save;
 
 abstract class ProjectTestCase extends ApiTestCase
 {
@@ -25,6 +28,8 @@ abstract class ProjectTestCase extends ApiTestCase
     public function setUp(): void
     {
         self::bootKernel();
+
+        save(CategoryFactory::createOne(['id' => 'test']));
     }
 
     // Auxiliary Methods

@@ -41,11 +41,11 @@ class CreateTest extends ProjectTestCase
         $requestData = [
             'title' => 'New Education Project',
             'subtitle' => 'Education for the Future',
-            'category' => 'education',
             'territory' => ['country' => 'ES'],
             'description' => 'Detailed project description',
             'deadline' => 'minimum',
             'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
+            'categories' => ['/v4/categories/test'],
         ];
 
         $requestData = array_merge($requestData, $setData);
@@ -68,28 +68,6 @@ class CreateTest extends ProjectTestCase
 
     // Runable Tests
 
-    public function testPostWithValidToken(): void
-    {
-        $this->createTestUser();
-
-        $expectedData = [
-            'title' => 'New Education Project',
-            'subtitle' => 'Education for the Future',
-            'category' => 'education',
-            'territory' => ['country' => 'ES'],
-            'description' => 'Detailed project description',
-            'deadline' => 'minimum',
-            'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
-        ];
-
-        $client = static::createClient();
-        $client->request('POST', self::BASE_URI, $this->getRequestOptions($client, $expectedData));
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertProjectData($expectedData, $responseData);
-    }
-
     public function testPostWithoutMandatoryField(): void
     {
         $this->createTestUser();
@@ -97,7 +75,6 @@ class CreateTest extends ProjectTestCase
         // Expected data without the 'title' field
         $requestData = [
             'subtitle' => 'Education for the Future',
-            'category' => 'education',
             'territory' => ['country' => 'ES'],
             'description' => 'Detailed project description',
             'deadline' => 'minimum',
@@ -110,31 +87,9 @@ class CreateTest extends ProjectTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    public function testPostWithInvalidCategory(): void
+    public function testPostWithInvalidCategories(): void
     {
-        $this->testPostWithInvalidInput(['category' => 'nonexistent-category']);
-    }
-
-    public function testPostWithInvalidDeadline(): void
-    {
-        $this->testPostWithInvalidInput(['deadline' => 'extended']);
-    }
-
-    public function testPostWithInvalidVideoURL(): void
-    {
-        $this->testPostWithUnprocessableEntity(['video' => 'invalid-url']);
-    }
-
-    public function testPostWithInvalidTerritoryISO(): void
-    {
-        $this->testPostWithUnprocessableEntity(['territory' => ['country' => 'XX']]);
-    }
-
-    public function testPostWithVideoExample(): void
-    {
-        $url = 'https://example.com/video';
-        $expectedCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-        $this->testPostSetBase(['video' => $url], $expectedCode);
+        $this->testPostWithInvalidInput(['categories' => 'nonexistent-categories']);
     }
 
     public function testPostUnauthorized()

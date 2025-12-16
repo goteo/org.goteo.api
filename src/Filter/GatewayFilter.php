@@ -46,22 +46,22 @@ final class GatewayFilter extends AbstractFilter
         $parameterName = ':'.$queryNameGenerator->generateParameterName($property);
 
         if ($this->isPropertyNested($property, $resourceClass)) {
-            [$alias] = $this->addJoinsForNestedProperty($property, $rootAlias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::INNER_JOIN);
+            [$alias] = $this->addJoinsForNestedProperty($property, $rootAlias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
         }
 
         $aliasedField = \sprintf('%s.gatewayName', $alias);
 
-        if (\count($values) === 1) {
+        if (\count($values) > 1) {
             $queryBuilder
-                ->andWhere($queryBuilder->expr()->eq($aliasedField, $parameterName))
-                ->setParameter($parameterName, $this->getGatewayName($values[0]));
+                ->andWhere($queryBuilder->expr()->in($aliasedField, $parameterName))
+                ->setParameter($parameterName, array_map(fn($v) => $this->getGatewayName($v), $values));
 
             return;
         }
 
         $queryBuilder
-            ->andWhere($queryBuilder->expr()->in($aliasedField, $parameterName))
-            ->setParameter($parameterName, array_map(fn($v) => $this->getGatewayName($v), $values));
+            ->andWhere($queryBuilder->expr()->eq($aliasedField, $parameterName))
+            ->setParameter($parameterName, $this->getGatewayName($values[0]));
 
         return;
     }

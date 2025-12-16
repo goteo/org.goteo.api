@@ -163,7 +163,7 @@ class InvestsPump implements PumpInterface
         }
 
         foreach ($checkout->getCharges() as $charge) {
-            if (!\in_array($charge->getStatus(), [ChargeStatus::Charged, ChargeStatus::Refunded])) {
+            if (!\in_array($charge->getStatus(), [ChargeStatus::InCharge, ChargeStatus::Refunded])) {
                 continue;
             }
 
@@ -177,7 +177,7 @@ class InvestsPump implements PumpInterface
 
             if (
                 $charge->getTarget()->getOwner() instanceof Project
-                && $charge->getStatus() === ChargeStatus::Charged
+                && $charge->getStatus() === ChargeStatus::InCharge
             ) {
                 $support = $this->getSupport($charge);
                 $support->setProject($charge->getTarget()->getOwner());
@@ -380,16 +380,16 @@ class InvestsPump implements PumpInterface
             case 3:
             case 7:
                 if ($record['issue'] === 1) {
-                    return ChargeStatus::InPending;
+                    return ChargeStatus::ToCharge;
                 }
 
-                return ChargeStatus::Charged;
+                return ChargeStatus::InCharge;
             case 2:
             case 4:
             case 6:
                 return ChargeStatus::Refunded;
             default:
-                return ChargeStatus::InPending;
+                return ChargeStatus::ToCharge;
         }
     }
 
@@ -401,12 +401,12 @@ class InvestsPump implements PumpInterface
             case 3:
             case 7:
                 if ($record['issue'] === 1) {
-                    return CheckoutStatus::InPending;
+                    return CheckoutStatus::ToCharge;
                 }
 
                 return CheckoutStatus::Charged;
             default:
-                return CheckoutStatus::InPending;
+                return CheckoutStatus::ToCharge;
         }
     }
 

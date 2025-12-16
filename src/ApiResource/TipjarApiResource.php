@@ -2,7 +2,7 @@
 
 namespace App\ApiResource;
 
-use ApiPlatform\Doctrine\Orm\Filter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -33,12 +33,13 @@ class TipjarApiResource
     public int $id;
 
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public AccountingApiResource $accounting;
 
     /**
      * Human readable, non white space, unique string.
      */
     #[Assert\NotBlank()]
-    #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'partial')]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
     public string $name;
 }

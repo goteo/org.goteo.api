@@ -2,12 +2,9 @@
 
 namespace App\Dto;
 
-use App\Entity\Project\Project;
-use App\Entity\Project\ProjectCategory;
-use App\Entity\Project\ProjectDeadline;
-use App\Entity\Territory;
-use App\Mapping\Transformer\ProjectVideoMapTransformer;
-use AutoMapper\Attribute\MapTo;
+use ApiPlatform\Metadata as API;
+use App\ApiResource\CategoryApiResource;
+use App\Entity\Project\ProjectStatus;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectCreationDto
@@ -27,34 +24,21 @@ class ProjectCreationDto
 
     /**
      * One of the available categories.
+     *
+     * @var CategoryApiResource[]
      */
     #[Assert\NotBlank()]
-    public ProjectCategory $category;
+    #[Assert\Count(min: 1, max: 2)]
+    #[API\ApiProperty(writableLink: false)]
+    public array $categories;
 
     /**
-     * ISO 3166 data about the Project's territory of interest.
+     * Desired date-time of release for the created Project.\
+     * By default 28 days from now, at minimum 14 days from now.
      */
-    #[Assert\NotBlank()]
-    #[Assert\Valid()]
-    public Territory $territory;
+    #[Assert\GreaterThan('+14 days')]
+    public \DateTimeInterface $release;
 
-    /**
-     * Free-form rich text description for the Project.
-     */
-    #[Assert\NotBlank()]
-    public string $description;
-
-    /**
-     * On `minimum`, Project will campaign until the minimum deadline.\
-     * On `optimum`, Project will campaing until the minimum deadline,
-     * and then until the optimum deadline if it did raise the minimum.
-     */
-    public ProjectDeadline $deadline = ProjectDeadline::Minimum;
-
-    /**
-     * A URL to a video showcasing the Project.
-     */
-    #[Assert\Url()]
-    #[MapTo(target: Project::class, transformer: ProjectVideoMapTransformer::class)]
-    public string $video;
+    #[API\ApiProperty(writable: false)]
+    public ProjectStatus $status = ProjectStatus::InDraft;
 }

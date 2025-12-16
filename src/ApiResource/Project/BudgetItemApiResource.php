@@ -5,8 +5,8 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\ApiMoney;
 use App\ApiResource\LocalizedApiResourceTrait;
+use App\ApiResource\MoneyWithConversion;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\ProjectDeadline;
@@ -23,7 +23,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectBudgetItem',
     stateOptions: new Options(entityClass: BudgetItem::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class
+    processor: ApiResourceStateProcessor::class,
+    securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.project)',
+    securityPostDenormalizeMessage: 'You do not have permission to add BudgetItems to that Project'
 )]
 class BudgetItemApiResource
 {
@@ -58,7 +60,7 @@ class BudgetItemApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public ApiMoney $money;
+    public MoneyWithConversion $money;
 
     /**
      * Defines the budget category for this item within the project.

@@ -21,6 +21,8 @@ framework:
     annotations:
         enabled: false
 
+    default_locale: '%env(APP_LOCALE)%'
+
 when@test:
     framework:
         test: true

@@ -39,17 +39,17 @@ class CecaGateway implements GatewayInterface
         throw new \Exception(self::LEGACY_MESSAGE);
     }
 
+    public function refund(Charge $charge): Charge
+    {
+        throw new \Exception(self::LEGACY_MESSAGE);
+    }
+
     public function handleRedirect(Request $request): RedirectResponse
     {
         throw new \Exception(self::LEGACY_MESSAGE);
     }
 
     public function handleWebhook(Request $request): Response
-    {
-        throw new \Exception(self::LEGACY_MESSAGE);
-    }
-
-    public function processRefund(Charge $charge): void
     {
         throw new \Exception(self::LEGACY_MESSAGE);
     }

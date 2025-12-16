@@ -4,7 +4,6 @@ namespace App\Tests\Entity;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Project\Project;
-use App\Entity\Project\ProjectCategory;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
@@ -45,11 +44,10 @@ class ProjectCalendarTest extends ApiTestCase
         $project->setTitle('Test Project');
         $project->setSubtitle('Test Project Subtitle');
         $project->setDeadline($deadline);
-        $project->setCategory(ProjectCategory::LibreSoftware);
         $project->setDescription('Test Project Description');
         $project->setTerritory(new Territory('ES'));
         $project->setOwner($this->owner);
-        $project->setStatus(ProjectStatus::InReview);
+        $project->setStatus(ProjectStatus::InCampaignReview);
 
         return $project;
     }
