@@ -5,12 +5,13 @@ namespace App\ApiResource\User;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use ApiPlatform\Metadata\Parameters;
+use ApiPlatform\Metadata\QueryParameter;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\UserSignupDto;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Filter\OrderedLikeFilter;
-use App\Filter\UserQueryFilter;
 use App\Mapping\Transformer\UserDisplayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\User\UserSignupProcessor;
@@ -26,13 +27,18 @@ use Symfony\Component\Validator\Constraints as Assert;
     stateOptions: new Options(entityClass: User::class),
     provider: ApiResourceStateProvider::class,
     processor: UserStateProcessor::class,
+    parameters: new Parameters([
+        'email' => new QueryParameter(
+            security: 'is_granted("ROLE_ADMIN")',
+            description: 'Only available to admin users'
+        ),
+    ])
 )]
 #[API\GetCollection()]
 #[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
 #[API\Get()]
 #[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 #[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
-#[API\ApiFilter(filterClass: UserQueryFilter::class, properties: ['query'])]
 class UserApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
@@ -40,16 +46,17 @@ class UserApiResource
 
     #[Assert\NotBlank()]
     #[Assert\Email()]
+    #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
     #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
     public string $email;
 
     /**
      * A unique, non white space, byte-safe string identifier for this User.
      */
-    #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
+    #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
     public string $handle;
 
     /**
