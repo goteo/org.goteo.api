@@ -46,7 +46,7 @@ class UserApiResource
 
     #[Assert\NotBlank()]
     #[Assert\Email()]
-    #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
     public string $email;
 
