@@ -92,9 +92,11 @@ class ChargeApiResource
 
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\DateFilter::class)]
+    #[API\ApiFilter(Filter\OrderFilter::class, properties: ['dateCreated' => 'DESC'])]
     public \DateTimeInterface $dateCreated;
 
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\DateFilter::class)]
+    #[API\ApiFilter(Filter\OrderFilter::class, properties: ['dateUpdated' => 'DESC'])]
     public \DateTimeInterface $dateUpdated;
 }
