@@ -15,26 +15,26 @@ class UserService
      *
      * @throws \Exception If the given value could not be normalized into a compliant handle string
      */
-    public static function asHandle(string $value, int $min = 4, int $max = 30): string
+    public static function asHandle(string $value, int $min = 4, int $max = 32): string
     {
-        $value = \strtolower($value);
+        $nval = \strtolower($value);
 
         // If email remove provider
-        $value = \preg_replace('/@.*[\.-](com|net|org|es)/', '', $value);
+        $nval = \preg_replace('/@.*[\.-](com|net|org|es)/', '', $nval);
 
         // Replace known subs
-        $value = \str_replace(['&', '@', 'ñ', '=', '≠'], ['and', 'at', 'nn', 'eq', 'nq'], $value);
+        $nval = \str_replace(['&', '@', 'ñ', '=', '≠'], ['and', 'at', 'nn', 'eq', 'nq'], $nval);
 
         // Only lowercase a-z, numbers, underscore and middle dots in user handles
-        $value = \preg_replace('/[^a-z0-9_.]|^\.|\.$/', '_', \strtolower($value));
+        $nval = \preg_replace('/[^a-z0-9_.]|^\.|\.$/', '_', \strtolower($nval));
 
-        $value = \str_pad($value, $min, \hash('md5', $value));
-        $value = \substr($value, 0, $max);
+        $nval = \str_pad($nval, $min, \sprintf('#%s', \hash('md5', $value)));
+        $nval = \substr($nval, 0, $max);
 
-        if (strlen(str_replace('_', '', $value)) < 1) {
+        if (strlen(str_replace('_', '', $nval)) < 1) {
             throw new \Exception(\sprintf('The string \'%s\' could not be safely normalized for a handle', $value));
         }
 
-        return $value;
+        return $nval;
     }
 }
