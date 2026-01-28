@@ -210,7 +210,7 @@ class StripeGateway extends AbstractGateway
             throw new \Exception(\sprintf(
                 "Charges instance of class '%s' not in supported Stripe targets: %s",
                 $target::class,
-                join(',', self::SUPPORTED_TARGETS)
+                join(', ', self::SUPPORTED_TARGETS)
             ));
         }
 
