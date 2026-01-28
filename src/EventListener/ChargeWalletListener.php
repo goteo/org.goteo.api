@@ -28,7 +28,7 @@ final class ChargeWalletListener
     {
         if (
             $charge->getStatus() !== ChargeStatus::InCharge
-            && !$charge->getTarget()->getOwner() instanceof User
+            || !$charge->getTarget()->getOwner() instanceof User
         ) {
             return;
         }
