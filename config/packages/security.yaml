@@ -19,14 +19,9 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            lazy: true
+            security: true
             stateless: true
-            provider: app_user_provider
-
-            access_token:
-                token_handler: App\Security\AccessTokenHandler
-            custom_authenticators:
-                - App\Security\CookieAuthenticator
+            oauth2: true
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
