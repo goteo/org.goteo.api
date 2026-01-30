@@ -27,9 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: CheckoutStateProcessor::class,
 )]
-#[API\GetCollection(
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")'
-)]
+#[API\GetCollection()]
 #[API\Post()]
 #[API\Get()]
 #[API\Patch(
@@ -52,6 +50,10 @@ class CheckoutApiResource
     /**
      * The Accounting paying for the charges.
      */
+    #[API\ApiProperty(
+        security: 'is_granted("ACCOUNTING_VIEW", object.origin)',
+        securityPostDenormalize: 'is_granted("ACCOUNTING_EDIT", previous_object.origin)'
+    )]
     #[Assert\NotBlank()]
     public AccountingApiResource $origin;
 
