@@ -50,10 +50,7 @@ class CheckoutApiResource
     /**
      * The Accounting paying for the charges.
      */
-    #[API\ApiProperty(
-        security: 'is_granted("ACCOUNTING_VIEW", object.origin)',
-        securityPostDenormalize: 'is_granted("ACCOUNTING_EDIT", previous_object.origin)'
-    )]
+    #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object.origin)')]
     #[Assert\NotBlank()]
     public AccountingApiResource $origin;
 
