@@ -11,6 +11,7 @@ use App\Money\MoneyService;
 use App\Repository\Gateway\ChargeRepository;
 use App\Repository\Project\RewardRepository;
 use App\Repository\User\UserRepository;
+use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -136,15 +137,21 @@ class InvestRewardsPump implements PumpInterface
         return $charge;
     }
 
-    private function getUser(array $invest): ?User
+    private function getUser(array $record): ?User
     {
-        $id = $invest['user'];
+        $id = $record['user'];
 
         if (isset($this->userCache[$id])) {
             return $this->userRepository->find($this->userCache[$id]);
         }
 
-        $user = $this->userRepository->findOneBy(['migratedId' => $id]);
+        $criteria = new Criteria();
+        $criteria
+            ->orWhere($criteria->expr()->eq('migratedId', $id))
+            ->orWhere($criteria->expr()->contains('dedupedIds', $id))
+            ->setMaxResults(1);
+
+        $user = $this->userRepository->matching($criteria)->first();
 
         $this->userCache[$id] = $user->getId();
 

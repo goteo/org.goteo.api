@@ -7,6 +7,7 @@ use App\Entity\EmbeddableMoney;
 use App\Entity\Gateway\Charge;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
+use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\Gateway\Wallet\StatementDirection;
 use App\Gateway\Wallet\WalletService;
@@ -119,6 +120,7 @@ class WalletServiceTest extends KernelTestCase
         $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(100, 'EUR'));
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
 
         $intrx = new Transaction();
         $intrx->setMoney($incoming->getMoney());
@@ -156,6 +158,7 @@ class WalletServiceTest extends KernelTestCase
         $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(100, 'EUR'));
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
 
         $intrx = new Transaction();
         $intrx->setMoney($incoming->getMoney());
@@ -262,6 +265,7 @@ class WalletServiceTest extends KernelTestCase
         $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(10, 'EUR'));
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
 
         $intrx = new Transaction();
         $intrx->setMoney($incoming->getMoney());
@@ -277,6 +281,7 @@ class WalletServiceTest extends KernelTestCase
         $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(11, 'EUR'));
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
 
         $intrx = new Transaction();
         $intrx->setMoney($incoming->getMoney());
@@ -302,6 +307,7 @@ class WalletServiceTest extends KernelTestCase
         $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(13, 'EUR'));
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
 
         $intrx = new Transaction();
         $intrx->setMoney($incoming->getMoney());
