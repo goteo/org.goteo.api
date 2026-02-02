@@ -6,7 +6,9 @@ use App\Entity\User\Organization;
 use App\Entity\User\Person;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Repository\User\UserRepository;
 use App\Service\UserService;
+use Doctrine\Persistence\ManagerRegistry;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -17,7 +19,10 @@ class UsersPump implements PumpInterface
     use DoctrinePumpTrait;
     use UsersPumpTrait;
 
-    private int $userCount = 0;
+    public function __construct(
+        private UserRepository $userRepository,
+        private ManagerRegistry $managerRegistry,
+    ) {}
 
     public function supports(mixed $sample): bool
     {
@@ -31,6 +36,39 @@ class UsersPump implements PumpInterface
     public function pump(mixed $record, array $context): void
     {
         $user = new User();
+        $user = $this->processUser($user, $record);
+
+        try {
+            $this->persist($user, $context);
+        } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            $this->managerRegistry->resetManager();
+            $em = $this->managerRegistry->getManager();
+            $em->clear();
+            $this->setEntityManager($em);
+
+            $user = $this->userRepository->findOneBy(['email' => $record['email']]);
+
+            if ($user) {
+                $user->setDeduped(true);
+                $user->addDedupedId($record['id']);
+
+                $this->persist($user, $context);
+
+                return;
+            }
+
+            $user = new User();
+            $user = $this->processUser($user, $record);
+            $user->setHandle(UserService::asHandle($record['id'], 16, 255));
+
+            $this->persist($user, $context);
+
+            return;
+        }
+    }
+
+    private function processUser(User $user, array $record): User
+    {
         $user->setHandle($this->buildHandle($record));
         $user->setPassword($record['password'] ?? '');
         $user->setEmail($record['email']);
@@ -47,19 +85,18 @@ class UsersPump implements PumpInterface
             UserType::Organization => $user = $this->setUserOrganization($record, $user),
         };
 
-        $this->persist($user, $context);
-        ++$this->userCount;
+        return $user;
     }
 
     private function buildHandle(array $record): string
     {
         try {
-            $handle = UserService::asHandle($record['id']);
+            $handle = UserService::asHandle($record['id'], 8, 255);
         } catch (\Exception $e) {
-            $handle = UserService::asHandle($record['email']);
+            $handle = UserService::asHandle($record['email'], 8, 255);
         }
 
-        return \sprintf('%s_%02d', $handle, $this->userCount % 100);
+        return $handle;
     }
 
     private function getDateCreated(array $record): \DateTime
