@@ -12,6 +12,8 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     _instanceof:
+        App\Embed\UriProcessorInterface:
+            tags: ['app.embed.uri_processor']
         App\Gateway\GatewayInterface:
             tags: ['app.gateway.gateway']
         App\Money\Conversion\ExchangeInterface:
@@ -22,8 +24,6 @@ services:
             tags: ['app.matchfunding.formula']
         App\Matchfunding\Rule\RuleInterface:
             tags: ['app.matchfunding.rule']
-        App\Service\Embed\UriProcessorInterface:
-            tags: ['app.service.embed.uri_processor']
         AutoMapper\Provider\ProviderInterface:
             tags: ['app.mapping.map_provider']
         AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface:
@@ -46,6 +46,10 @@ services:
         decorates: 'api_platform.openapi.factory'
         arguments:
             - '@App\OpenApi\OpenApiFactory.inner'
+
+    App\Embed\EmbedService:
+        arguments:
+            - !tagged 'app.embed.uri_processor'
 
     App\Gateway\GatewayLocator:
         arguments:
@@ -82,10 +86,6 @@ services:
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'
-
-    App\Service\Embed\EmbedService:
-        arguments:
-            - !tagged 'app.service.embed.uri_processor'
 
     App\State\MoneyTotalStateProvider:
         arguments:

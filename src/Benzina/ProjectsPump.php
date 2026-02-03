@@ -2,6 +2,7 @@
 
 namespace App\Benzina;
 
+use App\Embed\EmbedService;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectDeadline;
@@ -12,7 +13,6 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\User\UserRepository;
-use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Embed;
+namespace App\Embed;
 
 class EmbedVideo
 {

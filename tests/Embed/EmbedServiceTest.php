@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tests\Service\Embed;
+namespace App\Tests\Embed;
 
-use App\Service\Embed\EmbedService;
-use App\Service\Embed\EmbedVideo;
+use App\Embed\EmbedService;
+use App\Embed\EmbedVideo;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class EmbedServiceTest extends KernelTestCase

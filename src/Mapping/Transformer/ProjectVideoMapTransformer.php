@@ -2,8 +2,8 @@
 
 namespace App\Mapping\Transformer;
 
+use App\Embed\EmbedService;
 use App\Entity\Project\ProjectVideo;
-use App\Service\Embed\EmbedService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class ProjectVideoMapTransformer implements PropertyTransformerInterface
