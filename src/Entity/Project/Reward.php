@@ -3,8 +3,8 @@
 namespace App\Entity\Project;
 
 use App\Entity\EmbeddableMoney as Money;
-use App\Entity\Interface\LocalizedEntityInterface;
-use App\Entity\Trait\LocalizedEntityTrait;
+use App\Entity\LocalizedInterface;
+use App\Entity\LocalizedTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -23,10 +23,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_reward')]
 #[ORM\Entity(repositoryClass: RewardRepository::class)]
-class Reward implements LocalizedEntityInterface
+class Reward implements LocalizedInterface
 {
     use MigratedEntity;
-    use LocalizedEntityTrait;
+    use LocalizedTrait;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 

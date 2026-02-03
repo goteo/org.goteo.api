@@ -2,8 +2,8 @@
 
 namespace App\Entity\Project;
 
-use App\Entity\Interface\LocalizedEntityInterface;
-use App\Entity\Trait\LocalizedEntityTrait;
+use App\Entity\LocalizedInterface;
+use App\Entity\LocalizedTrait;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Entity\User\User;
@@ -17,9 +17,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_update')]
 #[ORM\Entity(repositoryClass: UpdateRepository::class)]
-class Update implements LocalizedEntityInterface
+class Update implements LocalizedInterface
 {
-    use LocalizedEntityTrait;
+    use LocalizedTrait;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 

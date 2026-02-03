@@ -5,12 +5,12 @@ namespace App\Entity\Project;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Category;
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\LocalizedInterface;
+use App\Entity\LocalizedTrait;
 use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\Entity\Territory;
-use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -28,9 +28,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Index(fields: ['migratedId'])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedEntityInterface
+class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedInterface
 {
-    use LocalizedEntityTrait;
+    use LocalizedTrait;
     use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
