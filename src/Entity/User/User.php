@@ -3,12 +3,12 @@
 namespace App\Entity\User;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Accounting\AccountingOwnerInterface;
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
+use App\Entity\DedupedTrait;
+use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
-use App\Entity\Trait\DedupEntityTrait;
-use App\Entity\Trait\MigratedEntity;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -35,10 +35,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity('handle', message: 'This handle is already in use.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
-    use MigratedEntity;
-    use DedupEntityTrait;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use MigratedTrait;
+    use DedupedTrait;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

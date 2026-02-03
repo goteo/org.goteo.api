@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Entity\Trait;
+namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use AutoMapper\Attribute\MapFrom;
 use Doctrine\ORM\Mapping as ORM;
 
-trait MigratedEntity
+trait MigratedTrait
 {
     /**
      * Entity was migrated from the Goteo v3 platform.

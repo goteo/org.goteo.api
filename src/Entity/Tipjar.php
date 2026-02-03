@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Accounting\AccountingOwnerInterface;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\TipjarRepository;
 use AutoMapper\Attribute\MapProvider;

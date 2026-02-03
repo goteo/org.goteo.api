@@ -7,7 +7,7 @@ use ApiPlatform\Doctrine\Common\State\RemoveProcessor;
 use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Interface\LocalizedEntityInterface;
+use App\Entity\LocalizedInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Translatable\Entity\Translation;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -41,7 +41,7 @@ class EntityStateProcessor implements ProcessorInterface
     }
 
     private function processLocalizedData(
-        LocalizedEntityInterface $data,
+        LocalizedInterface $data,
         Operation $operation,
         array $uriVariables = [],
         array $context = [],
@@ -64,7 +64,7 @@ class EntityStateProcessor implements ProcessorInterface
     }
 
     private function deleteLocalizedContent(
-        LocalizedEntityInterface $data,
+        LocalizedInterface $data,
         Operation $operation,
         array $uriVariables = [],
         array $context = [],

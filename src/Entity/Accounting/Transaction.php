@@ -2,8 +2,8 @@
 
 namespace App\Entity\Accounting;
 
+use App\Entity\DateCreatedTrait;
 use App\Entity\EmbeddableMoney as Money;
-use App\Entity\Trait\TimestampedCreationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\TransactionRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(fields: ['target'])]
 class Transaction
 {
-    use TimestampedCreationEntity;
+    use DateCreatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

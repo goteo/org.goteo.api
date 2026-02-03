@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entity\Trait;
+namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-trait LocalizedEntityTrait
+trait LocalizedTrait
 {
     #[Gedmo\Locale]
     private ?string $locale = null;

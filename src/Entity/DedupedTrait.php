@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entity\Trait;
+namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use Doctrine\ORM\Mapping as ORM;
 
-trait DedupEntityTrait
+trait DedupedTrait
 {
     /**
      * Entity came duplicated from the Goteo v3 platform.

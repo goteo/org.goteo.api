@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Entity\Interface;
-
-use App\Entity\Accounting\Accounting;
+namespace App\Entity\Accounting;
 
 interface AccountingOwnerInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Interface;
+namespace App\Entity;
 
 use Gedmo\Translatable\Translatable;
 
@@ -11,7 +11,7 @@ use Gedmo\Translatable\Translatable;
  *
  * @see https://github.com/doctrine-extensions/DoctrineExtensions/blob/main/doc/translatable.md#translatable-behavior-extension-for-doctrine
  */
-interface LocalizedEntityInterface extends Translatable
+interface LocalizedInterface extends Translatable
 {
     public function getId(): ?int;
 

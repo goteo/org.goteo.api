@@ -3,7 +3,7 @@
 namespace App\Doctrine;
 
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Interface\LocalizedEntityInterface;
+use App\Entity\LocalizedInterface;
 use App\Service\LocalizationService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -34,7 +34,7 @@ trait LocalizedExtensionTrait
     {
         $reflectionClass = new \ReflectionClass($resourceClass);
 
-        return $reflectionClass->implementsInterface(LocalizedEntityInterface::class);
+        return $reflectionClass->implementsInterface(LocalizedInterface::class);
     }
 
     private function addLocalizationHints(QueryBuilder $queryBuilder, array $locales): Query

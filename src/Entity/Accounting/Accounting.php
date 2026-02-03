@@ -3,12 +3,11 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\EmbeddableMoney;
-use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
-use App\Entity\Trait\UserOwnedTrait;
 use App\Entity\User\User;
+use App\Entity\UserOwnedTrait;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Accounting\AccountingRepository;
 use AutoMapper\Attribute\MapProvider;
