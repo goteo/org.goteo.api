@@ -2,7 +2,7 @@
 
 namespace App\Entity\Project;
 
-use App\Service\Embed\EmbedVideo;
+use App\Embed\EmbedVideo;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,5 +14,7 @@ class ProjectVideo extends EmbedVideo
         public readonly string $src = '',
         #[ORM\Column(type: Types::STRING, nullable: true)]
         public readonly ?string $thumbnail = null,
+        #[ORM\Column(type: Types::STRING, nullable: true)]
+        public readonly ?string $cover = null,
     ) {}
 }
