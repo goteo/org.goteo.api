@@ -2,12 +2,12 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
 use App\Entity\EmbeddableMoney as Money;
 use App\Entity\LocalizedInterface;
 use App\Entity\LocalizedTrait;
 use App\Entity\MigratedTrait;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\RewardRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -27,8 +27,8 @@ class Reward implements LocalizedInterface
 {
     use MigratedTrait;
     use LocalizedTrait;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

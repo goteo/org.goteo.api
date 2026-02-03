@@ -3,9 +3,9 @@
 namespace App\Entity\Gateway;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
 use App\Entity\MigratedTrait;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\RefundStrategy;
@@ -34,8 +34,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Checkout
 {
     use MigratedTrait;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

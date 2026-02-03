@@ -4,6 +4,8 @@ namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Category;
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\LocalizedInterface;
@@ -12,8 +14,6 @@ use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\Entity\MigratedTrait;
 use App\Entity\Territory;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Entity\Trait\UserOwnedTrait;
 use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
@@ -32,8 +32,8 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
 {
     use LocalizedTrait;
     use MigratedTrait;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
     use UserOwnedTrait;
 
     #[ORM\Id]
