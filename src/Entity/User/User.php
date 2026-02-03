@@ -3,9 +3,9 @@
 namespace App\Entity\User;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\DedupedTrait;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Project\Project;
-use App\Entity\Trait\DedupEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -36,7 +36,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
-    use DedupEntityTrait;
+    use DedupedTrait;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 
