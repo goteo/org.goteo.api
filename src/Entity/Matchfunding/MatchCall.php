@@ -3,7 +3,7 @@
 namespace App\Entity\Matchfunding;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Accounting\AccountingOwnerInterface;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;

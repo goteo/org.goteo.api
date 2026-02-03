@@ -3,10 +3,10 @@
 namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\AccountingOwnerInterface;
 use App\Entity\Category;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
-use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\LocalizedInterface;
 use App\Entity\LocalizedTrait;
 use App\Entity\Matchfunding\MatchCallSubmission;

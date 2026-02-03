@@ -3,10 +3,10 @@
 namespace App\Entity\User;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\AccountingOwnerInterface;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\DedupedTrait;
-use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
 use App\Mapping\Provider\EntityMapProvider;

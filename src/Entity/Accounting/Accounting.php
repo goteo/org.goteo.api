@@ -3,7 +3,6 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\EmbeddableMoney;
-use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Matchfunding\MatchCall;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
