@@ -3,8 +3,8 @@
 namespace App\Entity\User;
 
 use App\Entity\DateCreatedTrait;
-use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\Trait\UserOwnedTrait;
+use App\Entity\UserOwnedInterface;
+use App\Entity\UserOwnedTrait;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserTokenRepository;
 use AutoMapper\Attribute\MapProvider;
