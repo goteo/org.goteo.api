@@ -22,7 +22,6 @@
         "goteo/benzina": "^0.5",
         "guzzlehttp/psr7": "^2.8",
         "jolicode/automapper": "^9.2",
-        "mpratt/embera": "~2.0",
         "nelmio/cors-bundle": "^2.3",
         "phpdocumentor/reflection-docblock": "^5.3",
         "phpstan/phpdoc-parser": "^1.24",
