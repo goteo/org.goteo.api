@@ -3,7 +3,7 @@
 namespace App\Entity\Gateway;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Trait\MigratedEntity;
+use App\Entity\MigratedTrait;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 class Checkout
 {
-    use MigratedEntity;
+    use MigratedTrait;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 

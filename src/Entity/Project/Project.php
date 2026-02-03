@@ -10,8 +10,8 @@ use App\Entity\LocalizedInterface;
 use App\Entity\LocalizedTrait;
 use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
+use App\Entity\MigratedTrait;
 use App\Entity\Territory;
-use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Entity\Trait\UserOwnedTrait;
@@ -31,7 +31,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedInterface
 {
     use LocalizedTrait;
-    use MigratedEntity;
+    use MigratedTrait;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
     use UserOwnedTrait;
