@@ -85,12 +85,6 @@ services:
         arguments:
             - '%kernel.default_locale%'
 
-    App\Service\Embed\EmbedService:
-        arguments:
-            - '%kernel.cache_dir%'
-            - !tagged 'app.embed.embed_filter'
-            - !tagged 'app.embed.provider_factory'
-    
     App\Service\Embed\Provider\PeertubeEmbedProviderFactory:
         bind:
             $hosts:
