@@ -50,6 +50,7 @@ class UsersPump implements PumpInterface
                 $user->addDedupedId($record['id']);
 
                 $this->persist($user, $context);
+
                 return;
             }
 
@@ -58,6 +59,7 @@ class UsersPump implements PumpInterface
             $user->setHandle(UserService::asHandle($record['id'], 16, 255));
 
             $this->persist($user, $context);
+
             return;
         }
     }
