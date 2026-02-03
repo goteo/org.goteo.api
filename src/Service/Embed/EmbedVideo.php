@@ -11,6 +11,11 @@ class EmbedVideo
         public readonly string $src,
 
         /**
+         * A URL path to the embedded video element cover image (HD thumbnail).
+         */
+        public readonly ?string $cover = null,
+
+        /**
          * A URL path to the embedded video element thumbnail.
          */
         public readonly ?string $thumbnail = null,

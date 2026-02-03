@@ -4,6 +4,9 @@ namespace App\Service\Embed;
 
 use Psr\Http\Message\UriInterface;
 
+/**
+ * Transforms a Vime thumbnail URI into an HD URI for a cover.
+ */
 class CoverVimeoUriProcessor implements UriProcessorInterface
 {
     public function supports(UriInterface $uri): bool

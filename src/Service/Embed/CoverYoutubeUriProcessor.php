@@ -4,6 +4,9 @@ namespace App\Service\Embed;
 
 use Psr\Http\Message\UriInterface;
 
+/**
+ * Transforms a YouTube thumbnail URI into a high-res URI for a cover.
+ */
 class CoverYoutubeUriProcessor implements UriProcessorInterface
 {
     public function supports(UriInterface $uri): bool

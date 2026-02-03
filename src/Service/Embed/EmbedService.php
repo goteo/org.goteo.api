@@ -42,14 +42,15 @@ class EmbedService
             throw new \Exception("Could not obtain an image for the video $url");
         }
 
+        $cover = null;
         foreach ($this->uriProcessors as $uriProcessor) {
             if (!$uriProcessor->supports($image)) {
                 continue;
             }
 
-            $image = $uriProcessor->process($image);
+            $cover = $uriProcessor->process($image);
         }
 
-        return new EmbedVideo($info->url, $image);
+        return new EmbedVideo($info->url, $image, $cover);
     }
 }

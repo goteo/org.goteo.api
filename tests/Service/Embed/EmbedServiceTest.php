@@ -29,6 +29,9 @@ class EmbedServiceTest extends KernelTestCase
         $this->assertStringStartsWith('http', $embed->src);
         $this->assertNotEmpty($embed->thumbnail);
         $this->assertStringStartsWith('http', $embed->thumbnail);
+        $this->assertNotEmpty($embed->cover);
+        $this->assertStringStartsWith('http', $embed->cover);
+        $this->assertNotEquals($embed->thumbnail, $embed->cover);
     }
 
     public function provideUrls(): array
