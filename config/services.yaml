@@ -22,6 +22,8 @@ services:
             tags: ['app.matchfunding.formula']
         App\Matchfunding\Rule\RuleInterface:
             tags: ['app.matchfunding.rule']
+        App\Service\Embed\UriProcessorInterface:
+            tags: ['app.service.embed.uri_processor']
         AutoMapper\Provider\ProviderInterface:
             tags: ['app.mapping.map_provider']
         AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface:
@@ -80,6 +82,10 @@ services:
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'
+
+    App\Service\Embed\EmbedService:
+        arguments:
+            - !tagged 'app.service.embed.uri_processor'
 
     App\State\MoneyTotalStateProvider:
         arguments:

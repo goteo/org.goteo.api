@@ -10,8 +10,12 @@ class EmbedService
 {
     private Embed $embed;
 
-    public function __construct()
-    {
+    /**
+     * @param iterable<UriProcessorInterface> $uriProcessors
+     */
+    public function __construct(
+        private iterable $uriProcessors,
+    ) {
         $client = new CurlClient();
         $client->setSettings([
             'timeout' => 2,
@@ -32,7 +36,20 @@ class EmbedService
     public function getVideo(string $url): EmbedVideo
     {
         $info = $this->embed->get($url);
+        $image = $info->image;
 
-        return new EmbedVideo($info->url, $info->image);
+        if (!$image) {
+            throw new \Exception("Could not obtain an image for the video $url");
+        }
+
+        foreach ($this->uriProcessors as $uriProcessor) {
+            if (!$uriProcessor->supports($image)) {
+                continue;
+            }
+
+            $image = $uriProcessor->process($image);
+        }
+
+        return new EmbedVideo($info->url, $image);
     }
 }
