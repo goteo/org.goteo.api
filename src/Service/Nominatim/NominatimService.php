@@ -24,7 +24,6 @@ class NominatimService
     ) {
         $this->httpClient = $httpClient->withOptions([
             'base_uri' => self::NOMINATIM_BASE_URI,
-            'headers' => ['User-Agent' => 'goteo/v4'],
         ]);
     }
 
