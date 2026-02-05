@@ -4,7 +4,7 @@ namespace App\Service\Scout;
 
 use Embed\Embed;
 use Embed\Http\Crawler;
-use Embed\Http\CurlClient;
+use Psr\Http\Client\ClientInterface;
 
 class ScoutService
 {
@@ -15,23 +15,15 @@ class ScoutService
      */
     public function __construct(
         private iterable $processors,
+        private ClientInterface $httpClient,
     ) {
-        $client = new CurlClient();
-        $client->setSettings([
-            'timeout' => 2,
-            'max_redirs' => 3,
-            'user_agent' => 'goteo/v4',
-        ]);
-
-        $embed = new Embed(new Crawler($client));
+        $embed = new Embed(new Crawler($httpClient));
 
         $this->embed = $embed;
     }
 
     /**
      * @param string $url A URL to the a video resource
-     *
-     * @throws \Exception When the URL does not contain any embedable data
      */
     public function get(string $url): ScoutResult
     {
