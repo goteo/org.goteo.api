@@ -9,7 +9,7 @@ class CoverVimeoProcessor implements ScoutProcessorInterface
 {
     public function supports(ScoutResult $result): bool
     {
-        return \in_array($result->image->getHost(), [
+        return $result->image !== null && \in_array($result->image->getHost(), [
             'vimeo.com',
             'i.vimeocdn.com',
         ]);
