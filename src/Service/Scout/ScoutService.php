@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Embed;
+namespace App\Service\Scout;
 
 use Embed\Embed;
 use Embed\Http\Crawler;
 use Embed\Http\CurlClient;
 
-class EmbedService
+class ScoutService
 {
     private Embed $embed;
 
     /**
-     * @param iterable<UriProcessorInterface> $uriProcessors
+     * @param iterable<ScoutProcessorInterface> $processors
      */
     public function __construct(
-        private iterable $uriProcessors,
+        private iterable $processors,
     ) {
         $client = new CurlClient();
         $client->setSettings([
@@ -33,24 +33,25 @@ class EmbedService
      *
      * @throws \Exception When the URL does not contain any embedable data
      */
-    public function getVideo(string $url): EmbedVideo
+    public function get(string $url): ScoutResult
     {
         $info = $this->embed->get($url);
-        $image = $info->image;
 
-        if (!$image) {
-            throw new \Exception("Could not obtain an image for the video $url");
-        }
+        $result = new ScoutResult(
+            $info->getUri(),
+            $info->getRequest(),
+            $info->getResponse(),
+            $info->getCrawler()
+        );
 
-        $cover = null;
-        foreach ($this->uriProcessors as $uriProcessor) {
-            if (!$uriProcessor->supports($image)) {
+        foreach ($this->processors as $processor) {
+            if (!$processor->supports($result)) {
                 continue;
             }
 
-            $cover = $uriProcessor->process($image);
+            $result = $processor->process($result);
         }
 
-        return new EmbedVideo($info->url, $image, $cover);
+        return $result;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Benzina;
 
-use App\Embed\EmbedService;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectDeadline;
@@ -14,6 +13,7 @@ use App\Entity\User\User;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Project\TerritoryService;
+use App\Service\Scout\ScoutService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
@@ -32,7 +32,7 @@ class ProjectsPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
-        private EmbedService $embedService,
+        private ScoutService $scoutService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -231,9 +231,9 @@ class ProjectsPump implements PumpInterface
         }
 
         try {
-            $video = $this->embedService->getVideo($url);
+            $info = $this->scoutService->get($url);
 
-            return new ProjectVideo($video->src, $video->thumbnail);
+            return new ProjectVideo($info->src, $info->thumbnail);
         } catch (\Exception $e) {
             return null;
         }

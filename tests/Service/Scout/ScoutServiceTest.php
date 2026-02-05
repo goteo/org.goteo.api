@@ -1,40 +1,36 @@
 <?php
 
-namespace App\Tests\Embed;
+namespace App\Tests\Service\Scout;
 
-use App\Embed\EmbedService;
-use App\Embed\EmbedVideo;
+use App\Service\Scout\ScoutService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class EmbedServiceTest extends KernelTestCase
+class ScoutServiceTest extends KernelTestCase
 {
-    private EmbedService $embedService;
+    private ScoutService $scout;
 
     public function setUp(): void
     {
         self::bootKernel();
 
-        $this->embedService = static::getContainer()->get(EmbedService::class);
+        $this->scout = static::getContainer()->get(ScoutService::class);
     }
 
     /**
-     * @dataProvider provideUrls
+     * @dataProvider provideVideoUrls
      */
-    public function testGetsEmbedData(string $url)
+    public function testGetsVideoCover(string $url)
     {
-        $embed = $this->embedService->getVideo($url);
+        $result = $this->scout->get($url);
 
-        $this->assertInstanceOf(EmbedVideo::class, $embed);
-        $this->assertNotEmpty($embed->src);
-        $this->assertStringStartsWith('http', $embed->src);
-        $this->assertNotEmpty($embed->thumbnail);
-        $this->assertStringStartsWith('http', $embed->thumbnail);
-        $this->assertNotEmpty($embed->cover);
-        $this->assertStringStartsWith('http', $embed->cover);
-        $this->assertNotEquals($embed->thumbnail, $embed->cover);
+        $this->assertNotEmpty($result->image);
+        $this->assertStringStartsWith('http', $result->image);
+        $this->assertNotEmpty($result->cover);
+        $this->assertStringStartsWith('http', $result->cover);
+        $this->assertNotEquals($result->image, $result->cover);
     }
 
-    public function provideUrls(): array
+    public function provideVideoUrls(): array
     {
         return [
             ['vimeo.com/814460460'],
@@ -59,7 +55,7 @@ class EmbedServiceTest extends KernelTestCase
     {
         $this->expectException(\Exception::class);
 
-        $this->embedService->getVideo($string);
+        $this->scout->get($string);
     }
 
     public function provideNotUrls()
