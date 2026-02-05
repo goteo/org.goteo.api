@@ -23,11 +23,11 @@ class ScoutServiceTest extends KernelTestCase
     {
         $result = $this->scout->get($url);
 
-        $this->assertNotEmpty($result->image);
-        $this->assertStringStartsWith('http', $result->image);
-        $this->assertNotEmpty($result->cover);
-        $this->assertStringStartsWith('http', $result->cover);
-        $this->assertNotEquals($result->image, $result->cover);
+        $this->assertNotEmpty((string) $result->image);
+        $this->assertStringStartsWith('http', (string) $result->image);
+        $this->assertNotEmpty((string) $result->cover);
+        $this->assertStringStartsWith('http', (string) $result->cover);
+        $this->assertNotEquals((string) $result->image, (string) $result->cover);
     }
 
     public function provideVideoUrls(): array
