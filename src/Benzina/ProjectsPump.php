@@ -233,7 +233,7 @@ class ProjectsPump implements PumpInterface
         try {
             $info = $this->scoutService->get($url);
 
-            return new ProjectVideo($info->src, $info->thumbnail);
+            return new ProjectVideo($info->src, $info->cover, $info->image);
         } catch (\Exception $e) {
             return null;
         }
