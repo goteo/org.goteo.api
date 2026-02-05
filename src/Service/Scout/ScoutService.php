@@ -22,12 +22,23 @@ class ScoutService
         $this->embed = $embed;
     }
 
+    private function normalizeUrl(string $url)
+    {
+        $nurl = $url;
+
+        if (!\parse_url($url, \PHP_URL_SCHEME)) {
+            $nurl = \sprintf('https://%s', $url);
+        }
+
+        return $nurl;
+    }
+
     /**
      * @param string $url A URL to the a video resource
      */
     public function get(string $url): ScoutResult
     {
-        $info = $this->embed->get($url);
+        $info = $this->embed->get($this->normalizeUrl($url));
 
         $result = new ScoutResult(
             $info->getUri(),
