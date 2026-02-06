@@ -6,6 +6,7 @@ use App\Entity\User\Organization;
 use App\Entity\User\Person;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Library\Link;
 use App\Service\UserService;
 use Doctrine\Persistence\ManagerRegistry;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
@@ -76,6 +77,7 @@ class UsersPump implements PumpInterface
         $user->setDateCreated($this->getDateCreated($record));
         $user->setDateUpdated(new \DateTime());
         $user->setType($this->getUserType($record));
+        $user->setLinks($this->getLinks($record));
 
         match ($user->getType()) {
             UserType::Individual => $user = $this->setUserPerson($record, $user),
@@ -163,5 +165,33 @@ class UsersPump implements PumpInterface
         $user->setOrganization($org);
 
         return $user;
+    }
+
+    private function getLinks(array $record): array
+    {
+        $linkableKeys = [
+            'twitter',
+            'facebook',
+            'instagram',
+            'identica',
+            'linkedin',
+        ];
+
+        $links = [];
+        foreach ($linkableKeys as $key) {
+            $url = $record[$key];
+
+            if ($url === null || $url !== '') {
+                continue;
+            }
+
+            $link = new Link();
+            $link->url = $url;
+            $link->rel = 'external';
+
+            $links[] = $link;
+        }
+
+        return $links;
     }
 }
