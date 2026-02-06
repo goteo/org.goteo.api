@@ -6,7 +6,6 @@ use App\Entity\User\Organization;
 use App\Entity\User\Person;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
-use App\Repository\User\UserRepository;
 use App\Service\UserService;
 use Doctrine\Persistence\ManagerRegistry;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
@@ -20,7 +19,6 @@ class UsersPump implements PumpInterface
     use UsersPumpTrait;
 
     public function __construct(
-        private UserRepository $userRepository,
         private ManagerRegistry $managerRegistry,
     ) {}
 
@@ -41,12 +39,11 @@ class UsersPump implements PumpInterface
         try {
             $this->persist($user, $context);
         } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
-            $this->managerRegistry->resetManager();
-            $em = $this->managerRegistry->getManager();
-            $em->clear();
+            $em = $this->managerRegistry->resetManager();
             $this->setEntityManager($em);
 
-            $user = $this->userRepository->findOneBy(['email' => $record['email']]);
+            $usersRepo = $em->getRepository(User::class);
+            $user = $usersRepo->findOneBy(['email' => $record['email']]);
 
             if ($user) {
                 $user->setDeduped(true);

@@ -12,8 +12,8 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\User\UserRepository;
-use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
+use App\Service\Scout\ScoutService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
@@ -32,7 +32,7 @@ class ProjectsPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
-        private EmbedService $embedService,
+        private ScoutService $scoutService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -231,9 +231,9 @@ class ProjectsPump implements PumpInterface
         }
 
         try {
-            $video = $this->embedService->getVideo($url);
+            $info = $this->scoutService->get($url);
 
-            return new ProjectVideo($video->src, $video->thumbnail);
+            return new ProjectVideo($info->src, $info->cover, $info->image);
         } catch (\Exception $e) {
             return null;
         }
