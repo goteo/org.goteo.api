@@ -5,11 +5,11 @@ namespace App\Service\Scout;
 /**
  * Tries to fix bad YouTube responses caused by malformed URI host.
  */
-class UnresponsiveYoutubeProcessor implements ScoutProcessorInterface
+class YoutubeBadhostProcessor implements ScoutProcessorInterface
 {
     public function supports(ScoutResult $result): bool
     {
-        return $result->image === null && \in_array($result->getUri()->getHost(), [
+        return $result->title === null && \in_array($result->getUri()->getHost(), [
             'youtube.com',
         ]);
     }
@@ -17,7 +17,9 @@ class UnresponsiveYoutubeProcessor implements ScoutProcessorInterface
     public function process(ScoutResult $result): ScoutResult
     {
         $uri = $result->getUri();
-        $result->retry = $uri->withHost(\sprintf('www.%s', $uri->getHost()));
+        $wwwHost = \sprintf('www.%s', $uri->getHost());
+
+        $result->retry = $uri->withHost($wwwHost);
 
         return $result;
     }

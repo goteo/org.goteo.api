@@ -5,7 +5,7 @@ namespace App\Service\Scout;
 /**
  * Transforms a Vimeo thumbnail URI into an HD URI for a cover.
  */
-class CoverVimeoProcessor implements ScoutProcessorInterface
+class VimeoCoverProcessor implements ScoutProcessorInterface
 {
     public function supports(ScoutResult $result): bool
     {

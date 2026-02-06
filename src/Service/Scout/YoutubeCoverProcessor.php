@@ -5,7 +5,7 @@ namespace App\Service\Scout;
 /**
  * Transforms a YouTube thumbnail URI into a high-res URI for a cover.
  */
-class CoverYoutubeProcessor implements ScoutProcessorInterface
+class YoutubeCoverProcessor implements ScoutProcessorInterface
 {
     public function supports(ScoutResult $result): bool
     {
