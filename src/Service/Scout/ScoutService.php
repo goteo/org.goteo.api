@@ -34,7 +34,7 @@ class ScoutService
     }
 
     /**
-     * @param string $url A URL to the a video resource
+     * @param string $url A URL to an external resource
      */
     public function get(string $url): ScoutResult
     {
@@ -53,6 +53,10 @@ class ScoutService
             }
 
             $result = $processor->process($result);
+
+            if (isset($result->retry) && $result->retry !== null) {
+                return $this->get($result->retry);
+            }
         }
 
         return $result;
