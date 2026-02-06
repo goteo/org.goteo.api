@@ -382,6 +382,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
+    /**
+     * @return Link[]
+     */
     public function getLinks(): ?array
     {
         return $this->links;
