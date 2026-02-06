@@ -12,6 +12,8 @@ use Doctrine\Persistence\ManagerRegistry;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
 
 class UsersPump implements PumpInterface
 {
@@ -181,7 +183,12 @@ class UsersPump implements PumpInterface
         foreach ($linkableKeys as $key) {
             $url = $record[$key];
 
-            if ($url === null || $url !== '') {
+            if ($url === null || $url === '') {
+                continue;
+            }
+
+            $isValidUrl = Validation::createIsValidCallable(constraints: new Url());
+            if (!$isValidUrl($url)) {
                 continue;
             }
 
