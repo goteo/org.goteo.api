@@ -20,7 +20,7 @@ class UserService
         $nval = \strtolower($value);
 
         // If email remove provider
-        $nval = \preg_replace('/@.*[\.-](com|net|org|es)/', '', $nval);
+        $nval = preg_replace('/@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/', '', $nval);
 
         // Replace known subs
         $nval = \str_replace(['&', '@', 'ñ', '=', '≠'], ['and', 'at', 'nn', 'eq', 'nq'], $nval);
