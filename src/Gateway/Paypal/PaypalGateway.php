@@ -8,8 +8,8 @@ use App\Entity\Gateway\Tracking;
 use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\Link;
-use App\Gateway\LinkType;
+use App\Gateway\GatewayLink;
+use App\Gateway\GatewayLinkType;
 use Brick\Money\Money as BrickMoney;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -75,11 +75,11 @@ class PaypalGateway extends AbstractGateway
 
         foreach ($order['links'] as $linkData) {
             $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
-                ? LinkType::Payment
-                : LinkType::Debug;
+                ? GatewayLinkType::Payment
+                : GatewayLinkType::Debug;
 
-            $link = new Link();
-            $link->href = $linkData['href'];
+            $link = new GatewayLink();
+            $link->url = $linkData['href'];
             $link->rel = $linkData['rel'];
             $link->method = $linkData['method'];
             $link->type = $linkType;

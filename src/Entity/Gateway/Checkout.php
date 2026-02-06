@@ -7,7 +7,7 @@ use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\MigratedTrait;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\Link;
+use App\Gateway\GatewayLink;
 use App\Gateway\RefundStrategy;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Gateway\CheckoutRepository;
@@ -91,7 +91,7 @@ class Checkout
      * A list of URLs provided by the Gateway for this checkout.\
      * e.g: Fulfill payment, API resource address.
      *
-     * @var Link[]
+     * @var GatewayLink[]
      */
     #[ORM\Column]
     private array $links = [];
@@ -225,7 +225,7 @@ class Checkout
     }
 
     /**
-     * @return Link[]
+     * @return GatewayLink[]
      */
     public function getLinks(): array
     {
@@ -233,7 +233,7 @@ class Checkout
     }
 
     /**
-     * @param Link[] $links
+     * @param GatewayLink[] $links
      */
     public function setLinks(array $links): static
     {
@@ -242,7 +242,7 @@ class Checkout
         return $this;
     }
 
-    public function addLink(Link $link): static
+    public function addLink(GatewayLink $link): static
     {
         $this->removeLink($link);
 
@@ -251,12 +251,12 @@ class Checkout
         return $this;
     }
 
-    public function removeLink(Link $link): static
+    public function removeLink(GatewayLink $link): static
     {
         $this->links = \array_filter(
-            \array_map(fn($l) => Link::tryFrom($l), $this->links),
-            function (Link $existingLink) use ($link) {
-                return $existingLink->href !== $link->href;
+            \array_map(fn($l) => GatewayLink::tryFrom($l), $this->links),
+            function (GatewayLink $existingLink) use ($link) {
+                return $existingLink->url !== $link->url;
             }
         );
 
