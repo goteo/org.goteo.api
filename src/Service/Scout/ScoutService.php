@@ -40,7 +40,7 @@ class ScoutService
      * @param string $url A URL to an external resource
      *
      * @throws InvalidUriException When the given $url string could not be validated as an actual URL
-     * @throws FileException       When the given $url string could not be validated as an actual URL
+     * @throws FileUriException    If the given $url string points to a file
      */
     public function get(string $url): ScoutResult
     {
@@ -56,7 +56,7 @@ class ScoutService
         $uri = $this->embed->getCrawler()->createUri($url);
 
         if (\pathinfo($uri->getPath(), \PATHINFO_EXTENSION)) {
-            throw new FileException();
+            throw new FileUriException($uri);
         }
 
         $info = $this->embed->get($url);

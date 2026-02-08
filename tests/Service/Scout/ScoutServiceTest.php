@@ -2,7 +2,7 @@
 
 namespace App\Tests\Service\Scout;
 
-use App\Service\Scout\FileException;
+use App\Service\Scout\FileUriException;
 use App\Service\Scout\InvalidUriException;
 use App\Service\Scout\ScoutService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -42,7 +42,8 @@ class ScoutServiceTest extends KernelTestCase
      */
     public function testThrowsExceptionOnPathsToBinaryFiles(string $url)
     {
-        $this->expectException(FileException::class);
+        $this->expectException(FileUriException::class);
+        $this->expectExceptionMessageMatches(\sprintf('/\(%s\)$/', \preg_quote($url, '/')));
 
         $this->scout->get($url);
     }
