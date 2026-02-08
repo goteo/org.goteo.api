@@ -40,6 +40,7 @@ class ScoutServiceTest extends KernelTestCase
             ['https://vimeo.com/1047182474/5a2a1cb70b?share=copy'],
             ['youtube.com/watch?v=D14QGWH2CfY'],
             ['www.youtube.com/watch?si=hbrQ4ZazrdwccLTk&v=pdfGwxa5Kwc&feature=youtu.be'],
+            ['https://www.youtube.com/watch?v=47et__pjxZ8&t=6s'],
             ['https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
             ['https://www.youtube.com/watch?v=oyYOBXDYGmY&ab_channel=Fes%21Cultura'],
             ['youtu.be/CLSXLA7jUsQ'],
