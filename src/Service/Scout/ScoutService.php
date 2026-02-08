@@ -25,7 +25,7 @@ class ScoutService
         $this->embed = $embed;
     }
 
-    private function normalizeUrl(string $url)
+    private function normalizeUrl(string $url): string
     {
         $nurl = $url;
 
@@ -39,16 +39,27 @@ class ScoutService
     /**
      * @param string $url A URL to an external resource
      *
-     * @throws \Exception When the given $url string could not be validated as an actual URL
+     * @throws InvalidUriException When the given $url string could not be validated as an actual URL
+     * @throws FileException       When the given $url string could not be validated as an actual URL
      */
     public function get(string $url): ScoutResult
     {
+        $url = $this->normalizeUrl($url);
+
+        $host = \parse_url($url, \PHP_URL_HOST);
         $isValidUrl = Validation::createIsValidCallable(null, new Url(), new NotBlank());
-        if (!$isValidUrl($url)) {
-            throw new \Exception(\sprintf("Value '%s' could not be validated as an URL", $url));
+
+        if (!\str_contains($host ?? '', '.') || !$isValidUrl($url)) {
+            throw new InvalidUriException();
         }
 
-        $info = $this->embed->get($this->normalizeUrl($url));
+        $uri = $this->embed->getCrawler()->createUri($url);
+
+        if (\pathinfo($uri->getPath(), \PATHINFO_EXTENSION)) {
+            throw new FileException();
+        }
+
+        $info = $this->embed->get($url);
 
         $result = new ScoutResult(
             $info->getUri(),

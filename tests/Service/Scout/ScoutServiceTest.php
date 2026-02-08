@@ -2,6 +2,8 @@
 
 namespace App\Tests\Service\Scout;
 
+use App\Service\Scout\FileException;
+use App\Service\Scout\InvalidUriException;
 use App\Service\Scout\ScoutService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -21,7 +23,7 @@ class ScoutServiceTest extends KernelTestCase
      */
     public function testThrowsExceptionOnUnrecognized(string $string)
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(InvalidUriException::class);
 
         $this->scout->get($string);
     }
@@ -32,6 +34,23 @@ class ScoutServiceTest extends KernelTestCase
             ['not a url'],
             ['media'],
             [''],
+        ];
+    }
+
+    /**
+     * @dataProvider providePathsToBinaryFiles
+     */
+    public function testThrowsExceptionOnPathsToBinaryFiles(string $url)
+    {
+        $this->expectException(FileException::class);
+
+        $this->scout->get($url);
+    }
+
+    public function providePathsToBinaryFiles(): array
+    {
+        return [
+            ['https://sialmaraz.es/wp-content/uploads/2025/01/MANIFESTACION-ALMARAZ-18_1.mp4'],
         ];
     }
 
