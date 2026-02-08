@@ -16,6 +16,6 @@ class ProjectVideoMapTransformer implements PropertyTransformerInterface
     {
         $info = $this->scoutService->get($value);
 
-        return new ProjectVideo($info->src, $info->cover, $info->image);
+        return new ProjectVideo($info->url, $info->cover, $info->image);
     }
 }
