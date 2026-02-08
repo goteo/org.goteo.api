@@ -9,11 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
 class ProjectVideo
 {
     public function __construct(
-        #[ORM\Column(type: Types::STRING, nullable: true)]
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
         public readonly string $src = '',
-        #[ORM\Column(type: Types::STRING, nullable: true)]
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
         public readonly ?string $cover = null,
-        #[ORM\Column(type: Types::STRING, nullable: true)]
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
         public readonly ?string $thumbnail = null,
     ) {}
 }
