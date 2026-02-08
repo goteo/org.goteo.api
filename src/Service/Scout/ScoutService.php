@@ -5,6 +5,9 @@ namespace App\Service\Scout;
 use Embed\Embed;
 use Embed\Http\Crawler;
 use Psr\Http\Client\ClientInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
 
 class ScoutService
 {
@@ -35,9 +38,16 @@ class ScoutService
 
     /**
      * @param string $url A URL to an external resource
+     *
+     * @throws \Exception When the given $url string could not be validated as an actual URL
      */
     public function get(string $url): ScoutResult
     {
+        $isValidUrl = Validation::createIsValidCallable(null, new Url(), new NotBlank());
+        if (!$isValidUrl($url)) {
+            throw new \Exception(\sprintf("Value '%s' could not be validated as an URL", $url));
+        }
+
         $info = $this->embed->get($this->normalizeUrl($url));
 
         $result = new ScoutResult(

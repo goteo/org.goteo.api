@@ -17,6 +17,25 @@ class ScoutServiceTest extends KernelTestCase
     }
 
     /**
+     * @dataProvider provideNotUrls
+     */
+    public function testThrowsExceptionOnUnrecognized(string $string)
+    {
+        $this->expectException(\Exception::class);
+
+        $this->scout->get($string);
+    }
+
+    public function provideNotUrls()
+    {
+        return [
+            ['not a url'],
+            ['media'],
+            [''],
+        ];
+    }
+
+    /**
      * @dataProvider provideVideoUrls
      */
     public function testGetsVideoCover(string $url)
@@ -46,25 +65,6 @@ class ScoutServiceTest extends KernelTestCase
             ['youtu.be/CLSXLA7jUsQ'],
             ['https://youtu.be/_crFO_jZ95o'],
             ['https://youtu.be/_URpSvDyod4?feature=shared'],
-        ];
-    }
-
-    /**
-     * @dataProvider provideNotUrls
-     */
-    public function testThrowsExceptionOnUnrecognized(string $string)
-    {
-        $this->expectException(\Exception::class);
-
-        $this->scout->get($string);
-    }
-
-    public function provideNotUrls()
-    {
-        return [
-            ['not a url'],
-            ['media'],
-            [''],
         ];
     }
 }
