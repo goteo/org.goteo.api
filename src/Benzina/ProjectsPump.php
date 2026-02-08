@@ -56,7 +56,7 @@ class ProjectsPump implements PumpInterface
         }
 
         $created = new \DateTime($record['created']);
-        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InDraft]) && $created < new \DateTime('2024-01-01')) {
+        if (\in_array($status, [ProjectStatus::InDraft]) && $created < new \DateTime('2025-01-01')) {
             return;
         }
 
