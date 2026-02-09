@@ -3,9 +3,9 @@
 namespace App\Entity\Project;
 
 use App\Entity\EmbeddableMoney as Money;
-use App\Entity\Interface\LocalizedEntityInterface;
-use App\Entity\Trait\LocalizedEntityTrait;
-use App\Entity\Trait\MigratedEntity;
+use App\Entity\LocalizedInterface;
+use App\Entity\LocalizedTrait;
+use App\Entity\MigratedTrait;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\BudgetItemRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -16,10 +16,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Table(name: 'project_budget_item')]
 #[ORM\Entity(repositoryClass: BudgetItemRepository::class)]
-class BudgetItem implements LocalizedEntityInterface
+class BudgetItem implements LocalizedInterface
 {
-    use MigratedEntity;
-    use LocalizedEntityTrait;
+    use MigratedTrait;
+    use LocalizedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

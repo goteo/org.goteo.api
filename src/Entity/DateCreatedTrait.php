@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Entity\Trait;
+namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-trait TimestampedCreationEntity
+trait DateCreatedTrait
 {
     /**
      * Entity creation timestamp.

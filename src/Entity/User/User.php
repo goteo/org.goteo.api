@@ -3,11 +3,13 @@
 namespace App\Entity\User;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Accounting\AccountingOwnerInterface;
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
+use App\Entity\DedupedTrait;
+use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
-use App\Entity\Trait\MigratedEntity;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Library\Link;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -34,9 +36,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity('handle', message: 'This handle is already in use.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
-    use MigratedEntity;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use MigratedTrait;
+    use DedupedTrait;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -110,6 +113,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $avatar = null;
+
+    /**
+     * A list of URLs provided by the User.\
+     * e.g: social profiles, personal website.
+     *
+     * @var Link[]
+     */
+    #[ORM\Column(nullable: true)]
+    private ?array $links = null;
 
     public function __construct()
     {
@@ -366,6 +378,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setAvatar(?string $avatar): static
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * @return Link[]
+     */
+    public function getLinks(): ?array
+    {
+        return $this->links;
+    }
+
+    /**
+     * @param Link[] $links
+     */
+    public function setLinks(?array $links): static
+    {
+        $this->links = $links;
 
         return $this;
     }

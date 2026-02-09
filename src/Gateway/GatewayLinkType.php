@@ -2,7 +2,7 @@
 
 namespace App\Gateway;
 
-enum LinkType: string
+enum GatewayLinkType: string
 {
     /**
      * A 'debug' type link indicates a link that is helpful to developers and platform maintainers to get info about the checkout.

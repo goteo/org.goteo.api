@@ -2,9 +2,9 @@
 
 namespace App\Entity\User;
 
-use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\UserOwnedTrait;
+use App\Entity\DateCreatedTrait;
+use App\Entity\UserOwnedInterface;
+use App\Entity\UserOwnedTrait;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserTokenRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -23,7 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserTokenRepository::class)]
 class UserToken implements UserOwnedInterface
 {
-    use TimestampedCreationEntity;
+    use DateCreatedTrait;
     use UserOwnedTrait;
 
     #[ORM\Id]

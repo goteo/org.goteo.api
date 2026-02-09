@@ -29,6 +29,7 @@ use App\Repository\Project\SupportRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Gateway\CheckoutService;
+use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -214,7 +215,13 @@ class InvestsPump implements PumpInterface
             return $this->userRepository->find($this->userCache[$id]);
         }
 
-        $user = $this->userRepository->findOneBy(['migratedId' => $id]);
+        $criteria = new Criteria();
+        $criteria
+            ->orWhere($criteria->expr()->eq('migratedId', $id))
+            ->orWhere($criteria->expr()->contains('dedupedIds', $id))
+            ->setMaxResults(1);
+
+        $user = $this->userRepository->matching($criteria)->first();
 
         $this->userCache[$id] = $user->getId();
 

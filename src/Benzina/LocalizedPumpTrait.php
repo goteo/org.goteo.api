@@ -2,7 +2,7 @@
 
 namespace App\Benzina;
 
-use App\Entity\Interface\LocalizedEntityInterface;
+use App\Entity\LocalizedInterface;
 use Gedmo\Translatable\Entity\Translation;
 use Goteo\Benzina\Pump\ContextAwareTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -16,7 +16,7 @@ trait LocalizedPumpTrait
     private static array $translatableFieldsCache = [];
 
     public function localize(
-        LocalizedEntityInterface $entity,
+        LocalizedInterface $entity,
         array $localizations = [],
         array $context = [],
         array $fieldCallbacks = [],

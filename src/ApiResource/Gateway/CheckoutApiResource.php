@@ -8,7 +8,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\Link;
+use App\Gateway\GatewayLink;
 use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
 use App\Mapping\Transformer\GatewayNameMapTransformer;
@@ -92,7 +92,7 @@ class CheckoutApiResource
     /**
      * A list of related hyperlinks, as provided by the Gateway.
      *
-     * @var Link[]
+     * @var GatewayLink[]
      */
     #[API\ApiProperty(writable: false)]
     #[MapTo(Checkout::class, transformer: [self::class, 'parseLinks'])]
@@ -115,6 +115,6 @@ class CheckoutApiResource
 
     public static function parseLinks(array $values)
     {
-        return \array_map(fn($value) => Link::tryFrom($value), $values);
+        return \array_map(fn($value) => GatewayLink::tryFrom($value), $values);
     }
 }

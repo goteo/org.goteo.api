@@ -23,6 +23,11 @@ framework:
 
     default_locale: '%env(APP_LOCALE)%'
 
+    http_client:
+        default_options:
+            headers:
+                'User-Agent': 'Platoniq Goteo-v4-API'
+
 when@test:
     framework:
         test: true
