@@ -20,11 +20,13 @@ use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\ProjectVideo;
 use App\Entity\Territory;
+use App\Library\Link;
 use App\Mapping\Transformer\BudgetMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\ProjectStateProcessor;
 use App\State\Project\ProjectStateProvider;
 use AutoMapper\Attribute\MapFrom;
+use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -187,4 +189,20 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $matchCallSubmissions;
+
+    /**
+     * A list of URLs related to the Project.\
+     * e.g: social profiles, project website.
+     *
+     * @var Link[]
+     */
+    #[API\ApiProperty(writable: false)]
+    #[MapTo(Project::class, transformer: [self::class, 'parseLinks'])]
+    #[MapFrom(Project::class, transformer: [self::class, 'parseLinks'])]
+    public array $links = [];
+
+    public static function parseLinks(array $values)
+    {
+        return \array_map(fn($value) => Link::tryFrom($value), $values);
+    }
 }

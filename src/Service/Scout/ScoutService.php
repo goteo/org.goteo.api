@@ -5,6 +5,9 @@ namespace App\Service\Scout;
 use Embed\Embed;
 use Embed\Http\Crawler;
 use Psr\Http\Client\ClientInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
 
 class ScoutService
 {
@@ -22,7 +25,7 @@ class ScoutService
         $this->embed = $embed;
     }
 
-    private function normalizeUrl(string $url)
+    private function normalizeUrl(string $url): string
     {
         $nurl = $url;
 
@@ -35,10 +38,28 @@ class ScoutService
 
     /**
      * @param string $url A URL to an external resource
+     *
+     * @throws InvalidUriException When the given $url string could not be validated as an actual URL
+     * @throws FileUriException    If the given $url string points to a file
      */
     public function get(string $url): ScoutResult
     {
-        $info = $this->embed->get($this->normalizeUrl($url));
+        $url = $this->normalizeUrl($url);
+
+        $host = \parse_url($url, \PHP_URL_HOST);
+        $isValidUrl = Validation::createIsValidCallable(null, new Url(), new NotBlank());
+
+        if (!\str_contains($host ?? '', '.') || !$isValidUrl($url)) {
+            throw new InvalidUriException();
+        }
+
+        $uri = $this->embed->getCrawler()->createUri($url);
+
+        if (\pathinfo($uri->getPath(), \PATHINFO_EXTENSION)) {
+            throw new FileUriException($uri);
+        }
+
+        $info = $this->embed->get($url);
 
         $result = new ScoutResult(
             $info->getUri(),
