@@ -20,7 +20,7 @@
         "embed/embed": "^4.4",
         "gedmo/doctrine-extensions": "3.20",
         "goteo/benzina": "^0.5",
-        "jolicode/automapper": "^9.2",
+        "jolicode/automapper": "9.2.1",
         "league/oauth2-server-bundle": "^1.1",
         "nelmio/cors-bundle": "^2.3",
         "nyholm/psr7": "*",
