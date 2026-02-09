@@ -37,7 +37,7 @@ final class MatchfundingListener
             return;
         }
 
-        if ($charge->getStatus() !== ChargeStatus::Charged) {
+        if ($charge->getStatus() !== ChargeStatus::InCharge) {
             return;
         }
 

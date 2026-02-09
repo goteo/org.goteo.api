@@ -12,9 +12,10 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\User\UserRepository;
-use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
+use App\Service\Scout\ScoutService;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -31,7 +32,7 @@ class ProjectsPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
-        private EmbedService $embedService,
+        private ScoutService $scoutService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -111,7 +112,13 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectOwner(array $record): ?User
     {
-        return $this->userRepository->findOneBy(['migratedId' => $record['owner']]);
+        $criteria = new Criteria();
+        $criteria
+            ->orWhere($criteria->expr()->eq('migratedId', $record['owner']))
+            ->orWhere($criteria->expr()->contains('dedupedIds', $record['owner']))
+            ->setMaxResults(1);
+
+        return $this->userRepository->matching($criteria)->first() ?? null;
     }
 
     private function getProjectDescription(array $record): string
@@ -224,9 +231,9 @@ class ProjectsPump implements PumpInterface
         }
 
         try {
-            $video = $this->embedService->getVideo($url);
+            $info = $this->scoutService->get($url);
 
-            return new ProjectVideo($video->src, $video->thumbnail);
+            return new ProjectVideo($info->src, $info->cover, $info->image);
         } catch (\Exception $e) {
             return null;
         }

@@ -4,8 +4,11 @@ namespace App\Tests\Gateway\Wallet;
 
 use App\Entity\Accounting\Transaction;
 use App\Entity\EmbeddableMoney;
+use App\Entity\Gateway\Charge;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
+use App\Gateway\ChargeStatus;
+use App\Gateway\ChargeType;
 use App\Gateway\Wallet\StatementDirection;
 use App\Gateway\Wallet\WalletService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -98,7 +101,7 @@ class WalletServiceTest extends KernelTestCase
         $this->assertCount(0, $statement->getFinancedBy());
     }
 
-    public function testTransactionsListenerAddFunds()
+    public function testChargesListenerAddFunds()
     {
         $tipjar = $this->getTipjar()->getAccounting();
         $user = $this->getUser()->getAccounting();
@@ -112,10 +115,18 @@ class WalletServiceTest extends KernelTestCase
         $this->assertEquals(0, $balance->getAmount());
         $this->assertEquals($user->getCurrency(), $balance->getCurrency());
 
-        $incoming = new Transaction();
+        $incoming = new Charge();
+        $incoming->setTitle('Wallet Test Charge');
+        $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(100, 'EUR'));
-        $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
+
+        $intrx = new Transaction();
+        $intrx->setMoney($incoming->getMoney());
+        $intrx->setOrigin($tipjar);
+        $intrx->setTarget($incoming->getTarget());
+        $incoming->addTransaction($intrx);
 
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
@@ -142,10 +153,18 @@ class WalletServiceTest extends KernelTestCase
         $tipjar = $this->getTipjar()->getAccounting();
         $user = $this->getUser()->getAccounting();
 
-        $incoming = new Transaction();
+        $incoming = new Charge();
+        $incoming->setTitle('Wallet Test Charge');
+        $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(100, 'EUR'));
-        $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
+
+        $intrx = new Transaction();
+        $intrx->setMoney($incoming->getMoney());
+        $intrx->setOrigin($tipjar);
+        $intrx->setTarget($incoming->getTarget());
+        $incoming->addTransaction($intrx);
 
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
@@ -241,18 +260,34 @@ class WalletServiceTest extends KernelTestCase
         $tipjar = $this->getTipjar()->getAccounting();
         $user = $this->getUser()->getAccounting();
 
-        $incoming = new Transaction();
+        $incoming = new Charge();
+        $incoming->setTitle('Wallet Test Charge');
+        $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(10, 'EUR'));
-        $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
+
+        $intrx = new Transaction();
+        $intrx->setMoney($incoming->getMoney());
+        $intrx->setOrigin($tipjar);
+        $intrx->setTarget($incoming->getTarget());
+        $incoming->addTransaction($intrx);
 
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
 
-        $incoming = new Transaction();
+        $incoming = new Charge();
+        $incoming->setTitle('Wallet Test Charge');
+        $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(11, 'EUR'));
-        $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
+
+        $intrx = new Transaction();
+        $intrx->setMoney($incoming->getMoney());
+        $intrx->setOrigin($tipjar);
+        $intrx->setTarget($incoming->getTarget());
+        $incoming->addTransaction($intrx);
 
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
@@ -267,10 +302,18 @@ class WalletServiceTest extends KernelTestCase
         $this->entityManager->persist($expenditure);
         $this->entityManager->flush();
 
-        $incoming = new Transaction();
+        $incoming = new Charge();
+        $incoming->setTitle('Wallet Test Charge');
+        $incoming->setType(ChargeType::Single);
         $incoming->setMoney(new EmbeddableMoney(13, 'EUR'));
-        $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
+        $incoming->setStatus(ChargeStatus::InCharge);
+
+        $intrx = new Transaction();
+        $intrx->setMoney($incoming->getMoney());
+        $intrx->setOrigin($tipjar);
+        $intrx->setTarget($incoming->getTarget());
+        $incoming->addTransaction($intrx);
 
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();

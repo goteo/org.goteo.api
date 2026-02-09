@@ -31,6 +31,11 @@ class CashGateway implements GatewayInterface
         return $checkout;
     }
 
+    public function refund(Charge $charge): Charge
+    {
+        return $charge;
+    }
+
     public function handleRedirect(Request $request): RedirectResponse
     {
         return new Response();
@@ -39,10 +44,5 @@ class CashGateway implements GatewayInterface
     public function handleWebhook(Request $request): Response
     {
         return new Response();
-    }
-
-    public function processRefund(Charge $charge): void
-    {
-        return;
     }
 }

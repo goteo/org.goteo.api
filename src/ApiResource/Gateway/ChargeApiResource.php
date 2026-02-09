@@ -88,13 +88,15 @@ class ChargeApiResource
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
-    public ChargeStatus $status = ChargeStatus::InPending;
+    public ChargeStatus $status = ChargeStatus::ToCharge;
 
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\DateFilter::class)]
+    #[API\ApiFilter(Filter\OrderFilter::class, properties: ['dateCreated' => 'DESC'])]
     public \DateTimeInterface $dateCreated;
 
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\DateFilter::class)]
+    #[API\ApiFilter(Filter\OrderFilter::class, properties: ['dateUpdated' => 'DESC'])]
     public \DateTimeInterface $dateUpdated;
 }

@@ -3,9 +3,9 @@
 namespace App\Entity\Gateway;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Trait\MigratedEntity;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
+use App\Entity\MigratedTrait;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\RefundStrategy;
@@ -28,13 +28,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[MapProvider(EntityMapProvider::class)]
 #[Gedmo\Loggable()]
-#[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
+#[ORM\Index(fields: ['gatewayName', 'id'])]
+#[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 class Checkout
 {
-    use MigratedEntity;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use MigratedTrait;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -103,7 +104,7 @@ class Checkout
 
     public function __construct()
     {
-        $this->status = CheckoutStatus::InPending;
+        $this->status = CheckoutStatus::ToCharge;
         $this->charges = new ArrayCollection();
         $this->trackings = new ArrayCollection();
     }

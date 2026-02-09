@@ -84,6 +84,31 @@ class StripeGateway extends AbstractGateway
         return $checkout;
     }
 
+    public function refund(Charge $charge): Charge
+    {
+        $trackings = $charge->getCheckout()->getTrackings();
+        $sessionTracking = $trackings->filter(function (Tracking $t) {
+            return $t->getTitle() === self::TRACKING_TITLE_CHECKOUT;
+        })->current();
+
+        if (!$sessionTracking) {
+            throw new \Exception('Tracking for Stripe Session ID not found.');
+        }
+
+        $sessionId = $sessionTracking->getValue();
+
+        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
+
+        $paymentIntent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
+
+        $this->stripe->refunds->create([
+            'payment_intent' => $paymentIntent->id,
+            'amount' => $charge->getMoney()->amount,
+        ]);
+
+        return $this->chargeService->addRefundTransaction($charge);
+    }
+
     public function handleRedirect(Request $request): RedirectResponse
     {
         // TO-DO: handle non-success type redirect
@@ -185,7 +210,7 @@ class StripeGateway extends AbstractGateway
             throw new \Exception(\sprintf(
                 "Charges instance of class '%s' not in supported Stripe targets: %s",
                 $target::class,
-                join(',', self::SUPPORTED_TARGETS)
+                join(', ', self::SUPPORTED_TARGETS)
             ));
         }
 
@@ -210,30 +235,5 @@ class StripeGateway extends AbstractGateway
         }
 
         return $product;
-    }
-
-    public function processRefund(Charge $charge): void
-    {
-        $trackings = $charge->getCheckout()->getTrackings();
-        $sessionTracking = $trackings->filter(function (Tracking $t) {
-            return $t->getTitle() === self::TRACKING_TITLE_CHECKOUT;
-        })->current();
-
-        if (!$sessionTracking) {
-            throw new \Exception('Tracking for Stripe Session ID not found.');
-        }
-
-        $sessionId = $sessionTracking->getValue();
-
-        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
-
-        $paymentIntent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
-
-        $this->stripe->refunds->create([
-            'payment_intent' => $paymentIntent->id,
-            'amount' => $charge->getMoney()->amount,
-        ]);
-
-        $this->chargeService->addRefundTransaction($charge);
     }
 }

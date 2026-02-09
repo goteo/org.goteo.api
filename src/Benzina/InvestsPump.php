@@ -29,6 +29,7 @@ use App\Repository\Project\SupportRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\User\UserRepository;
 use App\Service\Gateway\CheckoutService;
+use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -163,7 +164,7 @@ class InvestsPump implements PumpInterface
         }
 
         foreach ($checkout->getCharges() as $charge) {
-            if (!\in_array($charge->getStatus(), [ChargeStatus::Charged, ChargeStatus::Refunded])) {
+            if (!\in_array($charge->getStatus(), [ChargeStatus::InCharge, ChargeStatus::Refunded])) {
                 continue;
             }
 
@@ -177,7 +178,7 @@ class InvestsPump implements PumpInterface
 
             if (
                 $charge->getTarget()->getOwner() instanceof Project
-                && $charge->getStatus() === ChargeStatus::Charged
+                && $charge->getStatus() === ChargeStatus::InCharge
             ) {
                 $support = $this->getSupport($charge);
                 $support->setProject($charge->getTarget()->getOwner());
@@ -214,7 +215,13 @@ class InvestsPump implements PumpInterface
             return $this->userRepository->find($this->userCache[$id]);
         }
 
-        $user = $this->userRepository->findOneBy(['migratedId' => $id]);
+        $criteria = new Criteria();
+        $criteria
+            ->orWhere($criteria->expr()->eq('migratedId', $id))
+            ->orWhere($criteria->expr()->contains('dedupedIds', $id))
+            ->setMaxResults(1);
+
+        $user = $this->userRepository->matching($criteria)->first();
 
         $this->userCache[$id] = $user->getId();
 
@@ -380,16 +387,16 @@ class InvestsPump implements PumpInterface
             case 3:
             case 7:
                 if ($record['issue'] === 1) {
-                    return ChargeStatus::InPending;
+                    return ChargeStatus::ToCharge;
                 }
 
-                return ChargeStatus::Charged;
+                return ChargeStatus::InCharge;
             case 2:
             case 4:
             case 6:
                 return ChargeStatus::Refunded;
             default:
-                return ChargeStatus::InPending;
+                return ChargeStatus::ToCharge;
         }
     }
 
@@ -401,12 +408,12 @@ class InvestsPump implements PumpInterface
             case 3:
             case 7:
                 if ($record['issue'] === 1) {
-                    return CheckoutStatus::InPending;
+                    return CheckoutStatus::ToCharge;
                 }
 
                 return CheckoutStatus::Charged;
             default:
-                return CheckoutStatus::InPending;
+                return CheckoutStatus::ToCharge;
         }
     }
 

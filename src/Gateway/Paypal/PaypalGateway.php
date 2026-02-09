@@ -90,6 +90,30 @@ class PaypalGateway extends AbstractGateway
         return $checkout;
     }
 
+    public function refund(Charge $charge): Charge
+    {
+        $trackings = $charge->getCheckout()->getTrackings();
+        $captureTracking = $trackings->filter(function (Tracking $t) {
+            return $t->getTitle() === self::TRACKING_TITLE_TRANSACTION && $t->getValue();
+        })->current();
+
+        if (!$captureTracking) {
+            throw new \Exception('Tracking for PayPal capture ID not found.');
+        }
+
+        $captureId = $captureTracking->getValue();
+
+        $response = $this->paypal->refundCapture($captureId, [
+            'amount' => $this->getPaypalMoney($charge),
+        ]);
+
+        if (!in_array($response['status'], ['COMPLETED', 'PENDING'], true)) {
+            throw new \Exception(sprintf('Refund failed. PayPal status: %s', $response['status']));
+        }
+
+        return $this->chargeService->addRefundTransaction($charge);
+    }
+
     public function handleRedirect(Request $request): RedirectResponse
     {
         // TO-DO: handle non-success type redirect requests
@@ -263,29 +287,5 @@ class PaypalGateway extends AbstractGateway
                 ],
             ],
         ];
-    }
-
-    public function processRefund(Charge $charge): void
-    {
-        $trackings = $charge->getCheckout()->getTrackings();
-        $captureTracking = $trackings->filter(function (Tracking $t) {
-            return $t->getTitle() === self::TRACKING_TITLE_TRANSACTION && $t->getValue();
-        })->current();
-
-        if (!$captureTracking) {
-            throw new \Exception('Tracking for PayPal capture ID not found.');
-        }
-
-        $captureId = $captureTracking->getValue();
-
-        $response = $this->paypal->refundCapture($captureId, [
-            'amount' => $this->getPaypalMoney($charge),
-        ]);
-
-        if (!in_array($response['status'], ['COMPLETED', 'PENDING'], true)) {
-            throw new \Exception(sprintf('Refund failed. PayPal status: %s', $response['status']));
-        }
-
-        $this->chargeService->addRefundTransaction($charge);
     }
 }
