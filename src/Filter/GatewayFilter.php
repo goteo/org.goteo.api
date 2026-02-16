@@ -63,8 +63,6 @@ final class GatewayFilter extends AbstractFilter
         $queryBuilder
             ->andWhere($queryBuilder->expr()->eq($aliasedField, $parameterName))
             ->setParameter($parameterName, $this->getGatewayName($values[0]));
-
-        return;
     }
 
     private function getGatewayName(mixed $value): string
