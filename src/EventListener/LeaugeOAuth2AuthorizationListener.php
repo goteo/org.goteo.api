@@ -22,15 +22,16 @@ final class LeaugeOAuth2AuthorizationListener
     public function onAuthorizationRequestResolve(AuthorizationRequestResolveEvent $event): void
     {
         $request = $this->requestStack->getCurrentRequest();
-        $authorization = $request->getSession()->get(self::AUTHORIZATION_RESULT, false);
 
-        if (!$authorization) {
-            $event->setResponse(new RedirectResponse($this->urlGenerator->generate('app_consent')));
+        if ($request->getSession()->has(self::AUTHORIZATION_RESULT)) {
+            $event->resolveAuthorization($request->getSession()->get(self::AUTHORIZATION_RESULT));
+            $request->getSession()->remove(self::AUTHORIZATION_RESULT);
 
             return;
         }
 
-        $event->resolveAuthorization($authorization);
-        $request->getSession()->remove(self::AUTHORIZATION_RESULT);
+        $event->setResponse(new RedirectResponse(
+            $this->urlGenerator->generate('app_consent', $request->query->all())
+        ));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\EventListener\LeaugeOAuth2AuthorizationListener;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,15 @@ class SecurityController extends AbstractController
     #[Route(path: '/consent', name: 'app_consent')]
     public function consent(Request $request): Response
     {
-        dd($request);
+        if ($request->getMethod() === Request::METHOD_POST) {
+            $request->getSession()->set(
+                LeaugeOAuth2AuthorizationListener::AUTHORIZATION_RESULT,
+                $request->get('_consent')
+            );
+
+            return $this->redirectToRoute('oauth2_authorize', $request->query->all());
+        }
+
+        return $this->render('security/consent.html.twig');
     }
 }
