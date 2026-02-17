@@ -11,8 +11,8 @@ use App\Entity\User\User;
 use App\Gateway\AbstractGateway;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\Link;
-use App\Gateway\LinkType;
+use App\Gateway\GatewayLink;
+use App\Gateway\GatewayLinkType;
 use App\Service\Gateway\CheckoutService;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
@@ -71,12 +71,12 @@ class StripeGateway extends AbstractGateway
             ),
         ]);
 
-        $link = new Link();
+        $link = new GatewayLink();
 
-        $link->href = $session->url;
+        $link->url = $session->url;
         $link->rel = 'approve';
         $link->method = Request::METHOD_GET;
-        $link->type = LinkType::Payment;
+        $link->type = GatewayLinkType::Payment;
 
         $checkout->addLink($link);
         $checkout->addTracking(new Tracking(self::TRACKING_TITLE_CHECKOUT, $session->id));

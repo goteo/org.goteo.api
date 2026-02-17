@@ -16,6 +16,7 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\UserOwnedInterface;
 use App\Entity\UserOwnedTrait;
+use App\Library\Link;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\ProjectRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -152,6 +153,15 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
      */
     #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'project')]
     private Collection $reviews;
+
+    /*
+     * A list of URLs provided by the Project owner.\
+     * e.g: social profiles, project website.
+     *
+     * @var Link[]
+     */
+    #[ORM\Column(nullable: true)]
+    private ?array $links = null;
 
     public function __construct()
     {
@@ -546,6 +556,24 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
                 $review->setProject(null);
             }
         }
+
+        return $this;
+    }
+
+    /*
+     * @return Link[]
+     */
+    public function getLinks(): ?array
+    {
+        return $this->links;
+    }
+
+    /**
+     * @param Link[] $links
+     */
+    public function setLinks(?array $links): static
+    {
+        $this->links = $links;
 
         return $this;
     }
