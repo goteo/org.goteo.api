@@ -24,7 +24,7 @@ class UpdateTest extends ProjectTestCase
             'description' => 'Updated project description',
         ];
 
-        $this->testRequestHelper($dataToModify, $this->getUri(1));
+        $this->request($this->getMethod(), $this->getUri(1), $dataToModify);
     }
 
     public function testUpdateUnauthorized(): void
@@ -58,7 +58,7 @@ class UpdateTest extends ProjectTestCase
         $client->request(
             $this->getMethod(),
             $this->getUri(1),
-            $this->getRequestOptions($client, $invalidInput)
+            $this->getRequestOptions($invalidInput)
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);

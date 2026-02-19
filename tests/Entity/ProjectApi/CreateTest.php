@@ -51,7 +51,7 @@ class CreateTest extends ProjectTestCase
         $requestData = array_merge($requestData, $setData);
 
         $this->createTestUser();
-        $this->testRequestHelper($requestData, self::BASE_URI, $expectedCode);
+        $this->request($this->getMethod(), self::BASE_URI, $requestData, $expectedCode);
     }
 
     private function testPostWithInvalidInput(array $invalidData): void
@@ -82,7 +82,7 @@ class CreateTest extends ProjectTestCase
         ];
 
         $client = static::createClient();
-        $client->request('POST', self::BASE_URI, $this->getRequestOptions($client, $requestData));
+        $client->request('POST', self::BASE_URI, $this->getRequestOptions($requestData));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -107,10 +107,5 @@ class CreateTest extends ProjectTestCase
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
-    }
-
-    public function testPostWithInvalidToken()
-    {
-        $this->testInvalidToken($this->getUri());
     }
 }
