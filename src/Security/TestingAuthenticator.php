@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Security;
+
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+
+class TestingAuthenticator extends AbstractAuthenticator
+{
+    public function __construct(
+        private string $appEnv,
+    ) {}
+
+    public function supports(Request $request): ?bool
+    {
+        if ($this->appEnv !== 'test') {
+            return false;
+        }
+
+        return $request->headers->has('X-Test-Scopes');
+    }
+
+    public function authenticate(Request $request): SelfValidatingPassport
+    {
+        $scopes = explode(' ', $request->headers->get('X-Test-Scopes'));
+        $passport = new SelfValidatingPassport(
+            new UserBadge('test-user'),
+            []
+        );
+
+        $passport->setAttribute('scopes', $scopes);
+
+        return $passport;
+    }
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    {
+        return null;
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    {
+        return new JsonResponse([
+            'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
+        ], Response::HTTP_UNAUTHORIZED);
+    }
+}

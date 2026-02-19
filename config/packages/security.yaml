@@ -23,6 +23,8 @@ security:
             security: true
             stateless: true
             oauth2: true
+            custom_authenticators:
+                - App\Security\TestingAuthenticator
         main:
             form_login:
                 login_path: app_login

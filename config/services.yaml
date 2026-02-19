@@ -75,6 +75,10 @@ services:
         arguments:
             - !tagged 'app.matchfunding.rule'
 
+    App\Security\TestingAuthenticator:
+        arguments:
+            - '%env(APP_ENV)%'
+
     App\Service\Auth\AuthService:
         arguments:
             - '%env(APP_SECRET)%'
