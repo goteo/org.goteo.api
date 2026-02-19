@@ -4,7 +4,7 @@ security:
         legacy:
             id: 'App\Security\Hasher\LegacyPasswordHasher'
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-            algorithm: 'auto'
+            algorithm: "auto"
             migrate_from:
                 - legacy
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
@@ -23,8 +23,6 @@ security:
             security: true
             stateless: true
             oauth2: true
-            custom_authenticators:
-                - App\Security\TestingAuthenticator
         main:
             form_login:
                 login_path: app_login
@@ -50,6 +48,11 @@ security:
 
 when@test:
     security:
+        firewalls:
+            api:
+                oauth2: false
+                custom_authenticators:
+                    - App\Security\TestingAuthenticator
         password_hashers:
             # By default, password hashers are resource intensive and take time. This is
             # important to generate secure password hashes. In tests however, secure hashes
