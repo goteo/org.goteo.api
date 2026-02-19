@@ -3,6 +3,7 @@
 namespace App\Tests\Traits;
 
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Security\TestingAuthenticator;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 trait RequestingTestTrait
@@ -36,7 +37,7 @@ trait RequestingTestTrait
     protected function getAuthHeaders(array $scopes = []): array
     {
         return [
-            'X-Test-Scopes' => \join(' ', $scopes),
+            TestingAuthenticator::AUTH_HEADER => \join(' ', $scopes),
         ];
     }
 }
