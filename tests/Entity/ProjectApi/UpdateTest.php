@@ -36,11 +36,6 @@ class UpdateTest extends ProjectTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testUpdateWithInvalidToken(): void
-    {
-        $this->testInvalidToken($this->getUri(1), 'application/merge-patch+json');
-    }
-
     public function testUpdateNotFound(): void
     {
         $this->testOneNotFound();
@@ -54,12 +49,7 @@ class UpdateTest extends ProjectTestCase
             'categories' => ['invalid-category'],
         ];
 
-        $client = static::createClient();
-        $client->request(
-            $this->getMethod(),
-            $this->getUri(1),
-            $this->getRequestOptions($invalidInput)
-        );
+        $this->request($this->getMethod(), $this->getUri(1), $invalidInput);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }

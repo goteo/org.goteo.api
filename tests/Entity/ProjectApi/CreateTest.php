@@ -81,8 +81,7 @@ class CreateTest extends ProjectTestCase
             'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
         ];
 
-        $client = static::createClient();
-        $client->request('POST', self::BASE_URI, $this->getRequestOptions($requestData));
+        $this->request('POST', self::BASE_URI, $requestData);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }

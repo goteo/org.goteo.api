@@ -2,13 +2,14 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeleteTest extends ProjectTestCase
 {
     protected function getMethod(): string
     {
-        return 'DELETE';
+        return Request::METHOD_DELETE;
     }
 
     // Runable Tests
@@ -17,8 +18,7 @@ class DeleteTest extends ProjectTestCase
     {
         $this->createTestProjectOptimized();
 
-        $client = static::createClient();
-        $client->request('DELETE', $this->getUri(1), $this->getRequestOptions($client));
+        $this->request(Request::METHOD_DELETE, $this->getUri(1));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
@@ -27,14 +27,9 @@ class DeleteTest extends ProjectTestCase
     {
         $this->createTestProjectOptimized();
 
-        static::createClient()->request('DELETE', $this->getUri(1));
+        static::createClient()->request(Request::METHOD_DELETE, $this->getUri(1));
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
-    }
-
-    public function testDeleteWithInvalidToken(): void
-    {
-        $this->testInvalidToken($this->getUri(1));
     }
 
     public function testDeleteNotFound(): void

@@ -65,12 +65,11 @@ class GetAllTest extends ProjectTestCase
         $valueName = $this->getString($searchValue);
 
         $uri = self::BASE_URI."?$param=$valueName";
-        $client = static::createClient();
-        $client->request($this->getMethod(), $uri, $this->getRequestOptions($client));
+        $response = $this->request($this->getMethod(), $uri);
 
         $this->assertResponseStatusCodeSame($responseCode);
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertCount($searchCount, $responseData['member']);
     }
 
@@ -94,14 +93,15 @@ class GetAllTest extends ProjectTestCase
             $valueNames[] = $this->getString($searchValue);
         }
 
-        $client = static::createClient();
-        $queryParams = $this->buildQueryParams($param, $valueNames);
-        $options = array_merge($this->getRequestOptions($client), $queryParams);
-        $client->request($this->getMethod(), $this->getUri(), $options);
+        $response = $this->request(
+            $this->getMethod(),
+            $this->getUri(),
+            $this->buildQueryParams($param, $valueNames)
+        );
 
         $this->assertResponseIsSuccessful();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertCount(count($searchValues), $responseData['member']);
     }
 
@@ -143,16 +143,11 @@ class GetAllTest extends ProjectTestCase
         $numberOfProjects = 2;
         ProjectFactory::createMany($numberOfProjects, ['owner' => $owner]);
 
-        $client = static::createClient();
-        $client->request(
-            $this->getMethod(),
-            self::BASE_URI,
-            $this->getRequestOptions($client)
-        );
+        $response = $this->request($this->getMethod(), self::BASE_URI);
 
         $this->assertResponseIsSuccessful();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertCount($numberOfProjects, $responseData['member']);
     }
 
@@ -166,16 +161,11 @@ class GetAllTest extends ProjectTestCase
 
         $this->createTestProjectOptimized($totalNumberOfProjects);
 
-        $client = static::createClient();
-        $client->request(
-            $this->getMethod(),
-            self::BASE_URI."?page=$page&itemsPerPage=$itemsPerPage",
-            $this->getRequestOptions($client)
-        );
+        $response = $this->request($this->getMethod(), self::BASE_URI."?page=$page&itemsPerPage=$itemsPerPage");
 
         $this->assertResponseIsSuccessful();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertSame($totalNumberOfProjects, $responseData['totalItems']);
         $this->assertCount(max($numberOfProjectsInPage, 0), $responseData['member']);
     }
@@ -187,16 +177,11 @@ class GetAllTest extends ProjectTestCase
 
         $this->createTestProjectOptimized($totalNumberOfProjects);
 
-        $client = static::createClient();
-        $client->request(
-            $this->getMethod(),
-            self::BASE_URI."?itemsPerPage=$itemsPerPage",
-            $this->getRequestOptions($client)
-        );
+        $response = $this->request($this->getMethod(), self::BASE_URI."?itemsPerPage=$itemsPerPage");
 
         $this->assertResponseIsSuccessful();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertSame($totalNumberOfProjects, $responseData['totalItems']);
         $this->assertCount($itemsPerPage, $responseData['member']);
     }
@@ -212,13 +197,12 @@ class GetAllTest extends ProjectTestCase
 
         $category = 'invalid_category';
         $uri = self::BASE_URI."?category=$category";
-        $client = static::createClient();
-        $client->request($this->getMethod(), $uri, $this->getRequestOptions($client));
+        $response = $this->request($this->getMethod(), $uri);
 
         $responseCode = Response::HTTP_OK;
         $this->assertResponseStatusCodeSame($responseCode);
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertCount(0, $responseData['member']);
     }
 
@@ -231,12 +215,11 @@ class GetAllTest extends ProjectTestCase
         ]);
 
         $uri = self::BASE_URI.'?title=NotFound';
-        $client = static::createClient();
-        $client->request($this->getMethod(), $uri, $this->getRequestOptions($client));
+        $response = $this->request($this->getMethod(), $uri);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertCount(0, $responseData['member']);
     }
 
@@ -276,12 +259,11 @@ class GetAllTest extends ProjectTestCase
     {
         $this->createTestProjectOptimized(1);
 
-        $client = static::createClient();
-        $client->request('GET', self::BASE_URI, $this->getRequestOptions($client));
+        $response = $this->request('GET', self::BASE_URI);
 
         $this->assertResponseIsSuccessful();
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $project = $responseData['member'][0];
 
         $localesKey = 'locales';
