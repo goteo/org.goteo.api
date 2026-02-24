@@ -51,7 +51,7 @@ class CreateTest extends ProjectTestCase
         $requestData = array_merge($requestData, $setData);
 
         $this->createTestUser();
-        $this->request($this->getMethod(), self::BASE_URI, $requestData, $expectedCode);
+        $this->request($this->getMethod(), self::BASE_URI, ['json' => $requestData], $expectedCode);
     }
 
     private function testPostWithInvalidInput(array $invalidData): void
@@ -81,7 +81,7 @@ class CreateTest extends ProjectTestCase
             'video' => 'https://www.youtube.com/watch?v=bnrVQHEXmOk',
         ];
 
-        $this->request('POST', self::BASE_URI, $requestData);
+        $this->request('POST', self::BASE_URI, ['json' => $requestData]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }

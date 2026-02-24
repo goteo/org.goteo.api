@@ -24,7 +24,7 @@ class UpdateTest extends ProjectTestCase
             'description' => 'Updated project description',
         ];
 
-        $this->request($this->getMethod(), $this->getUri(1), $dataToModify);
+        $this->request($this->getMethod(), $this->getUri(1), ['json' => $dataToModify]);
     }
 
     public function testUpdateUnauthorized(): void
@@ -49,7 +49,7 @@ class UpdateTest extends ProjectTestCase
             'categories' => ['invalid-category'],
         ];
 
-        $this->request($this->getMethod(), $this->getUri(1), $invalidInput);
+        $this->request($this->getMethod(), $this->getUri(1), ['json' => $invalidInput]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
