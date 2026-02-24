@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Entity\User\User;
+use App\Tests\Fixtures\TestUser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,10 +32,9 @@ class TestingAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): SelfValidatingPassport
     {
         $scopes = explode(' ', $request->headers->get(self::AUTH_HEADER));
-        $passport = new SelfValidatingPassport(
-            new UserBadge('test-user', fn() => new User()),
-            []
-        );
+        $user = TestUser::get()->setRoles($scopes);
+
+        $passport = new SelfValidatingPassport(new UserBadge($user->getUserIdentifier()), []);
 
         $passport->setAttribute('scopes', $scopes);
 
