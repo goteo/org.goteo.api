@@ -6,7 +6,6 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Territory;
 use App\Factory\CategoryFactory;
 use App\Factory\Project\ProjectFactory;
-use App\Factory\User\UserFactory;
 use App\Tests\Fixtures\TestUser;
 use App\Tests\Traits\RequestingTestTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,15 +66,5 @@ abstract class ProjectTestCase extends ApiTestCase
         $this->createTestProjectOptimized(1);
 
         $this->request($this->getMethod(), $this->getUri(999), [], Response::HTTP_NOT_FOUND);
-    }
-
-    protected function testForbidden(): void
-    {
-        $otherUser = UserFactory::new(['handle' => 'other_user', 'email' => 'otheruser@example.com']);
-        $this->createTestProjectOptimized(1, ['owner' => $otherUser]);
-
-        $this->request($this->getMethod(), $this->getUri(1));
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Tests\Traits;
 
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Entity\User\User;
 use App\Security\TestingAuthenticator;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -16,16 +17,17 @@ trait RequestingTestTrait
     ): ResponseInterface {
         /** @var Client */
         $client = static::createClient();
-        $response = $client->request($method, $uri, [
-            'headers' => [
-                ...$this->getAuthHeaders(['email']),
-                'Content-Type' => match ($method) {
-                    'PATCH' => 'application/merge-patch+json',
-                    default => 'application/json',
-                },
+        $response = $client->request($method, $uri, \array_merge_recursive(
+            [
+                'headers' => [
+                    'Content-Type' => match ($method) {
+                        'PATCH' => 'application/merge-patch+json',
+                        default => 'application/json',
+                    },
+                ],
             ],
-            ...$options,
-        ]);
+            $options,
+        ));
 
         if ($expectedCode !== null) {
             $this->assertResponseStatusCodeSame($expectedCode);
@@ -34,10 +36,10 @@ trait RequestingTestTrait
         return $response;
     }
 
-    protected function getAuthHeaders(array $scopes = []): array
+    protected function withAuthHeader(User $user): array
     {
         return [
-            TestingAuthenticator::AUTH_HEADER => \join(' ', $scopes),
+            TestingAuthenticator::AUTH_HEADER => $user->getId(),
         ];
     }
 }

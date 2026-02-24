@@ -10,16 +10,25 @@ final class TestUser
 {
     use Factories;
 
-    private static ?User $user = null;
+    private const EMAIL = 'test@example.com';
 
     public static function get(): User
     {
-        if (!self::$user) {
-            self::$user = UserFactory::new()
-                ->test()
-                ->create();
+        $existing = UserFactory::repository()->findOneBy([
+            'email' => self::EMAIL,
+        ]);
+
+        if ($existing) {
+            return $existing;
         }
 
-        return self::$user;
+        return UserFactory::new()
+            ->create([
+                'email' => self::EMAIL,
+                'handle' => 'test_user',
+                'password' => 'T35tU53rP455w0rd',
+                'roles' => ['ROLE_USER'],
+            ])
+        ;
     }
 }

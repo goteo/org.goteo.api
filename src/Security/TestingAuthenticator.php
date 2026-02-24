@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Tests\Fixtures\TestUser;
+use App\Repository\User\UserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,10 +14,11 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class TestingAuthenticator extends AbstractAuthenticator
 {
-    public const string AUTH_HEADER = 'X-Test-Scopes';
+    public const string AUTH_HEADER = 'X-Test-Auth';
 
     public function __construct(
         private string $appEnv,
+        private UserRepository $userRepository,
     ) {}
 
     public function supports(Request $request): ?bool
@@ -31,12 +32,11 @@ class TestingAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): SelfValidatingPassport
     {
-        $scopes = explode(' ', $request->headers->get(self::AUTH_HEADER));
-        $user = TestUser::get()->setRoles($scopes);
+        $userId = $request->headers->get(self::AUTH_HEADER);
 
-        $passport = new SelfValidatingPassport(new UserBadge($user->getUserIdentifier()), []);
-
-        $passport->setAttribute('scopes', $scopes);
+        $passport = new SelfValidatingPassport(new UserBadge($userId, function ($id) {
+            return $this->userRepository->find($id);
+        }), []);
 
         return $passport;
     }

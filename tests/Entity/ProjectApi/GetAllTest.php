@@ -5,6 +5,7 @@ namespace App\Tests\Entity\ProjectApi;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
 use App\Factory\Project\ProjectFactory;
+use App\Tests\Fixtures\TestUser;
 use Symfony\Component\HttpFoundation\Response;
 
 class GetAllTest extends ProjectTestCase
@@ -50,7 +51,7 @@ class GetAllTest extends ProjectTestCase
         $searchCount = 2,
         int $responseCode = Response::HTTP_OK,
     ) {
-        $owner = $this->createTestUser();
+        $owner = TestUser::get();
         $territory = new Territory('ES');
         $baseAttributes = [
             'owner' => $owner,
@@ -78,7 +79,7 @@ class GetAllTest extends ProjectTestCase
         array $searchValues,
         string|ProjectStatus $otherValue,
     ) {
-        $owner = $this->createTestUser();
+        $owner = TestUser::get();
         $territory = new Territory('ES');
         $baseAttributes = [
             'owner' => $owner,
@@ -139,7 +140,7 @@ class GetAllTest extends ProjectTestCase
 
     public function testGetAllSuccessful(): void
     {
-        $owner = $this->createTestUser();
+        $owner = TestUser::get();
         $numberOfProjects = 2;
         ProjectFactory::createMany($numberOfProjects, ['owner' => $owner]);
 
@@ -193,8 +194,6 @@ class GetAllTest extends ProjectTestCase
 
     public function testGetAllByCategoryWithInvalidCategory()
     {
-        $this->createTestUser();
-
         $category = 'invalid_category';
         $uri = self::BASE_URI."?category=$category";
         $response = $this->request($this->getMethod(), $uri);
@@ -209,7 +208,7 @@ class GetAllTest extends ProjectTestCase
     public function testGetAllByTitleNotFound()
     {
         ProjectFactory::createOne([
-            'owner' => $this->createTestUser(),
+            'owner' => TestUser::get(),
             'territory' => new Territory('ES'),
             'title' => 'Lorem ipsum title',
         ]);
@@ -288,7 +287,7 @@ class GetAllTest extends ProjectTestCase
         static::createClient()->request(
             $this->getMethod(),
             self::BASE_URI,
-            ['headers' => ['Authorization' => 'Bearer 123']]
+            ['headers' => ['Authorization' => 'none']]
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
