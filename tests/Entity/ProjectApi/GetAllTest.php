@@ -5,6 +5,7 @@ namespace App\Tests\Entity\ProjectApi;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
 use App\Factory\Project\ProjectFactory;
+use App\Security\TestingAuthenticator;
 use App\Tests\Fixtures\TestUser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -287,7 +288,7 @@ class GetAllTest extends ProjectTestCase
         static::createClient()->request(
             $this->getMethod(),
             self::BASE_URI,
-            ['headers' => ['Authorization' => 'none']]
+            ['headers' => [TestingAuthenticator::AUTH_HEADER => 'none']]
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
