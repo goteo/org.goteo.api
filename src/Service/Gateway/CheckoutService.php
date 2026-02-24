@@ -6,6 +6,7 @@ use App\Controller\GatewaysController;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class CheckoutService
@@ -14,7 +15,7 @@ class CheckoutService
     public const RESPONSE_TYPE_FAILURE = 'failure';
 
     public function __construct(
-        private RouterInterface $router,
+        private UrlGeneratorInterface $urlGenerator,
         private ChargeService $transactionService,
     ) {}
 
@@ -29,7 +30,7 @@ class CheckoutService
         string $type = self::RESPONSE_TYPE_SUCCESS,
         array $parameters = [],
     ): string {
-        return $this->router->generate(
+        return $this->urlGenerator->generate(
             GatewaysController::REDIRECT,
             [
                 'type' => $type,
