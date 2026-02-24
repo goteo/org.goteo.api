@@ -25,6 +25,7 @@ class UpdateTest extends ProjectTestCase
         ];
 
         $this->request($this->getMethod(), $this->getUri(1), ['json' => $dataToModify]);
+        $this->assertResponseIsSuccessful();
     }
 
     public function testUpdateUnauthorized(): void
