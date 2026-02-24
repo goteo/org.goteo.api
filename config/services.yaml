@@ -79,10 +79,6 @@ services:
         arguments:
             - '%env(APP_ENV)%'
 
-    App\Service\Auth\AuthService:
-        arguments:
-            - '%env(APP_SECRET)%'
-
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'

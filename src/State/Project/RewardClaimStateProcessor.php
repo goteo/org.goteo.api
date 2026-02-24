@@ -8,8 +8,8 @@ use App\ApiResource\Project\RewardClaimApiResource;
 use App\Dto\RewardClaimCreationDto;
 use App\Entity\Project\RewardClaim;
 use App\Mapping\AutoMapper;
-use App\Service\Auth\AuthService;
 use App\State\EntityStateProcessor;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class RewardClaimStateProcessor implements ProcessorInterface
@@ -17,7 +17,7 @@ class RewardClaimStateProcessor implements ProcessorInterface
     public function __construct(
         private EntityStateProcessor $entityStateProcessor,
         private AutoMapper $autoMapper,
-        private AuthService $authService,
+        private Security $security,
     ) {}
 
     /**
@@ -31,7 +31,7 @@ class RewardClaimStateProcessor implements ProcessorInterface
         $claim = $this->autoMapper->map($data, RewardClaim::class);
 
         if ($data instanceof RewardClaimCreationDto) {
-            $owner = $this->authService->getUser();
+            $owner = $this->security->getUser();
 
             if (!$owner) {
                 throw new AuthenticationException();
