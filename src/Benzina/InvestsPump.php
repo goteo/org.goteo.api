@@ -27,9 +27,7 @@ use App\Repository\Project\ProjectRepository;
 use App\Repository\Project\RewardRepository;
 use App\Repository\Project\SupportRepository;
 use App\Repository\TipjarRepository;
-use App\Repository\User\UserRepository;
 use App\Service\Gateway\CheckoutService;
-use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -59,9 +57,6 @@ class InvestsPump implements PumpInterface
     private ?int $tipjarCache = null;
 
     /** @var array<string, int> */
-    private array $userCache = [];
-
-    /** @var array<string, int> */
     private array $projectCache = [];
 
     /** @var array<string, int> */
@@ -71,7 +66,7 @@ class InvestsPump implements PumpInterface
     private array $rewardCache = [];
 
     public function __construct(
-        private UserRepository $userRepository,
+        private PumpedUserRepository $userRepository,
         private ProjectRepository $projectRepository,
         private SupportRepository $supportRepository,
         private TipjarRepository $tipjarRepository,
@@ -209,20 +204,7 @@ class InvestsPump implements PumpInterface
 
     private function getUser(array $record): ?User
     {
-        $id = $record['user'];
-
-        if (isset($this->userCache[$id])) {
-            return $this->userRepository->find($this->userCache[$id]);
-        }
-
-        $user = $this->userRepository->findOneBy(['migratedId' => $id]);
-        if (!$user) {
-            $user = $this->userRepository->findDeduped([$id]);
-        }
-
-        $this->userCache[$id] = $user->getId();
-
-        return $user;
+        return $this->userRepository->findPumped($record['user']);
     }
 
     private function getProject(array $record): ?Project
@@ -279,7 +261,7 @@ class InvestsPump implements PumpInterface
         $originId = $origin->getId();
         $projectId = $target->getId();
 
-        $cacheKey = $projectId . '-' . $originId;
+        $cacheKey = $projectId.'-'.$originId;
 
         if (isset($this->supportCache[$cacheKey])) {
             return $this->supportRepository->find($this->supportCache[$cacheKey]);
