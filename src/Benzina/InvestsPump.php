@@ -399,18 +399,18 @@ class InvestsPump implements PumpInterface
     private function getCheckoutGateway(array $record): string
     {
         switch ($record['method']) {
-            case 'stripe_subscription':
-                return StripeGateway::getName();
-            case 'pool':
-                return WalletGateway::getName();
-            case 'paypal':
-                return PaypalGateway::getName();
             case 'tpv':
                 return CecaGateway::getName();
+            case 'paypal':
+                return PaypalGateway::getName();
+            case 'pool':
+                return WalletGateway::getName();
             case 'cash':
                 return CashGateway::getName();
             case 'drop':
                 return DropGateway::getName();
+            case 'stripe_subscription':
+                return StripeGateway::getName();
             default:
                 return '';
         }
