@@ -6,7 +6,7 @@
 {% block body %}
 	{{ include('header.html.twig') }}
 	<div class="mx-auto max-w-360 px-10">
-		<form method="post" class="mx-auto max-w-120">
+		<form method="post" class="mx-auto max-w-120 flex flex-col gap-6">
 			{% if error %}
 				<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
 			{% endif %}
@@ -20,10 +20,15 @@
 			{% endif %}
 
 			<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-			<label for="username">Handle</label>
-			<input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="username" required autofocus>
-			<label for="password">Password</label>
-			<input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+			<div class="relative">
+				<label for="username" class="absolute -top-2 left-4 -translate-y-1/2 transform text-[10px] font-medium text-gray-500 transition-all">Handle</label>
+				<input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control peer border-secondary focus:ring-tertiary w-full rounded-md border bg-white p-4 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:outline-none" autocomplete="username" required autofocus>
+			</div>
+			<div class="relative">
+				<label for="password" class="absolute -top-2 left-4 -translate-y-1/2 transform text-[10px] font-medium text-gray-500 transition-all">Password</label>
+				<input type="password" name="_password" id="password" class="form-control peer border-secondary focus:ring-tertiary w-full rounded-md border bg-white p-4 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:outline-none" autocomplete="current-password" required>
+			</div>
+
 			<input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
 			<div class="checkbox mb-3">
