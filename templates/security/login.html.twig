@@ -13,13 +13,14 @@
 
 			{% if app.user %}
 				<div class="mb-3">
-					You are logged in as
-					{{ app.user.userIdentifier }},
-					<a href="{{ logout_path() }}">Logout</a>
+					{{ 'login.loggedinas' | trans({ '%name%': app.user.userIdentifier }) }},
+					<a href="{{ logout_path() }}">
+						{{ 'login.logout' | trans }}
+					</a>
 				</div>
 			{% endif %}
 
-			<h1 class="text-2xl font-bold text-black">Please sign in</h1>
+			<h1 class="text-2xl font-bold text-black">{{ 'login.title' | trans }}</h1>
 			<div class="relative">
 				<label for="username" class="absolute -top-2 left-4 -translate-y-1/2 transform text-[10px] font-medium text-gray-500 transition-all">Handle</label>
 				<input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control peer border-secondary focus:ring-tertiary w-full rounded-md border bg-white p-4 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:outline-none" autocomplete="username" required autofocus>
@@ -33,12 +34,12 @@
 
 			<div class="checkbox mb-3 flex flex-row gap-2">
 				<input type="checkbox" name="_remember_me" id="_remember_me" class="w-6 h-6 border-secondary rounded-sm accent-primary text-secondary focus:ring-secondary border">
-				<label for="_remember_me">Remember me</label>
+				<label for="_remember_me">{{ 'login.rememberme' | trans }}</label>
 			</div>
 
 			<div class="flex flex-col items-end">
 				<button class="btn btn-lg btn-primary text-secondary disabled:bg-grey flex items-center justify-center gap-2 font-bold transition hover:cursor-pointer px-8 py-4 rounded-3xl bg-primary w-fit" type="submit">
-					Sign in
+					{{ 'login.submit' | trans }}
 				</button>
 			</div>
 		</form>

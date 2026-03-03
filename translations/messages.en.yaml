@@ -1,0 +1,6 @@
+login:
+  title: Tell us your personal data
+  rememberme: Remember me
+  submit: Sign in
+  loggedinas: You are logged in as %name%
+  logout: Logout
