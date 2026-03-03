@@ -269,6 +269,20 @@
             "config/packages/security.yaml"
         ]
     },
+    "symfony/stimulus-bundle": {
+        "version": "2.32",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.13",
+            "ref": "6acd9ff4f7fd5626d2962109bd4ebab351d43c43"
+        },
+        "files": [
+            "assets/bootstrap.js",
+            "assets/controllers.json",
+            "assets/controllers/hello_controller.js"
+        ]
+    },
     "symfony/twig-bundle": {
         "version": "6.3",
         "recipe": {
@@ -294,6 +308,15 @@
             "config/packages/uid.yaml"
         ]
     },
+    "symfony/ux-turbo": {
+        "version": "2.32",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.19",
+            "ref": "9dd2778a116b6e5e01e5e1582d03d5a9e82630de"
+        }
+    },
     "symfony/validator": {
         "version": "6.3",
         "recipe": {
@@ -304,6 +327,22 @@
         },
         "files": [
             "config/packages/validator.yaml"
+        ]
+    },
+    "symfony/webpack-encore-bundle": {
+        "version": "2.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "719f6110345acb6495e496601fc1b4977d7102b3"
+        },
+        "files": [
+            "assets/app.js",
+            "assets/styles/app.css",
+            "config/packages/webpack_encore.yaml",
+            "package.json",
+            "webpack.config.js"
         ]
     },
     "zenstruck/foundry": {

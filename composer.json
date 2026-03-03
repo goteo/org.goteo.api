@@ -48,8 +48,11 @@
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
         "symfony/serializer": "6.4.*",
+        "symfony/stimulus-bundle": "^2.32",
         "symfony/twig-bundle": "6.4.*",
+        "symfony/ux-turbo": "^2.32",
         "symfony/validator": "6.4.*",
+        "symfony/webpack-encore-bundle": "^2.4",
         "symfony/yaml": "6.4.*",
         "zenstruck/foundry": "^2.4"
     },
