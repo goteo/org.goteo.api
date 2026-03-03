@@ -21,6 +21,7 @@
         "build": "encore production --progress"
     },
     "dependencies": {
+        "@fontsource/karla": "^5.2.8",
         "@tailwindcss/postcss": "^4.2.1",
         "postcss": "^8.5.8",
         "postcss-loader": "^8.2.1",
