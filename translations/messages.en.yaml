@@ -17,3 +17,10 @@ consent:
   tip: You should only give access to your Goteo account to third parties you trust.
   consent:  Yes, allow access
   submit: Continue
+
+footer:
+  legal:
+    termsOfUse: Terms of use
+    licenses: Licencias
+  platoniq:
+    foundation: Foundation

@@ -6,7 +6,7 @@
 
 {% block body %}
 	{{ include('header.html.twig') }}
-	<div class="mx-auto max-w-360 px-10">
+	<div class="mx-auto max-w-360 px-10 mb-20">
 		<form method="post" class="mx-auto max-w-122 flex flex-col gap-6">
 			{% if error %}
 				<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -50,4 +50,5 @@
 			{% endif %}
 		</form>
 	</div>
+	{{ include('footer.html.twig') }}
 {% endblock %}

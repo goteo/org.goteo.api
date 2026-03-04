@@ -6,8 +6,7 @@
 
 {% block body %}
 	{{ include('header.html.twig') }}
-	<div class="mx-auto max-w-360 px-10">
-
+	<div class="mx-auto max-w-360 px-10 mb-20">
 		<form method="post" class="mx-auto max-w-122 flex flex-col gap-6">
 			<h2 class="text-lg font-bold text-black mb-4 md:text-xl lg:text-2xl">
 				{{ 'consent.description' | trans({ '%clientapp%': '<span class="text-secondary">' ~ client_app ~ '</span>' }) | raw }}
@@ -28,4 +27,5 @@
 			</div>
 		</form>
 	</div>
+	{{ include('footer.html.twig') }}
 {% endblock %}
