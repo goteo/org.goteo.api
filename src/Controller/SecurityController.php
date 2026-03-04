@@ -14,7 +14,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     public function __construct(
-        private ClientManagerInterface $clientManager
+        private ClientManagerInterface $clientManager,
     ) {}
 
     #[Route(path: '/login', name: 'app_login')]
@@ -44,7 +44,7 @@ class SecurityController extends AbstractController
         if ($request->getMethod() === Request::METHOD_POST) {
             $request->getSession()->set(
                 LeaugeOAuth2AuthorizationListener::AUTHORIZATION_RESULT,
-                $request->get('_consent')
+                $request->get('_consent') ?? false
             );
 
             return $this->redirectToRoute('oauth2_authorize', $request->query->all());
@@ -53,7 +53,7 @@ class SecurityController extends AbstractController
         $client = $this->clientManager->find($request->query->get('client_id'));
 
         return $this->render('security/consent.html.twig', [
-            'client_app' => $client->getName()
+            'client_app' => $client->getName(),
         ]);
     }
 }
