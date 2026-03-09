@@ -17,7 +17,7 @@ consent:
   title: Authorize
   description: The application %clientapp% would like permission to access your Goteo account.
   tip: You should only give access to your Goteo account to third parties you trust.
-  consent:  Yes, allow access
+  consent: Yes, allow access
   submit: Continue
 
 footer:
