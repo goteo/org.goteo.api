@@ -38,7 +38,6 @@ class ChargeApiResource
     /**
      * The Checkout to which this Charge item belongs to.
      */
-    #[API\ApiProperty(writable: false, security: 'is_granted("IS_AUTHENTICATED_FULLY")')]
     #[API\ApiFilter(GatewayFilter::class, properties: ['checkout.gateway'])]
     #[API\ApiFilter(Filter\SearchFilter::class, properties: ['checkout.trackings.value'])]
     public CheckoutApiResource $checkout;
@@ -70,6 +69,7 @@ class ChargeApiResource
      * The Accounting receiving the money after a successful payment.
      */
     #[Assert\NotBlank()]
+    #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object.target)')]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public AccountingApiResource $target;
 

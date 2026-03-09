@@ -4,8 +4,8 @@ namespace App\Security\Voter;
 
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\User\UserApiResource;
-use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\User\User;
+use App\Entity\UserOwnedInterface;
 
 trait UserOwnedVoterTrait
 {

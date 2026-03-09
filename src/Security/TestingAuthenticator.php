@@ -2,44 +2,43 @@
 
 namespace App\Security;
 
-use App\Service\Auth\AuthService;
+use App\Repository\User\UserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
-use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-/**
- * @see https://symfony.com/doc/current/security/custom_authenticator.html
- */
-class CookieAuthenticator extends AbstractAuthenticator
+class TestingAuthenticator extends AbstractAuthenticator
 {
+    public const string AUTH_HEADER = 'X-Test-Auth';
+
     public function __construct(
-        private AccessTokenHandler $accessTokenHandler,
+        private string $appEnv,
+        private UserRepository $userRepository,
     ) {}
 
-    /**
-     * Called on every request to decide if this authenticator should be
-     * used for the request. Returning `false` will cause this authenticator
-     * to be skipped.
-     */
     public function supports(Request $request): ?bool
     {
-        return $request->cookies->has(AuthService::AUTH_COOKIE_NAME);
-    }
-
-    public function authenticate(Request $request): Passport
-    {
-        $token = $request->cookies->get(AuthService::AUTH_COOKIE_NAME);
-
-        if (!$token) {
-            throw new AuthenticationException();
+        if (!\in_array($this->appEnv, ['test'])) {
+            return false;
         }
 
-        return new SelfValidatingPassport($this->accessTokenHandler->getUserBadgeFrom($token));
+        return $request->headers->has(self::AUTH_HEADER);
+    }
+
+    public function authenticate(Request $request): SelfValidatingPassport
+    {
+        $userId = $request->headers->get(self::AUTH_HEADER);
+
+        $passport = new SelfValidatingPassport(new UserBadge($userId, function ($id) {
+            return $this->userRepository->find($id);
+        }), []);
+
+        return $passport;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

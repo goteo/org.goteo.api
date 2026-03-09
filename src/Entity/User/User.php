@@ -72,12 +72,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class, cascade: ['persist'])]
     private Collection $projects;
 
-    /**
-     * The UserTokens owned by this User. Owner only property.
-     */
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
-    private Collection $tokens;
-
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Person $person = null;
 
@@ -128,7 +122,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->accounting = Accounting::of($this);
 
         $this->projects = new ArrayCollection();
-        $this->tokens = new ArrayCollection();
         $this->person = Person::for($this);
 
         $this->emailConfirmed = false;
@@ -230,36 +223,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
             // set the owning side to null (unless already changed)
             if ($project->getOwner() === $this) {
                 $project->setOwner(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, UserToken>
-     */
-    public function getTokens(): Collection
-    {
-        return $this->tokens;
-    }
-
-    public function addToken(UserToken $token): static
-    {
-        if (!$this->tokens->contains($token)) {
-            $this->tokens->add($token);
-            $token->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeToken(UserToken $token): static
-    {
-        if ($this->tokens->removeElement($token)) {
-            // set the owning side to null (unless already changed)
-            if ($token->getOwner() === $this) {
-                $token->setOwner(null);
             }
         }
 

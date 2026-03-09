@@ -10,8 +10,8 @@ use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
 use App\Mapping\AutoMapper;
-use App\Service\Auth\AuthService;
 use App\State\EntityStateProcessor;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class ProjectStateProcessor implements ProcessorInterface
@@ -19,7 +19,7 @@ class ProjectStateProcessor implements ProcessorInterface
     public function __construct(
         private EntityStateProcessor $entityStateProcessor,
         private AutoMapper $autoMapper,
-        private AuthService $authService,
+        private Security $security,
     ) {}
 
     /**
@@ -52,7 +52,7 @@ class ProjectStateProcessor implements ProcessorInterface
         /** @var Project */
         $project = $this->autoMapper->map($data, Project::class);
 
-        $owner = $this->authService->getUser();
+        $owner = $this->security->getUser();
 
         if (!$owner) {
             throw new AuthenticationException();
