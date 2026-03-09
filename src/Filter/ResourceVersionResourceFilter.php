@@ -32,9 +32,7 @@ final class ResourceVersionResourceFilter extends AbstractFilter
         string $resourceClass,
         ?Operation $operation = null,
         array $context = [],
-    ): void {
-        return;
-    }
+    ): void {}
 
     public function getDescription(string $resourceClass): array
     {
