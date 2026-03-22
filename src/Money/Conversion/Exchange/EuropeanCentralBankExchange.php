@@ -2,9 +2,6 @@
 
 namespace App\Money\Conversion\Exchange;
 
-use App\Money\MoneyInterface;
-use Brick\Math\RoundingMode;
-use Brick\Money\Context;
 use Brick\Money\CurrencyConverter;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
@@ -48,7 +45,7 @@ class EuropeanCentralBankExchange extends AbstractExchange
         return self::WEIGHT;
     }
 
-    public function convert(MoneyInterface $from, string $toCurrency, ?Context $context = null, RoundingMode $roundingMode = RoundingMode::UP): MoneyInterface
+    protected function load(): void
     {
         $data = $this->getData();
 
@@ -61,8 +58,6 @@ class EuropeanCentralBankExchange extends AbstractExchange
         $this->date = $data['@attributes']['time'];
         $this->provider = new BaseCurrencyProvider($provider, self::ISO_4217);
         $this->converter = new CurrencyConverter($this->provider);
-
-        return parent::convert($from, $toCurrency, $context, $roundingMode);
     }
 
     public function getData(): array
