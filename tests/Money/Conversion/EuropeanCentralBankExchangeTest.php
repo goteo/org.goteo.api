@@ -5,15 +5,23 @@ namespace App\Tests\Money\Conversion;
 use App\Money\Conversion\Exchange\EuropeanCentralBankExchange;
 use App\Money\Money;
 use Brick\Money\Context\CustomContext;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
-class EuropeanCentralBankExchangeTest extends TestCase
+class EuropeanCentralBankExchangeTest extends KernelTestCase
 {
+    private EuropeanCentralBankExchange $exchange;
+
+    public function setUp(): void
+    {
+        self::bootKernel();
+
+        $this->exchange = static::getContainer()->get(EuropeanCentralBankExchange::class);
+    }
+
     public function testGetsData()
     {
-        $exchange = new EuropeanCentralBankExchange();
-        $exchangeData = $exchange->getData();
+        $exchangeData = $this->exchange->getData();
 
         $this->assertIsArray($exchangeData);
         $this->assertArrayHasKey('Cube', $exchangeData);
@@ -22,10 +30,9 @@ class EuropeanCentralBankExchangeTest extends TestCase
 
     public function testStoresDataInCache()
     {
-        $exchange = new EuropeanCentralBankExchange();
         $cache = new FilesystemAdapter();
 
-        $exchangeData = $cache->get($exchange->getName(), function (): false {
+        $exchangeData = $cache->get($this->exchange->getName(), function (): false {
             return false;
         });
 
@@ -37,11 +44,10 @@ class EuropeanCentralBankExchangeTest extends TestCase
 
     public function testConvertsWholeEuros()
     {
-        $exchange = new EuropeanCentralBankExchange();
         $context = new CustomContext(scale: 0, step: 1);
 
-        $this->assertEquals(100, $exchange->convert(new Money(100, 'JPY'), 'EUR', $context)->getAmount());
-        $this->assertEquals(100, $exchange->convert(new Money(150, 'JPY'), 'EUR', $context)->getAmount());
-        $this->assertEquals(100, $exchange->convert(new Money(700, 'CNY'), 'EUR', $context)->getAmount());
+        $this->assertEquals(100, $this->exchange->convert(new Money(100, 'JPY'), 'EUR', $context)->getAmount());
+        $this->assertEquals(100, $this->exchange->convert(new Money(150, 'JPY'), 'EUR', $context)->getAmount());
+        $this->assertEquals(100, $this->exchange->convert(new Money(700, 'CNY'), 'EUR', $context)->getAmount());
     }
 }
