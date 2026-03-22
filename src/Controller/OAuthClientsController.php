@@ -34,7 +34,7 @@ final class OAuthClientsController extends AbstractController
             'headers' => $request->headers->all(),
             'query' => $request->query->all(),
             'access_token' => $accessToken,
-            'user' => $user
+            'user' => $user,
         ]);
     }
 }
