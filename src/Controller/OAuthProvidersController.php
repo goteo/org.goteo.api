@@ -11,22 +11,22 @@ use Symfony\Component\Routing\Attribute\Route;
 final class OAuthProvidersController extends AbstractController
 {
     public function __construct(
-        private ClientRegistry $clientRegistry,
+        private ClientRegistry $providers,
     ) {}
 
     #[Route('/start/{provider}', name: 'oauth_providers_start')]
     public function authorizationStart(string $provider): Response
     {
-        return $this->clientRegistry->getClient($provider)->redirect([], []);
+        return $this->providers->getClient($provider)->redirect([], []);
     }
 
     #[Route('/callback/{provider}', name: 'oauth_providers_callback')]
     public function authorizationCallback(string $provider): Response
     {
-        $client = $this->clientRegistry->getClient($provider);
+        $provider = $this->providers->getClient($provider);
 
-        $accessToken = $client->getAccessToken();
-        $user = $client->fetchUserFromToken($accessToken);
+        $accessToken = $provider->getAccessToken();
+        $user = $provider->fetchUserFromToken($accessToken);
 
         return $this->json([
             'user' => $user,
