@@ -5,4 +5,16 @@ knpu_oauth2_client:
             type: google
             client_id: '%env(GOOGLE_OAUTH_ID)%'
             client_secret: '%env(GOOGLE_OAUTH_SECRET)%'
-            redirect_route: oauth_clients_google_callback
+            redirect_route: oauth_providers_callback
+            redirect_params:
+                provider: google
+        decidim_inspire:
+            type: generic
+            provider_class: App\OAuth\DecidimProvider
+            provider_options:
+                url: https://inspire-staging.platoniq.net
+            client_id: '%env(DECIDIM_OAUTH_ID)%'
+            client_secret: '%env(DECIDIM_OAUTH_SECRET)%'
+            redirect_route: oauth_providers_callback
+            redirect_params:
+                provider: decidim_inspire
