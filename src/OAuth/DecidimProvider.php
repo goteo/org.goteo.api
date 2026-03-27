@@ -44,13 +44,13 @@ class DecidimProvider extends AbstractProvider
 
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return \sprintf('%s/api', $this->providerUri);
+        return \sprintf('%s/oauth/me', $this->providerUri);
     }
 
     public function getDefaultScopes()
     {
         return [
-            'user',
+            'public',
         ];
     }
 
@@ -70,21 +70,19 @@ class DecidimProvider extends AbstractProvider
 
         $url = $this->getResourceOwnerDetailsUrl($token);
 
-        $request = $this->getRequest(Request::METHOD_POST, $url, [
+        $request = $this->getRequest(Request::METHOD_GET, $url, [
             'headers' => [
                 'Authorization' => "Bearer $accessToken",
                 'X-Jwt-Aud' => $this->providerClient,
                 'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
             ],
-            'body' => \json_encode(['query' => '{ session { user { id name nickname } } }']),
         ]);
 
-        $response = $this->getResponse($request);
+        return $this->getParsedResponse($request);
     }
 
     protected function createResourceOwner(array $response, AccessToken $token)
     {
-        dd($response, $token);
+        dd(__FILE__, __LINE__, $response, $token);
     }
 }
