@@ -14,16 +14,21 @@ security:
             entity:
                 class: App\Entity\User\User
                 property: handle
+        login_user_provider:
+            id: App\Security\LoginUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         api:
+            provider: app_user_provider
             pattern: ^/v4
             security: true
             stateless: true
+            # https://github.com/thephpleague/oauth2-server-bundle/blob/master/docs/basic-setup.md#configuring-the-security-layer
             oauth2: true
         main:
+            provider: login_user_provider
             form_login:
                 login_path: app_login
                 check_path: app_login
