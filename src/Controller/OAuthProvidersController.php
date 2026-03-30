@@ -29,7 +29,7 @@ final class OAuthProvidersController extends AbstractController
         $user = $provider->fetchUserFromToken($accessToken);
 
         return $this->json([
-            'user' => $user,
+            'user' => $user->toArray(),
         ]);
     }
 }
