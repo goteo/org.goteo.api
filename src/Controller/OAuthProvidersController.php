@@ -23,13 +23,6 @@ final class OAuthProvidersController extends AbstractController
     #[Route('/callback/{provider}', name: 'oauth_providers_callback')]
     public function authorizationCallback(string $provider): Response
     {
-        $provider = $this->providers->getClient($provider);
-
-        $accessToken = $provider->getAccessToken();
-        $user = $provider->fetchUserFromToken($accessToken);
-
-        return $this->json([
-            'user' => $user->toArray(),
-        ]);
+        throw new \LogicException('This method can be blank - it will be intercepted by the OAuth Providers Callback Authenticator.');
     }
 }
