@@ -2,9 +2,9 @@
 
 namespace App\OAuth;
 
+use App\Service\UserService;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Provider\GenericResourceOwner;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -84,6 +84,8 @@ class DecidimProvider extends AbstractProvider
 
     protected function createResourceOwner(array $response, AccessToken $token)
     {
-        return new GenericResourceOwner($response, 'id');
+        [$firstName, $lastName] = UserService::guessNames($response['name']);
+
+        return new TokenOwner($response['email'], $firstName, $lastName);
     }
 }
