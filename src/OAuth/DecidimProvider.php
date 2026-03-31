@@ -10,6 +10,25 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Provides supports for OAuth Authorization Code flows with Decidim instances.
+ *
+ * HOW-TO USE
+ * 1. Add a .png image in `public/oauth/providers` dir to show the provider's logo in the login page
+ * 2. Add a new provider under `clients` key in `config/packages/knpu_oauth2_client.yaml`:
+ * ```yaml
+ *  decidim_<instance name>:
+ *    type: generic
+ *    provider_class: App\OAuth\DecidimProvider
+ *    provider_options:
+ *      url: <instance web address>
+ *    client_id: "%env(<instance oauth client id>)%"
+ *    client_secret: "%env(<instance oauth client secret>)%"
+ *    redirect_route: oauth_providers_callback
+ *    redirect_params:
+ *      provider: decidim_<instance name>
+ * ```
+ */
 class DecidimProvider extends AbstractProvider
 {
     private string $providerUri;
