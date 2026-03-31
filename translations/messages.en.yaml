@@ -12,6 +12,7 @@ login:
     placeholder: TrustNo1
   rememberme: Remember me
   submit: Sign in
+  oauth: 'You can also login via:'
 
 consent:
   title: Authorize
