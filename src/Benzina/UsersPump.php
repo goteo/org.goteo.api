@@ -130,25 +130,7 @@ class UsersPump implements PumpInterface
 
     private function setUserPerson(array $record, User $user): User
     {
-        $namePieces = \explode(' ', $record['name']);
-        $namePiecesCount = \count($namePieces);
-
-        $firstName = $record['name'];
-        $lastName = '';
-
-        if ($namePiecesCount === 2) {
-            [$firstName, $lastName] = $namePieces;
-        }
-
-        if ($namePiecesCount === 3) {
-            $firstName = $namePieces[0];
-            $lastName = \join(' ', \array_slice($namePieces, 1));
-        }
-
-        if ($namePiecesCount > 3) {
-            $firstName = \join(' ', \array_slice($namePieces, 0, 2));
-            $lastName = \join(' ', \array_slice($namePieces, 2));
-        }
+        [$firstName, $lastName] = UserService::guessNames($record['name']);
 
         $person = new Person();
         $person->setFirstName($firstName);

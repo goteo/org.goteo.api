@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\EventListener\LeaugeOAuth2AuthorizationListener;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\Bundle\OAuth2ServerBundle\Manager\ClientManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +15,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     public function __construct(
-        private ClientManagerInterface $clientManager,
+        private ClientManagerInterface $clients,
+        private ClientRegistry $providers,
     ) {}
 
     #[Route(path: '/login', name: 'app_login')]
@@ -29,6 +31,7 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
+            'oauth_providers' => $this->providers->getEnabledClientKeys(),
         ]);
     }
 
@@ -50,10 +53,10 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('oauth2_authorize', $request->query->all());
         }
 
-        $client = $this->clientManager->find($request->query->get('client_id'));
+        $client = $this->clients->find($request->query->get('client_id'));
 
         return $this->render('security/consent.html.twig', [
-            'client_app' => $client->getName(),
+            'oauth_client' => $client->getName(),
         ]);
     }
 }

@@ -29,6 +29,7 @@ security:
             oauth2: true
         main:
             provider: login_user_provider
+            entry_point: App\Security\LoginEntryPoint
             form_login:
                 login_path: app_login
                 check_path: app_login
@@ -40,6 +41,7 @@ security:
                 path: app_logout
                 # where to redirect after logout
                 # target: app_any_route
+            custom_authenticator: App\Security\OAuthProvidersCallbackAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall

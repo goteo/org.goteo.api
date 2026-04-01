@@ -39,5 +39,20 @@
 				</button>
 			</div>
 		</form>
+
+		<ul class="mx-auto max-w-122 flex flex-col gap-4">
+			<p class="text-content">{{ 'login.oauth' | trans }}</p>
+			<div class="flex gap-6">
+				{% for provider in oauth_providers %}
+					<li>
+						<div class="bg-white border border-grey rounded-2xl p-4 shadow-sm">
+							<a href="{{ path('oauth_providers_start', { provider: provider }) }}">
+								<img class="max-h-12 h-full" src="/oauth/providers/{{ provider }}.png" alt={{ provider }}>
+							</a>
+						</div>
+					</li>
+				{% endfor %}
+			</div>
+		</ul>
 	</div>
 {% endblock %}
