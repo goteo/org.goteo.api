@@ -227,11 +227,16 @@ class StripeGateway extends AbstractGateway
                 throw $e;
             }
 
-            $product = $this->stripe->products->create([
+            $params = [
                 'id' => $id,
                 'name' => $charge->getTitle(),
-                'description' => $charge->getDescription(),
-            ]);
+            ];
+
+            if ($charge->getDescription() !== null) {
+                $params['description'] = $charge->getDescription();
+            }
+
+            $product = $this->stripe->products->create($params);
         }
 
         return $product;
