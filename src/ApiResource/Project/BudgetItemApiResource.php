@@ -6,7 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\LocalizedApiResourceTrait;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyOutput;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\ProjectDeadline;
@@ -60,7 +60,7 @@ class BudgetItemApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public MoneyWithConversion $money;
+    public MoneyOutput $money;
 
     /**
      * Defines the budget category for this item within the project.

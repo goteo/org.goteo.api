@@ -7,7 +7,7 @@ use App\Money\Conversion\Conversion;
 use App\Money\MoneyInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class MoneyWithConversion implements MoneyInterface
+class MoneyOutput implements MoneyInterface
 {
     /**
      * An amount of currency.\
@@ -28,14 +28,16 @@ class MoneyWithConversion implements MoneyInterface
      * Conversion metadata.
      */
     #[API\ApiProperty(readable: true, writable: false)]
-    public ?array $conversion = null;
+    public ?Conversion $conversion = null;
 
     public function __construct(
         int $amount,
         string $currency,
+        ?Conversion $conversion,
     ) {
         $this->amount = $amount;
         $this->currency = $currency;
+        $this->conversion = $conversion;
     }
 
     public static function of(MoneyInterface $moneyInterface): self
@@ -43,9 +45,8 @@ class MoneyWithConversion implements MoneyInterface
         $money = new self(
             $moneyInterface->getAmount(),
             $moneyInterface->getCurrency(),
+            $moneyInterface->getConversion()
         );
-
-        $money->conversion = $moneyInterface->getConversion()?->toArray();
 
         return $money;
     }
@@ -62,8 +63,6 @@ class MoneyWithConversion implements MoneyInterface
 
     public function getConversion(): ?Conversion
     {
-        return $this->conversion
-            ? Conversion::fromArray($this->conversion)
-            : null;
+        return $this->conversion;
     }
 }

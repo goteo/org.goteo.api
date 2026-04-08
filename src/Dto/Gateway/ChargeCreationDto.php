@@ -3,7 +3,7 @@
 namespace App\Dto\Gateway;
 
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyOutput;
 use App\Entity\Gateway\Charge;
 use App\Gateway\ChargeType;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -44,5 +44,5 @@ class ChargeCreationDto
      * It is money before fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]
-    public MoneyWithConversion $money;
+    public MoneyOutput $money;
 }
