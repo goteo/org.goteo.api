@@ -5,6 +5,7 @@ namespace App\ApiResource\Gateway;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\Gateway\CheckoutCreationDto;
 use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
@@ -28,7 +29,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: CheckoutStateProcessor::class,
 )]
 #[API\GetCollection()]
-#[API\Post()]
+#[API\Post(
+    input: CheckoutCreationDto::class,
+    security: 'is_granted("ROLE_USER")'
+)]
 #[API\Get()]
 #[API\Patch(
     input: CheckoutUpdationDto::class,
