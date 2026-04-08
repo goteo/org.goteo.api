@@ -5,6 +5,7 @@ namespace App\OAuth;
 use App\Service\UserService;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,29 +53,29 @@ class DecidimProvider extends AbstractProvider
         return parent::__construct($options, $collaborators);
     }
 
-    public function getBaseAuthorizationUrl()
+    public function getBaseAuthorizationUrl(): string
     {
         return \sprintf('%s/oauth/authorize', $this->providerUri);
     }
 
-    public function getBaseAccessTokenUrl(array $params)
+    public function getBaseAccessTokenUrl(array $params): string
     {
         return \sprintf('%s/oauth/token', $this->providerUri);
     }
 
-    public function getResourceOwnerDetailsUrl(AccessToken $token)
+    public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
         return \sprintf('%s/oauth/me', $this->providerUri);
     }
 
-    public function getDefaultScopes()
+    public function getDefaultScopes(): array
     {
         return [
             'public',
         ];
     }
 
-    protected function checkResponse(ResponseInterface $response, $data)
+    protected function checkResponse(ResponseInterface $response, $data): void
     {
         $code = $response->getStatusCode();
         if ($code === Response::HTTP_OK) {
@@ -84,7 +85,7 @@ class DecidimProvider extends AbstractProvider
         throw new IdentityProviderException('The instance returned a non-OK HTTP response', $code, $response);
     }
 
-    protected function fetchResourceOwnerDetails(AccessToken $token)
+    protected function fetchResourceOwnerDetails(AccessToken $token): mixed
     {
         $accessToken = $token->getToken();
 
@@ -101,7 +102,7 @@ class DecidimProvider extends AbstractProvider
         return $this->getParsedResponse($request);
     }
 
-    protected function createResourceOwner(array $response, AccessToken $token)
+    protected function createResourceOwner(array $response, AccessToken $token): ResourceOwnerInterface
     {
         [$firstName, $lastName] = UserService::guessNames($response['name']);
 
