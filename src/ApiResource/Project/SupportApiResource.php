@@ -87,6 +87,7 @@ class SupportApiResource
     /**
      * The total monetary value of the Transactions going to the Project.
      */
+    #[API\ApiProperty(writable: false)]
     public MoneyOutput $money;
 
     /**
