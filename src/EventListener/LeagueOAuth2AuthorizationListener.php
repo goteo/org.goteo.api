@@ -21,6 +21,15 @@ final class LeagueOAuth2AuthorizationListener
     #[AsEventListener(event: OAuth2Events::AUTHORIZATION_REQUEST_RESOLVE)]
     public function onAuthorizationRequestResolve(AuthorizationRequestResolveEvent $event): void
     {
+        /** @var \App\Entity\OAuth2Client */
+        $client = $event->getClient();
+
+        if ($client->isConsented()) {
+            $event->resolveAuthorization(true);
+
+            return;
+        }
+
         $request = $this->requestStack->getCurrentRequest();
 
         if ($request->getSession()->has(self::AUTHORIZATION_RESULT)) {
