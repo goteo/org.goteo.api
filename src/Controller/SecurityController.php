@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\EventListener\LeaugeOAuth2AuthorizationListener;
+use App\EventListener\LeagueOAuth2AuthorizationListener;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\Bundle\OAuth2ServerBundle\Manager\ClientManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,7 +46,7 @@ class SecurityController extends AbstractController
     {
         if ($request->getMethod() === Request::METHOD_POST) {
             $request->getSession()->set(
-                LeaugeOAuth2AuthorizationListener::AUTHORIZATION_RESULT,
+                LeagueOAuth2AuthorizationListener::AUTHORIZATION_RESULT,
                 $request->get('_consent') ?? false
             );
 

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final class LeaugeOAuth2AuthorizationListener
+final class LeagueOAuth2AuthorizationListener
 {
     public const string AUTHORIZATION_RESULT = 'oauth2.authorization_result';
 
