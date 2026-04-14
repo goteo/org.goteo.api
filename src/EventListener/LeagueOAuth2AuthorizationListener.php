@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final class LeaugeOAuth2AuthorizationListener
+final class LeagueOAuth2AuthorizationListener
 {
     public const string AUTHORIZATION_RESULT = 'oauth2.authorization_result';
 
@@ -21,6 +21,15 @@ final class LeaugeOAuth2AuthorizationListener
     #[AsEventListener(event: OAuth2Events::AUTHORIZATION_REQUEST_RESOLVE)]
     public function onAuthorizationRequestResolve(AuthorizationRequestResolveEvent $event): void
     {
+        /** @var \App\Entity\OAuth2Client */
+        $client = $event->getClient();
+
+        if ($client->isConsented()) {
+            $event->resolveAuthorization(true);
+
+            return;
+        }
+
         $request = $this->requestStack->getCurrentRequest();
 
         if ($request->getSession()->has(self::AUTHORIZATION_RESULT)) {
