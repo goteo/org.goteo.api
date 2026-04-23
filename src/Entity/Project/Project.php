@@ -149,6 +149,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private Collection $collaborations;
 
     /**
+     * @var Collection<int, Review>
+     */
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'project')]
+    private Collection $reviews;
+
+    /*
      * A list of URLs provided by the Project owner.\
      * e.g: social profiles, project website.
      *
@@ -167,6 +173,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         $this->supports = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->collaborations = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -524,6 +531,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     }
 
     /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(Review $review): static
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReview(Review $review): static
+    {
+        if ($this->reviews->removeElement($review)) {
+            // set the owning side to null (unless already changed)
+            if ($review->getProject() === $this) {
+                $review->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /*
      * @return Link[]
      */
     public function getLinks(): ?array
