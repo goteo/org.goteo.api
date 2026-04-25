@@ -130,6 +130,11 @@ class ProjectApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
+    #[API\ApiFilter(
+        filterClass: SearchFilter::class,
+        strategy: 'exact',
+        properties: ['territory.country', 'territory.subLvl1', 'territory.subLvl2']
+    )]
     public Territory $territory;
 
     /**
