@@ -22,10 +22,8 @@ services:
             tags: ['app.matchfunding.formula']
         App\Matchfunding\Rule\RuleInterface:
             tags: ['app.matchfunding.rule']
-        App\Service\Embed\Filter\EmbedFilterInterface:
-            tags: ['app.embed.embed_filter']
-        App\Service\Embed\Provider\EmbedProviderFactoryInterface:
-            tags: ['app.embed.provider_factory']
+        App\Service\Scout\ScoutProcessorInterface:
+            tags: ['app.service.scout.processor']
         AutoMapper\Provider\ProviderInterface:
             tags: ['app.mapping.map_provider']
         AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface:
@@ -65,6 +63,10 @@ services:
             - '%env(STRIPE_API_KEY)%'
             - '%env(STRIPE_WEBHOOK_SECRET)%'
 
+    App\Identifier\IdOrHandleUriVariableTransformer:
+        tags:
+            - { name: api_platform.uri_variables.transformer }
+
     App\Identifier\IdOrSlugUriVariableTransformer:
         tags:
             - { name: api_platform.uri_variables.transformer }
@@ -77,24 +79,17 @@ services:
         arguments:
             - !tagged 'app.matchfunding.rule'
 
-    App\Service\Auth\AuthService:
+    App\Security\TestingAuthenticator:
         arguments:
-            - '%env(APP_SECRET)%'
+            - '%env(APP_ENV)%'
 
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'
 
-    App\Service\Embed\EmbedService:
+    App\Service\Scout\ScoutService:
         arguments:
-            - '%kernel.cache_dir%'
-            - !tagged 'app.embed.embed_filter'
-            - !tagged 'app.embed.provider_factory'
-    
-    App\Service\Embed\Provider\PeertubeEmbedProviderFactory:
-        bind:
-            $hosts:
-                - 'peertube.plataformess.org'
+            - !tagged 'app.service.scout.processor'
 
     App\State\MoneyTotalStateProvider:
         arguments:

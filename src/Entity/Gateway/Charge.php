@@ -4,10 +4,10 @@ namespace App\Entity\Gateway;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
 use App\Entity\EmbeddableMoney as Money;
-use App\Entity\Trait\MigratedEntity;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Entity\MigratedTrait;
 use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\Mapping\Provider\EntityMapProvider;
@@ -30,9 +30,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
 {
-    use MigratedEntity;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use MigratedTrait;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

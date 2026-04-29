@@ -6,12 +6,14 @@ use App\Entity\User\Organization;
 use App\Entity\User\Person;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
-use App\Repository\User\UserRepository;
+use App\Library\Link;
 use App\Service\UserService;
 use Doctrine\Persistence\ManagerRegistry;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
 
 class UsersPump implements PumpInterface
 {
@@ -20,7 +22,6 @@ class UsersPump implements PumpInterface
     use UsersPumpTrait;
 
     public function __construct(
-        private UserRepository $userRepository,
         private ManagerRegistry $managerRegistry,
     ) {}
 
@@ -41,12 +42,11 @@ class UsersPump implements PumpInterface
         try {
             $this->persist($user, $context);
         } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
-            $this->managerRegistry->resetManager();
-            $em = $this->managerRegistry->getManager();
-            $em->clear();
+            $em = $this->managerRegistry->resetManager();
             $this->setEntityManager($em);
 
-            $user = $this->userRepository->findOneBy(['email' => $record['email']]);
+            $usersRepo = $em->getRepository(User::class);
+            $user = $usersRepo->findOneBy(['email' => $record['email']]);
 
             if ($user) {
                 $user->setDeduped(true);
@@ -79,6 +79,7 @@ class UsersPump implements PumpInterface
         $user->setDateCreated($this->getDateCreated($record));
         $user->setDateUpdated(new \DateTime());
         $user->setType($this->getUserType($record));
+        $user->setLinks($this->getLinks($record));
 
         match ($user->getType()) {
             UserType::Individual => $user = $this->setUserPerson($record, $user),
@@ -129,25 +130,7 @@ class UsersPump implements PumpInterface
 
     private function setUserPerson(array $record, User $user): User
     {
-        $namePieces = \explode(' ', $record['name']);
-        $namePiecesCount = \count($namePieces);
-
-        $firstName = $record['name'];
-        $lastName = '';
-
-        if ($namePiecesCount === 2) {
-            [$firstName, $lastName] = $namePieces;
-        }
-
-        if ($namePiecesCount === 3) {
-            $firstName = $namePieces[0];
-            $lastName = \join(' ', \array_slice($namePieces, 1));
-        }
-
-        if ($namePiecesCount > 3) {
-            $firstName = \join(' ', \array_slice($namePieces, 0, 2));
-            $lastName = \join(' ', \array_slice($namePieces, 2));
-        }
+        [$firstName, $lastName] = UserService::guessNames($record['name']);
 
         $person = new Person();
         $person->setFirstName($firstName);
@@ -166,5 +149,38 @@ class UsersPump implements PumpInterface
         $user->setOrganization($org);
 
         return $user;
+    }
+
+    private function getLinks(array $record): array
+    {
+        $linkableKeys = [
+            'twitter',
+            'facebook',
+            'instagram',
+            'identica',
+            'linkedin',
+        ];
+
+        $links = [];
+        foreach ($linkableKeys as $key) {
+            $url = $record[$key];
+
+            if ($url === null || $url === '') {
+                continue;
+            }
+
+            $isValidUrl = Validation::createIsValidCallable(constraints: new Url());
+            if (!$isValidUrl($url)) {
+                continue;
+            }
+
+            $link = new Link();
+            $link->url = $url;
+            $link->rel = 'external';
+
+            $links[] = $link;
+        }
+
+        return $links;
     }
 }

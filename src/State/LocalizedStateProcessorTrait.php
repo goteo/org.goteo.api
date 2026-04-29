@@ -2,7 +2,7 @@
 
 namespace App\State;
 
-use App\Entity\Interface\LocalizedEntityInterface;
+use App\Entity\LocalizedInterface;
 use App\Service\LocalizationService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -27,7 +27,7 @@ trait LocalizedStateProcessorTrait
 
     private function isLocalizedData(mixed $data): bool
     {
-        if ($data instanceof LocalizedEntityInterface) {
+        if ($data instanceof LocalizedInterface) {
             return true;
         }
 

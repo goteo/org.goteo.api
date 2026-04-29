@@ -23,7 +23,6 @@ trait RedocExtensionsTrait
                 'name' => 'Users',
                 'tags' => [
                     'User',
-                    'UserToken',
                     'Person',
                     'Organization',
                 ],

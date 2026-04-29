@@ -3,12 +3,13 @@
 namespace App\Entity\User;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Accounting\AccountingOwnerInterface;
+use App\Entity\DateCreatedTrait;
+use App\Entity\DateUpdatedTrait;
+use App\Entity\DedupedTrait;
+use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
-use App\Entity\Trait\DedupEntityTrait;
-use App\Entity\Trait\MigratedEntity;
-use App\Entity\Trait\TimestampedCreationEntity;
-use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Library\Link;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -35,10 +36,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity('handle', message: 'This handle is already in use.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
-    use MigratedEntity;
-    use DedupEntityTrait;
-    use TimestampedCreationEntity;
-    use TimestampedUpdationEntity;
+    use MigratedTrait;
+    use DedupedTrait;
+    use DateCreatedTrait;
+    use DateUpdatedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -70,12 +71,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      */
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class, cascade: ['persist'])]
     private Collection $projects;
-
-    /**
-     * The UserTokens owned by this User. Owner only property.
-     */
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
-    private Collection $tokens;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Person $person = null;
@@ -113,12 +108,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $avatar = null;
 
+    /**
+     * A list of URLs provided by the User.\
+     * e.g: social profiles, personal website.
+     *
+     * @var Link[]
+     */
+    #[ORM\Column(nullable: true)]
+    private ?array $links = null;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
 
         $this->projects = new ArrayCollection();
-        $this->tokens = new ArrayCollection();
         $this->person = Person::for($this);
 
         $this->emailConfirmed = false;
@@ -220,36 +223,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
             // set the owning side to null (unless already changed)
             if ($project->getOwner() === $this) {
                 $project->setOwner(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, UserToken>
-     */
-    public function getTokens(): Collection
-    {
-        return $this->tokens;
-    }
-
-    public function addToken(UserToken $token): static
-    {
-        if (!$this->tokens->contains($token)) {
-            $this->tokens->add($token);
-            $token->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeToken(UserToken $token): static
-    {
-        if ($this->tokens->removeElement($token)) {
-            // set the owning side to null (unless already changed)
-            if ($token->getOwner() === $this) {
-                $token->setOwner(null);
             }
         }
 
@@ -368,6 +341,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setAvatar(?string $avatar): static
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * @return Link[]
+     */
+    public function getLinks(): ?array
+    {
+        return $this->links;
+    }
+
+    /**
+     * @param Link[] $links
+     */
+    public function setLinks(?array $links): static
+    {
+        $this->links = $links;
 
         return $this;
     }

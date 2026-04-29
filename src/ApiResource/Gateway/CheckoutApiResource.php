@@ -5,10 +5,11 @@ namespace App\ApiResource\Gateway;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\Gateway\CheckoutCreationDto;
 use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
-use App\Gateway\Link;
+use App\Gateway\GatewayLink;
 use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
 use App\Mapping\Transformer\GatewayNameMapTransformer;
@@ -27,10 +28,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: CheckoutStateProcessor::class,
 )]
-#[API\GetCollection(
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")'
+#[API\GetCollection()]
+#[API\Post(
+    input: CheckoutCreationDto::class,
+    security: 'is_granted("ROLE_USER")'
 )]
-#[API\Post()]
 #[API\Get()]
 #[API\Patch(
     input: CheckoutUpdationDto::class,
@@ -52,6 +54,7 @@ class CheckoutApiResource
     /**
      * The Accounting paying for the charges.
      */
+    #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object.origin)')]
     #[Assert\NotBlank()]
     public AccountingApiResource $origin;
 
@@ -93,7 +96,7 @@ class CheckoutApiResource
     /**
      * A list of related hyperlinks, as provided by the Gateway.
      *
-     * @var Link[]
+     * @var GatewayLink[]
      */
     #[API\ApiProperty(writable: false)]
     #[MapTo(Checkout::class, transformer: [self::class, 'parseLinks'])]
@@ -116,6 +119,6 @@ class CheckoutApiResource
 
     public static function parseLinks(array $values)
     {
-        return \array_map(fn($value) => Link::tryFrom($value), $values);
+        return \array_map(fn($value) => GatewayLink::tryFrom($value), $values);
     }
 }

@@ -6,8 +6,10 @@ use ApiPlatform\Metadata\IriConverterInterface;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\User\User;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class AccountingVoter extends Voter
 {
@@ -17,6 +19,7 @@ class AccountingVoter extends Voter
     public const VIEW = 'ACCOUNTING_VIEW';
 
     public function __construct(
+        private Security $security,
         private IriConverterInterface $iriConverter,
     ) {}
 
@@ -44,11 +47,11 @@ class AccountingVoter extends Voter
         return false;
     }
 
-    private function voteOn(string $attribute, mixed $subject, ?User $user): bool
+    private function voteOn(string $attribute, mixed $subject, ?UserInterface $user): bool
     {
         switch ($attribute) {
             case self::EDIT:
-                return $user->hasRoles(['ROLE_ADMIN'])
+                return $this->security->isGranted('ROLE_ADMIN', $user)
                     || $this->isOwnerOf($subject, $user);
             case self::VIEW:
                 return true;
@@ -57,7 +60,7 @@ class AccountingVoter extends Voter
         return false;
     }
 
-    private function voteOnUser(string $attribute, UserApiResource $owner, ?User $user): bool
+    private function voteOnUser(string $attribute, UserApiResource $owner, ?UserInterface $user): bool
     {
         if (!$user instanceof User) {
             return false;
@@ -66,7 +69,7 @@ class AccountingVoter extends Voter
         switch ($attribute) {
             case self::EDIT:
             case self::VIEW:
-                return $user->hasRoles(['ROLE_ADMIN'])
+                return $this->security->isGranted('ROLE_ADMIN', $user)
                     || $this->isOwnerOf($owner, $user);
         }
 

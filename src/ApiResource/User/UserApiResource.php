@@ -12,11 +12,14 @@ use App\Dto\UserSignupDto;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Filter\OrderedLikeFilter;
+use App\Library\Link;
 use App\Mapping\Transformer\UserDisplayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\User\UserSignupProcessor;
 use App\State\User\UserStateProcessor;
+use App\State\User\UserStateProvider;
 use AutoMapper\Attribute\MapFrom;
+use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -36,7 +39,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\GetCollection()]
 #[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
-#[API\Get()]
+#[API\Get(
+    provider: UserStateProvider::class,
+    uriTemplate: '/users/{idOrHandle}',
+    uriVariables: [
+        'idOrHandle' => new API\Link(
+            description: 'User identifier or handle'
+        ),
+    ]
+)]
 #[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 #[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 class UserApiResource
@@ -125,4 +136,20 @@ class UserApiResource
      */
     #[API\ApiProperty(writable: false)]
     public bool $active;
+
+    /**
+     * A list of URLs provided by the User.\
+     * e.g: social profiles, personal website.
+     *
+     * @var Link[]
+     */
+    #[API\ApiProperty(writable: false)]
+    #[MapTo(User::class, transformer: [self::class, 'parseLinks'])]
+    #[MapFrom(User::class, transformer: [self::class, 'parseLinks'])]
+    public array $links = [];
+
+    public static function parseLinks(array $values)
+    {
+        return \array_map(fn($value) => Link::tryFrom($value), $values);
+    }
 }

@@ -12,8 +12,9 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\User\UserRepository;
-use App\Service\Embed\EmbedService;
 use App\Service\Project\TerritoryService;
+use App\Service\Scout\FileUriException;
+use App\Service\Scout\ScoutService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
@@ -32,7 +33,7 @@ class ProjectsPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private UserRepository $userRepository,
         private TerritoryService $territoryService,
-        private EmbedService $embedService,
+        private ScoutService $scoutService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -56,7 +57,7 @@ class ProjectsPump implements PumpInterface
         }
 
         $created = new \DateTime($record['created']);
-        if (\in_array($status, [ProjectStatus::InDraft, ProjectStatus::InDraft]) && $created < new \DateTime('2024-01-01')) {
+        if (\in_array($status, [ProjectStatus::InDraft]) && $created < new \DateTime('2025-01-01')) {
             return;
         }
 
@@ -231,9 +232,15 @@ class ProjectsPump implements PumpInterface
         }
 
         try {
-            $video = $this->embedService->getVideo($url);
+            $info = $this->scoutService->get($url);
 
-            return new ProjectVideo($video->src, $video->thumbnail);
+            if ($info->image === null) {
+                return null;
+            }
+
+            return new ProjectVideo($info->url, $info->cover ?? $info->image, $info->image);
+        } catch (FileUriException $e) {
+            return new ProjectVideo($e->getUri());
         } catch (\Exception $e) {
             return null;
         }
