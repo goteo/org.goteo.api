@@ -21,7 +21,7 @@ class GatewaysController extends AbstractController
         private GatewayLocator $gatewayLocator,
     ) {}
 
-    #[Route('/redirect', name: self::REDIRECT)]
+    #[Route('/redirect/{gateway}', name: self::REDIRECT)]
     public function handleRedirect(Request $request, string $gateway): Response
     {
         $gateway = $this->gatewayLocator->get($gateway);
