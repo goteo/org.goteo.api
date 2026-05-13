@@ -7,6 +7,7 @@ use ApiPlatform\Metadata as API;
 use App\Entity\Category;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A Category can be used by other resources as a "topic intent".\
@@ -31,9 +32,17 @@ class CategoryApiResource
 {
     use LocalizedApiResourceTrait;
 
+    /**
+     * This value will identify this Category in relationships with other resources.
+     */
     #[API\ApiProperty(identifier: true)]
+    #[Assert\NotBlank()]
     public string $id;
 
+    /**
+     * A human-readable self-descriptive string of what this Category is about.
+     */
     #[API\ApiProperty()]
+    #[Assert\NotBlank()]
     public string $name;
 }
