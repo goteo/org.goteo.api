@@ -9,6 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectCreationDto
 {
+    use CategoryInputDtoTrait;
+
     /**
      * Main headline for the Project. Must include at least one character between a-Z.
      */
@@ -23,13 +25,13 @@ class ProjectCreationDto
     public string $subtitle;
 
     /**
-     * One of the available categories.
+     * List of Categories.
      *
      * @var CategoryApiResource[]
      */
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1, max: 2)]
-    #[API\ApiProperty(writableLink: false)]
+    #[API\ApiProperty(writableLink: false, openapiContext: self::CATEGORIES_OPENAPI_CONTEXT)]
     public array $categories;
 
     /**
