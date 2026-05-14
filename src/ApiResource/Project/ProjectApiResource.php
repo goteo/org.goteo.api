@@ -117,11 +117,12 @@ class ProjectApiResource
     public ProjectCalendar $calendar;
 
     /**
-     * A list of the available categories most relevant to this Project.
+     * A list of the available Categories of this Project.
      *
-     * @var array<int, CategoryApiResource>
+     * @var CategoryApiResource[]
      */
     #[Assert\NotBlank()]
+    #[API\ApiProperty(writableLink: false)]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public array $categories;
 
