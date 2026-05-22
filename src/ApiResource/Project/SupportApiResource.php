@@ -99,6 +99,13 @@ class SupportApiResource
     public bool $anonymous = true;
 
     /**
+     * If this ProjectSupport comes from a MatchCall this flag will be true.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(BooleanFilter::class)]
+    public bool $matchfunding;
+
+    /**
      * A message of support from the User to the Project.
      */
     public ?string $message = null;
