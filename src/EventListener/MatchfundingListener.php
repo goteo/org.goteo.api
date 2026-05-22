@@ -52,7 +52,7 @@ final class MatchfundingListener
             $this->computeChangeSet($em, $support);
 
             $matchSupport = $this->supportService->getSupport($target, $transaction->getOrigin());
-            $matchSupport = $this->supportService->withTransactions($support, [$transaction]);
+            $matchSupport = $this->supportService->withTransactions($matchSupport, [$transaction]);
             $matchSupport->setAnonymous(false);
             $this->computeChangeSet($em, $matchSupport);
         }
