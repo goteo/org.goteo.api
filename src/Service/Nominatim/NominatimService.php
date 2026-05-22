@@ -82,13 +82,13 @@ class NominatimService
 
     private function throttle(): void
     {
-        $minInterval = 1.0;
+        $minInterval = 1.1;
 
         $now = microtime(true);
         $delta = $now - $this->lastRequestTime;
 
         if ($delta < $minInterval) {
-            usleep((int)(($minInterval - $delta) * 1000000));
+            usleep((int) (($minInterval - $delta) * 1000000));
         }
 
         $this->lastRequestTime = microtime(true);

@@ -119,7 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private ?array $links = null;
 
     #[ORM\Embedded(class: Territory::class)]
-    private ?object $territory = null;
+    private ?Territory $territory = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -382,12 +382,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    public function getTerritory(): ?object
+    public function getTerritory(): ?Territory
     {
         return $this->territory;
     }
 
-    public function setTerritory(?object $territory): static
+    public function setTerritory(?Territory $territory): static
     {
         $this->territory = $territory;
 

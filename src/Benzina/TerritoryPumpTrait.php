@@ -16,9 +16,9 @@ trait TerritoryPumpTrait
 
         // 1. Skip URLs
         if (
-            str_starts_with($location, 'http://') ||
-            str_starts_with($location, 'https://') ||
-            str_starts_with($location, 'www.')
+            str_starts_with($location, 'http://')
+            || str_starts_with($location, 'https://')
+            || str_starts_with($location, 'www.')
         ) {
             return '';
         }
@@ -40,7 +40,9 @@ trait TerritoryPumpTrait
 
         // 6. Clean tokens
         $parts = array_values(array_filter($parts, function ($p) {
-            if ($p === '') return false;
+            if ($p === '') {
+                return false;
+            }
 
             // Remove pure noise like empty numbers or coordinates
             if (preg_match('/^\s*[-+]?\d+(\.\d+)?\s*$/', $p)) {
