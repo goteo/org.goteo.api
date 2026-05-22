@@ -12,72 +12,74 @@ trait TerritoryPumpTrait
      */
     public static function cleanLocation(string $location, int $detailLevel = 3): string
     {
-        // Skip web addresses
+        $location = trim($location);
+
+        // 1. Skip URLs
         if (
-            \str_starts_with($location, 'www.')
-            || \str_starts_with($location, 'http://')
-            || \str_starts_with($location, 'https://')
+            str_starts_with($location, 'http://') ||
+            str_starts_with($location, 'https://') ||
+            str_starts_with($location, 'www.')
         ) {
             return '';
         }
 
-        // Remove secondary conjoined places from locations
-        // e.g: "España y el mundo" -> "España"
-        foreach ([' / ', ' | ', ' - ', ' y ', ' i ', ' and ', ' & '] as $conjoinment) {
-            if (\str_contains($location, $conjoinment)) {
-                $location = \explode($conjoinment, $location)[0];
-            }
-        }
+        // 2. Normalize separators ONLY when clearly semantic (not street hyphens)
+        $location = preg_replace('/\s+(\/|\||&|\by\b|\bi\b|and)\s+/iu', ',', $location);
 
-        // Normalize parenthesis
-        if (\str_contains($location, '(') || \str_contains($location, ')')) {
-            $location = \str_replace('(', ',', $location);
-            $location = \str_replace(')', '', $location);
-        }
+        // 3. Normalize parentheses -> commas
+        $location = str_replace(['(', ')'], [',', ''], $location);
 
-        // Remove colon specifications
-        // e.g: "Universidad Carlos III de Madrid: Campus de Getafe, Calle Madrid, Getafe, España" -> "Campus de Getafe, Calle Madrid, Getafe, España"
-        $location = \preg_replace('/^[\w ]+:/', '', $location);
+        // 4. Remove leading labels like "University X:"
+        $location = preg_replace('/^[^:]{1,80}:\s*/u', '', $location);
 
-        // Process comma-separated address pieces
-        $location = \explode(',', $location);
+        // 5. Tokenize
+        $parts = array_map(
+            fn($p) => trim($p),
+            explode(',', $location)
+        );
 
-        // Clean non desired location pieces
-        $location = \array_filter($location, function ($l) {
-            if (empty($l)) {
-                return false;
-            }
+        // 6. Clean tokens
+        $parts = array_values(array_filter($parts, function ($p) {
+            if ($p === '') return false;
 
-            // Skip numeric only pieces: coordinates, street numbers, etc
-            if (\preg_match('/^[-\d.]*$/', $l) || \str_contains($l, 'º')) {
+            // Remove pure noise like empty numbers or coordinates
+            if (preg_match('/^\s*[-+]?\d+(\.\d+)?\s*$/', $p)) {
                 return false;
             }
 
             return true;
-        });
+        }));
 
-        // Normalize location pieces
-        $location = \array_map(function ($l) {
-            // Trim spaces and numbers at start of piece
-            $l = \preg_replace('/^[\d ]+/', '', \trim($l));
+        // 7. Normalize tokens
+        $parts = array_map(function ($p) {
+            $p = trim($p);
 
-            // Normalize typos and name variations
-            foreach (self::COMMON_VARIATIONS as $standard => $variations) {
-                if (in_array(\mb_strtoupper($l), $variations)) {
-                    $l = $standard;
+            // remove leading house numbers but keep street names
+            $p = preg_replace('/^\d+\s*/u', '', $p);
+
+            $upper = mb_strtoupper($p, 'UTF-8');
+            foreach (self::COMMON_VARIATIONS as $standard => $variants) {
+                if (in_array($upper, $variants, true)) {
+                    return $standard;
                 }
             }
 
-            return $l;
-        }, $location);
+            return $p;
+        }, $parts);
 
-        $location = \join(', ', \array_slice($location, -1 * $detailLevel));
+        // 8. Keep only last N components (most specific context)
+        if (count($parts) > $detailLevel) {
+            $parts = array_slice($parts, -$detailLevel);
+        }
 
-        // Trim remaining numbers and punctuation marks
-        $location = \preg_replace('/^[\d\.\,\-;]+/', '', $location);
-        $location = \preg_replace('/[\d\.\,\-;]+$/', '', $location);
+        // 9. Join deterministically
+        $result = implode(', ', $parts);
 
-        return \mb_strtoupper(\trim($location));
+        // 10. Final cleanup
+        $result = preg_replace('/\s+/u', ' ', $result);
+        $result = trim($result, " \t\n\r\0\x0B,.-;");
+
+        return mb_strtoupper($result, 'UTF-8');
     }
 
     /**
@@ -86,7 +88,7 @@ trait TerritoryPumpTrait
     private const COMMON_VARIATIONS = [
         'PERÚ' => ['PÉROU'],
         'ECUADOR' => ['EQUADOR'],
-        'MÉXICO' => ['MESSICO', 'MX'],
+        'MÉXICO' => ['MEXICO', 'MESSICO', 'MX'],
         'CIUDAD DE MÉXICO' => ['CDMX'],
         'EUROPA' => ['EUROPEAN UNION', 'EUROPE'],
         'FRANCIA' => ['FRANCE'],
@@ -124,7 +126,7 @@ trait TerritoryPumpTrait
         'VIZCAYA' => ['BIZKAIA'],
         'IRÚN' => ['IRUN'],
         'NAVARRA' => ['NAVARRE', 'NAFARROA'],
-        'PAMLONA' => ['IRUÑEA'],
+        'PAMPLONA' => ['IRUÑEA'],
         'CANARIAS' => ['ISLAS CANARIAS', 'CANARY ISLANDS'],
     ];
 }
