@@ -53,7 +53,7 @@ class UserService
         // Only lowercase a-z, numbers, underscore and middle dots in user handles
         $nval = \preg_replace('/[^a-z0-9_.]|^\.|\.$/', '_', \strtolower($nval));
 
-        $nval = \str_pad($nval, $min, \sprintf('#%s', \hash('md5', $value)));
+        $nval = \str_pad($nval, $min, \sprintf('_%s', \hash('md5', $value)));
         $nval = \substr($nval, 0, $max);
 
         if (strlen(str_replace('_', '', $nval)) < 1) {

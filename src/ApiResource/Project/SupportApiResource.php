@@ -10,10 +10,12 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
 use App\ApiResource\MoneyOutput;
 use App\Entity\Project\Support;
+use App\Mapping\Transformer\SupportDisplayNameMapTransformer;
 use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
 use App\State\MoneyTotalStateProvider;
 use App\State\Project\SupportStateProcessor;
+use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -76,6 +78,10 @@ class SupportApiResource
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ?AccountingApiResource $origin;
 
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(Support::class, transformer: SupportDisplayNameMapTransformer::class)]
+    public string $displayName;
+
     /**
      * The Transactions that were issued to the Project by the origin.
      *
@@ -97,6 +103,13 @@ class SupportApiResource
     #[Assert\Type('bool')]
     #[API\ApiFilter(BooleanFilter::class)]
     public bool $anonymous = true;
+
+    /**
+     * If this ProjectSupport comes from a MatchCall this flag will be true.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(BooleanFilter::class)]
+    public bool $matchfunding;
 
     /**
      * A message of support from the User to the Project.

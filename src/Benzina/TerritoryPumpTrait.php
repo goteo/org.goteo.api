@@ -86,7 +86,7 @@ trait TerritoryPumpTrait
     private const COMMON_VARIATIONS = [
         'PERÚ' => ['PÉROU'],
         'ECUADOR' => ['EQUADOR'],
-        'MÉXICO' => ['MESSICO', 'MX'],
+        'MÉXICO' => ['MEXICO', 'MESSICO', 'MX'],
         'CIUDAD DE MÉXICO' => ['CDMX'],
         'EUROPA' => ['EUROPEAN UNION', 'EUROPE'],
         'FRANCIA' => ['FRANCE'],
@@ -124,7 +124,7 @@ trait TerritoryPumpTrait
         'VIZCAYA' => ['BIZKAIA'],
         'IRÚN' => ['IRUN'],
         'NAVARRA' => ['NAVARRE', 'NAFARROA'],
-        'PAMLONA' => ['IRUÑEA'],
+        'PAMPLONA' => ['IRUÑEA'],
         'CANARIAS' => ['ISLAS CANARIAS', 'CANARY ISLANDS'],
     ];
 }
