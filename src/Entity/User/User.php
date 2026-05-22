@@ -9,6 +9,7 @@ use App\Entity\DateUpdatedTrait;
 use App\Entity\DedupedTrait;
 use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
+use App\Entity\Territory;
 use App\Library\Link;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
@@ -116,6 +117,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      */
     #[ORM\Column(nullable: true)]
     private ?array $links = null;
+
+    #[ORM\Embedded(class: Territory::class)]
+    private ?object $territory = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
 
     public function __construct()
     {
@@ -359,6 +366,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setLinks(?array $links): static
     {
         $this->links = $links;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getTerritory(): ?object
+    {
+        return $this->territory;
+    }
+
+    public function setTerritory(?object $territory): static
+    {
+        $this->territory = $territory;
 
         return $this;
     }

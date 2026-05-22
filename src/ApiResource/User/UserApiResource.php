@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Parameters;
 use ApiPlatform\Metadata\QueryParameter;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\UserSignupDto;
+use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Filter\OrderedLikeFilter;
@@ -55,12 +56,6 @@ class UserApiResource
     #[API\ApiProperty(writable: false, identifier: true)]
     public int $id;
 
-    #[Assert\NotBlank()]
-    #[Assert\Email()]
-    #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
-    #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
-    public string $email;
-
     /**
      * A unique, non white space, byte-safe string identifier for this User.
      */
@@ -69,6 +64,18 @@ class UserApiResource
     #[Assert\Regex('/^[a-z0-9_]+$/')]
     #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
     public string $handle;
+
+    #[Assert\NotBlank()]
+    #[Assert\Email()]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
+    #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
+    public string $email;
+
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_VIEW", object)')]
+    public bool $emailConfirmed;
 
     /**
      * URL to the avatar image of this User.
@@ -126,12 +133,6 @@ class UserApiResource
     public array $projects;
 
     /**
-     * Has this User confirmed their email address?
-     */
-    #[API\ApiProperty(writable: false, security: 'is_granted("USER_VIEW", object)')]
-    public bool $emailConfirmed;
-
-    /**
      * A flag determined by the platform for Users who are known to be active.
      */
     #[API\ApiProperty(writable: false)]
@@ -152,4 +153,20 @@ class UserApiResource
     {
         return \array_map(fn($value) => Link::tryFrom($value), $values);
     }
+
+    /**
+     * ISO 3166 data about the Users's location territory.
+     */
+    #[Assert\Valid()]
+    #[API\ApiFilter(
+        filterClass: SearchFilter::class,
+        strategy: 'exact',
+        properties: ['territory.country', 'territory.subLvl1', 'territory.subLvl2']
+    )]
+    public Territory $territory;
+
+    /**
+     * Free-form rich text description for the User.
+     */
+    public string $description;
 }
