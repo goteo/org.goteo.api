@@ -2,22 +2,22 @@
 
 namespace App\Tests\Benzina;
 
-use App\Benzina\ProjectsPumpTrait;
+use App\Benzina\TerritoryPumpTrait;
 use PHPUnit\Framework\TestCase;
 
-class ProjectsPumpTraitTest extends TestCase
+class TerritoryPumpTraitTest extends TestCase
 {
-    /** @var ProjectsPumpTrait */
+    /** @var TerritoryPumpTrait */
     private $pump;
 
     public function setUp(): void
     {
-        $this->pump = $this->getMockForTrait(ProjectsPumpTrait::class);
+        $this->pump = $this->getMockForTrait(TerritoryPumpTrait::class);
     }
 
     public function testCapitalizesResult()
     {
-        $cleanAddress = $this->pump->cleanProjectLocation('Test Address');
+        $cleanAddress = $this->pump->cleanLocation('Test Address');
 
         $this->assertEquals('TEST ADDRESS', $cleanAddress);
     }
@@ -27,7 +27,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testSkipsInternetAddresses($internetAddress)
     {
-        $this->assertEquals('', $this->pump->cleanProjectLocation($internetAddress));
+        $this->assertEquals('', $this->pump->cleanLocation($internetAddress));
     }
 
     public function provideInternetAddresses(): array
@@ -46,7 +46,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testStripsConjoinedAddresses($conjoinedAddress, $finalAddress)
     {
-        $cleanAddress = $this->pump->cleanProjectLocation($conjoinedAddress);
+        $cleanAddress = $this->pump->cleanLocation($conjoinedAddress);
 
         $this->assertEquals($finalAddress, $cleanAddress);
     }
@@ -67,7 +67,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testStripsColonSpecifiers($colonSpecified, $removedSpecifier)
     {
-        $cleanAddress = $this->pump->cleanProjectLocation($colonSpecified);
+        $cleanAddress = $this->pump->cleanLocation($colonSpecified);
 
         $this->assertStringNotContainsString($removedSpecifier, $cleanAddress);
     }
@@ -86,7 +86,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testFixesBadPunctuations($badAddress, $fixedAddress)
     {
-        $cleanAddress = $this->pump->cleanProjectLocation($badAddress);
+        $cleanAddress = $this->pump->cleanLocation($badAddress);
 
         $this->assertEquals($fixedAddress, $cleanAddress);
     }
@@ -105,7 +105,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testStandarisesCountry($variation, $standard)
     {
-        $cleanAddress = $this->pump->cleanProjectLocation($variation);
+        $cleanAddress = $this->pump->cleanLocation($variation);
 
         $this->assertEquals($standard, $cleanAddress);
     }
