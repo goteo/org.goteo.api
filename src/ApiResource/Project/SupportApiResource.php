@@ -10,6 +10,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
 use App\ApiResource\MoneyOutput;
 use App\Entity\Project\Support;
+use App\Mapping\Transformer\SupportDisplayImageMapTransformer;
 use App\Mapping\Transformer\SupportDisplayNameMapTransformer;
 use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
@@ -81,6 +82,10 @@ class SupportApiResource
     #[API\ApiProperty(writable: false)]
     #[MapFrom(Support::class, transformer: SupportDisplayNameMapTransformer::class)]
     public string $displayName;
+
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(Support::class, transformer: SupportDisplayImageMapTransformer::class)]
+    public string $displayImage;
 
     /**
      * The Transactions that were issued to the Project by the origin.
