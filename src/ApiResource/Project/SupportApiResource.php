@@ -73,7 +73,7 @@ class SupportApiResource
     /**
      * The Accounting of origin for the Transactions under this ProjectSupport record.\
      * \
-     * When `anonymous` is *true* it will only be public to admins and the User.
+     * When `anonymous` is *true* the origin will only be public to admins and the User.
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("SUPPORT_VIEW", object)')]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
@@ -102,7 +102,7 @@ class SupportApiResource
     public MoneyOutput $money;
 
     /**
-     * User's will to have their support to the Project be shown publicly.
+     * If the origin wishes to remain anonymous behind this ProjectSupport.
      */
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
