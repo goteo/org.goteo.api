@@ -10,6 +10,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
 use App\ApiResource\MoneyOutput;
 use App\Entity\Project\Support;
+use App\Mapping\Transformer\SupportDisplayImageMapTransformer;
 use App\Mapping\Transformer\SupportDisplayNameMapTransformer;
 use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
@@ -72,7 +73,7 @@ class SupportApiResource
     /**
      * The Accounting of origin for the Transactions under this ProjectSupport record.\
      * \
-     * When `anonymous` is *true* it will only be public to admins and the User.
+     * When `anonymous` is *true* the origin will only be public to admins and the User.
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("SUPPORT_VIEW", object)')]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
@@ -81,6 +82,10 @@ class SupportApiResource
     #[API\ApiProperty(writable: false)]
     #[MapFrom(Support::class, transformer: SupportDisplayNameMapTransformer::class)]
     public string $displayName;
+
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(Support::class, transformer: SupportDisplayImageMapTransformer::class)]
+    public string $displayImage;
 
     /**
      * The Transactions that were issued to the Project by the origin.
@@ -97,7 +102,7 @@ class SupportApiResource
     public MoneyOutput $money;
 
     /**
-     * User's will to have their support to the Project be shown publicly.
+     * If the origin wishes to remain anonymous behind this ProjectSupport.
      */
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
