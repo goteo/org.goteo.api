@@ -31,6 +31,9 @@ trait RedocExtensionsTrait
                 'name' => 'Projects',
                 'tags' => [
                     'Project',
+                    'ProjectReview',
+                    'ProjectReviewArea',
+                    'ProjectReviewComment',
                     'ProjectReward',
                     'ProjectRewardClaim',
                     'ProjectBudgetItem',
