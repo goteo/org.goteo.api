@@ -199,7 +199,7 @@ class UsersPump implements PumpInterface
         $cleanAddress = $this->cleanLocation($record['location'], 2);
 
         if ($cleanAddress === '') {
-            return Territory::unknown();
+            return Territory::unknown($record['location']);
         }
 
         return $this->territoryService->search($cleanAddress);

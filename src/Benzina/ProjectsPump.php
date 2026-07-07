@@ -201,7 +201,7 @@ class ProjectsPump implements PumpInterface
         $cleanAddress = $this->cleanLocation($record['project_location'], 2);
 
         if ($cleanAddress === '') {
-            return Territory::unknown();
+            return Territory::unknown($record['project_location']);
         }
 
         return $this->territoryService->search($cleanAddress);
