@@ -48,6 +48,11 @@ enum ProjectStatus: string
     case CampaignFailed = 'campaign.failed';
 
     /**
+     * Project was pulled out of campaign, final.
+     */
+    case CampaignCancelled = 'campaign.cancelled';
+
+    /**
      * Project raised enough funds, can move forward.
      */
     case ToFundingReview = 'to_funding_review';
