@@ -41,7 +41,7 @@ class Territory
      * e.g: Forn de l’Olivera 22B, 07012 Palma, Illes Balears.
      */
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    public readonly string $address;
+    public readonly ?string $address;
 
     public function __construct(
         ?string $country = null,
@@ -57,6 +57,9 @@ class Territory
 
     public static function unknown(?string $address = null): Territory
     {
-        return new Territory(country: self::UNKNOWN_COUNTRY_CODE, address: $address);
+        return new Territory(
+            country: self::UNKNOWN_COUNTRY_CODE,
+            address: $address
+        );
     }
 }
