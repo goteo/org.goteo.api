@@ -25,7 +25,7 @@ enum ProjectStatus: string
     /**
      * Owner requested to do changes by the campaign reviewer.
      */
-    case InCampaignReviewRequestChange = 'in_campaign_review.request_change';
+    case InCampaignReviewToChange = 'in_campaign_review.to_change';
 
     /**
      * Project is KO for campaign by the reviewer, final.
@@ -60,7 +60,7 @@ enum ProjectStatus: string
     /**
      * Owner requested to do changes by the financial reviewer.
      */
-    case InFundingReviewRequestChange = 'in_funding_review.request_change';
+    case InFundingReviewToChange = 'in_funding_review.to_change';
 
     /**
      * Project is KO for funding by the reviewer, final.
