@@ -7,7 +7,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Gateway\GatewayApiResource;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\RefundStrategy;
-use App\Mapping\Transformer\GatewayNameMapTransformer;
+use App\Mapping\Transformer\GatewayIdMapTransformer;
 use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -18,8 +18,8 @@ class CheckoutCreationDto
      * The desired Gateway to checkout with.
      */
     #[Assert\NotBlank()]
-    #[MapFrom(property: 'gatewayName', transformer: GatewayNameMapTransformer::class)]
-    #[MapTo(property: 'gatewayName', transformer: 'source.gateway.name')]
+    #[MapFrom(property: 'gatewayId', transformer: GatewayIdMapTransformer::class)]
+    #[MapTo(property: 'gatewayId', transformer: 'source.gateway.id')]
     public GatewayApiResource $gateway;
 
     /**

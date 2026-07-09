@@ -34,7 +34,7 @@ class CheckoutService
             GatewaysController::REDIRECT,
             [
                 'type' => $type,
-                'gateway' => $checkout->getGatewayName(),
+                'gateway' => $checkout->getGatewayId(),
                 'checkoutId' => $checkout->getId(),
                 ...$parameters,
             ],
