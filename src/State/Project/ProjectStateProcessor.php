@@ -83,7 +83,7 @@ class ProjectStateProcessor implements ProcessorInterface
             throw new AuthenticationException();
         }
 
-        if ($data->status !== $project->getStatus()) {
+        if (isset($data->status) && $data->status !== $project->getStatus()) {
             if (!$this->projectService->canTransition($actor, $project, $data->status)) {
                 throw new AccessDeniedException(\sprintf(
                     "Cannot move the Project from status '%s' to '%s'",
