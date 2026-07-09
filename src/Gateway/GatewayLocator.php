@@ -54,7 +54,7 @@ class GatewayLocator
      */
     public function getForCheckout(Checkout $checkout): GatewayInterface
     {
-        return $this->get($checkout->getGatewayName());
+        return $this->get($checkout->getGatewayId());
     }
 
     /**
