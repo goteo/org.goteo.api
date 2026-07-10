@@ -18,7 +18,7 @@ class Territory
      */
     #[Assert\Country(alpha3: false)]
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    public readonly string $country;
+    public readonly ?string $country;
 
     /**
      * ISO 3166-2 first level subdivision code.\
