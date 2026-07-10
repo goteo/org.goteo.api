@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9934f062d83166c059c878d97911455",
+    "content-hash": "011dd61a2a473aef06ca6b082b3ea49b",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -3566,22 +3566,23 @@
         },
         {
             "name": "jolicode/automapper",
-            "version": "9.2.1",
+            "version": "9.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jolicode/automapper.git",
-                "reference": "e10d695f396501eea4f0b6a4373e6cb7b2b5b9c8"
+                "reference": "e55b2acfe5a09295b9d3e7e69e09ebfb113f86b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jolicode/automapper/zipball/e10d695f396501eea4f0b6a4373e6cb7b2b5b9c8",
-                "reference": "e10d695f396501eea4f0b6a4373e6cb7b2b5b9c8",
+                "url": "https://api.github.com/repos/jolicode/automapper/zipball/e55b2acfe5a09295b9d3e7e69e09ebfb113f86b2",
+                "reference": "e55b2acfe5a09295b9d3e7e69e09ebfb113f86b2",
                 "shasum": ""
             },
             "require": {
-                "nikic/php-parser": "^4.18 || ^5.0",
+                "composer-runtime-api": "^2.1 || ^3.0",
+                "nikic/php-parser": "^5.0",
                 "php": "^8.2",
-                "phpdocumentor/type-resolver": "^1.7",
+                "phpdocumentor/type-resolver": "^1.7 || ^2.0",
                 "phpstan/phpdoc-parser": "^1.13 || ^2.0",
                 "symfony/deprecation-contracts": "^3.0",
                 "symfony/event-dispatcher": "^6.4 || ^7.0",
@@ -3596,22 +3597,28 @@
                 "symfony/serializer": "<6.4"
             },
             "require-dev": {
-                "api-platform/core": "^3.0.4",
-                "doctrine/annotations": "~1.0",
+                "api-platform/core": "^3.0.4 || ^4",
+                "doctrine/annotations": "^2.0",
+                "doctrine/collections": "^2.2",
+                "doctrine/doctrine-bundle": "^2.15",
                 "doctrine/inflector": "^2.0",
+                "doctrine/orm": "^2.0 || ^3.0",
                 "matthiasnoback/symfony-dependency-injection-test": "^5.1",
                 "moneyphp/money": "^3.3.2",
                 "phpunit/phpunit": "^9.0",
                 "symfony/browser-kit": "^6.4 || ^7.0",
                 "symfony/console": "^6.4 || ^7.0",
                 "symfony/filesystem": "^6.4 || ^7.0",
+                "symfony/finder": "^6.4 || ^7.2",
                 "symfony/framework-bundle": "*",
                 "symfony/http-client": "^6.4 || ^7.0",
                 "symfony/http-kernel": "^6.4 || ^7.0",
-                "symfony/serializer": "*",
+                "symfony/serializer": "^6.4 || ^7.0",
                 "symfony/stopwatch": "^6.4 || ^7.0",
                 "symfony/twig-bundle": "^6.4 || ^7.0",
                 "symfony/uid": "^6.4 || ^7.0",
+                "symfony/var-dumper": "^6.4 || ^7.2",
+                "symfony/var-exporter": "^6.4 || ^7.0",
                 "symfony/web-profiler-bundle": "^6.4 || ^7.0",
                 "symfony/yaml": "^6.4 || ^7.0",
                 "willdurand/negotiation": "^3.0"
@@ -3646,9 +3653,9 @@
             "homepage": "https://github.com/jolicode/automapper",
             "support": {
                 "issues": "https://github.com/jolicode/automapper/issues",
-                "source": "https://github.com/jolicode/automapper/tree/9.2.1"
+                "source": "https://github.com/jolicode/automapper/tree/9.5.1"
             },
-            "time": "2025-01-31T09:15:50+00:00"
+            "time": "2026-04-27T08:29:10+00:00"
         },
         {
             "name": "knpuniversity/oauth2-client-bundle",

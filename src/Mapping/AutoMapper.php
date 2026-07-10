@@ -13,6 +13,7 @@ class AutoMapper implements AutoMapperInterface
     public const DEFAULT_CONTEXT = [
         MapperContext::DEPTH => 1,
         MapperContext::SKIP_NULL_VALUES => true,
+        MapperContext::SKIP_UNINITIALIZED_VALUES => true,
     ];
 
     private AutoMapperInterface $innerMapper;
@@ -31,11 +32,17 @@ class AutoMapper implements AutoMapperInterface
 
     public function map(array|object $source, string|array|object $target, array $context = []): array|object|null
     {
-        $context = [
+        return $this->innerMapper->map($source, $target, [
             ...self::DEFAULT_CONTEXT,
             ...$context,
-        ];
+        ]);
+    }
 
-        return $this->innerMapper->map($source, $target, $context);
+    public function mapCollection(iterable $collection, string $target, array $context = []): array
+    {
+        return $this->innerMapper->mapCollection($collection, $target, [
+            ...self::DEFAULT_CONTEXT,
+            ...$context,
+        ]);
     }
 }
