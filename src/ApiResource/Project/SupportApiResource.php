@@ -81,11 +81,11 @@ class SupportApiResource
 
     #[API\ApiProperty(writable: false)]
     #[MapFrom(Support::class, transformer: SupportDisplayNameMapTransformer::class)]
-    public string $displayName;
+    public ?string $displayName;
 
     #[API\ApiProperty(writable: false)]
     #[MapFrom(Support::class, transformer: SupportDisplayImageMapTransformer::class)]
-    public string $displayImage;
+    public ?string $displayImage;
 
     /**
      * The Transactions that were issued to the Project by the origin.
