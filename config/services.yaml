@@ -95,6 +95,10 @@ services:
         arguments:
             - !tagged 'api_platform.doctrine.orm.query_extension.collection'
 
+    App\State\Gateway\ChargeStatsStateProvider:
+        arguments:
+            - !tagged 'api_platform.doctrine.orm.query_extension.collection'
+
     App\Money\MoneyService:
         arguments:
             - '%env(CURRENCY_DEFAULT)%'

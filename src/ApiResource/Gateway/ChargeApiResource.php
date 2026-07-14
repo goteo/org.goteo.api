@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\MoneyOutput;
+use App\Dto\Gateway\ChargeStats;
 use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Filter\GatewayFilter;
@@ -14,6 +15,7 @@ use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\ChargeStateProcessor;
+use App\State\Gateway\ChargeStatsStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -26,6 +28,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\Get()]
 #[API\GetCollection()]
+#[API\GetCollection(
+    uriTemplate: '/gateway_charges/stats',
+    priority: -1,
+    provider: ChargeStatsStateProvider::class,
+    output: ChargeStats::class,
+    paginationEnabled: false,
+    openapi: new \ApiPlatform\OpenApi\Model\Operation(
+        summary: 'Distinct project count for a charges filter set',
+        description: 'Returns the number of distinct projects targeted by charges matching the same filters as the charges collection.',
+    ),
+)]
 #[API\Patch(
     input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
