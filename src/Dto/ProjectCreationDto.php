@@ -4,6 +4,7 @@ namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectStatus;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -35,11 +36,10 @@ class ProjectCreationDto
     public array $categories;
 
     /**
-     * Desired date-time of release for the created Project.\
-     * By default 28 days from now, at minimum 14 days from now.
+     * Deadlines and important Project dates.
      */
-    #[Assert\GreaterThan('+14 days')]
-    public \DateTimeInterface $release;
+    #[Assert\Valid()]
+    public ProjectCalendar $calendar;
 
     #[API\ApiProperty(writable: false)]
     public ProjectStatus $status = ProjectStatus::InDraft;
