@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\MoneyOutput;
+use App\Dto\Gateway\ChargesTotalsDto;
 use App\Dto\Gateway\ChargeUpdationDto;
 use App\Entity\Gateway\Charge;
 use App\Filter\GatewayFilter;
@@ -14,6 +15,7 @@ use App\Gateway\ChargeStatus;
 use App\Gateway\ChargeType;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\ChargeStateProcessor;
+use App\State\Gateway\ChargesTotalsStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -26,6 +28,28 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\Get()]
 #[API\GetCollection()]
+#[API\GetCollection(
+    uriTemplate: '/gateway_charges/totals',
+    provider: ChargesTotalsStateProvider::class,
+    output: ChargesTotalsDto::class,
+    paginationEnabled: false,
+    openapi: new \ApiPlatform\OpenApi\Model\Operation(
+        summary: 'Get charges totals',
+        description: 'Returns a single ChargesTotals object with totalized metrics for the charges matching the same filters as the charges collection.',
+        responses: [
+            '200' => [
+                'description' => 'Charges totals',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/GatewayCharge.ChargesTotalsDto',
+                        ],
+                    ],
+                ],
+            ],
+        ]
+    ),
+)]
 #[API\Patch(
     input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
