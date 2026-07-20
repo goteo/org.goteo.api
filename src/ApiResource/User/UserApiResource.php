@@ -95,7 +95,7 @@ class UserApiResource
      * @var array<int, string>
      */
     #[API\ApiProperty(
-        security: 'is_granted("ROLE_ADMIN")',
+        security: 'is_granted("USER_EDIT", object)',
         securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
     )]
     public array $roles;
