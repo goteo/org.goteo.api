@@ -26,7 +26,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     stateOptions: new Options(entityClass: Charge::class),
     provider: ApiResourceStateProvider::class
 )]
-#[API\Get()]
 #[API\GetCollection()]
 #[API\GetCollection(
     uriTemplate: '/gateway_charges/totals',
@@ -50,6 +49,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ]
     ),
 )]
+#[API\Get()]
 #[API\Patch(
     input: ChargeUpdationDto::class,
     processor: ChargeStateProcessor::class,
