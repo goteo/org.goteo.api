@@ -7,7 +7,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Dto\Gateway\ChargesTotalsDto;
 use App\Money\Totalization\Totalizer\MoneyArrayTotalizer;
-use App\Money\Totalization\TotalizerLocator;
 use App\State\QueryBuilderExtractor;
 use Doctrine\ORM\Query;
 
@@ -22,7 +21,7 @@ class ChargesTotalsStateProvider implements ProviderInterface
 {
     public function __construct(
         private QueryBuilderExtractor $queryBuilderExtractor,
-        private TotalizerLocator $totalizerLocator,
+        private MoneyArrayTotalizer $moneyArrayTotalizer,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ChargesTotalsDto
@@ -36,8 +35,7 @@ class ChargesTotalsStateProvider implements ProviderInterface
             ->getQuery()
             ->getSingleScalarResult();
 
-        $money = $this->totalizerLocator
-            ->get(MoneyArrayTotalizer::class)
+        $money = $this->moneyArrayTotalizer
             ->totalize($this->queryBuilderExtractor
                 ->getQueryBuilder($operation, $context, fn($e) => !$e instanceof PaginationExtension)
                 ->resetDQLPart('select')
