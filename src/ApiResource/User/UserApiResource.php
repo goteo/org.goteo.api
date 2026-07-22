@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -63,6 +64,7 @@ class UserApiResource
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
     #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
+    #[API\ApiFilter(OrderFilter::class, properties: ['handle'])]
     public string $handle;
 
     #[Assert\NotBlank()]

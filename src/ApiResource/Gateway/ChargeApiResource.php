@@ -104,6 +104,7 @@ class ChargeApiResource
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(Filter\RangeFilter::class, properties: ['money.amount'])]
+    #[API\ApiFilter(Filter\OrderFilter::class, properties: ['money.amount'])]
     #[API\ApiFilter(Filter\SearchFilter::class, properties: ['money.currency' => 'exact'])]
     public MoneyOutput $money;
 
@@ -112,6 +113,7 @@ class ChargeApiResource
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
+    #[API\ApiFilter(Filter\OrderFilter::class, properties: ['status'])]
     public ChargeStatus $status = ChargeStatus::ToCharge;
 
     #[API\ApiProperty(writable: false)]
