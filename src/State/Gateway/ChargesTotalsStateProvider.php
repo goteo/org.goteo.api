@@ -2,10 +2,14 @@
 
 namespace App\State\Gateway;
 
+use ApiPlatform\Doctrine\Orm\Extension\PaginationExtension;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Dto\Gateway\ChargesTotalsDto;
+use App\Money\Totalization\Totalizer\MoneyArrayTotalizer;
+use App\Money\Totalization\TotalizerLocator;
 use App\State\QueryBuilderExtractor;
+use Doctrine\ORM\Query;
 
 /**
  * Provides totalized metrics for a filtered GatewayCharge collection.
@@ -18,13 +22,13 @@ class ChargesTotalsStateProvider implements ProviderInterface
 {
     public function __construct(
         private QueryBuilderExtractor $queryBuilderExtractor,
+        private TotalizerLocator $totalizerLocator,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ChargesTotalsDto
     {
-        $queryBuilder = $this->queryBuilderExtractor->getQueryBuilder($operation, $context);
-
-        $count = (int) $queryBuilder
+        $projects = (int) $this->queryBuilderExtractor
+            ->getQueryBuilder($operation, $context)
             ->resetDQLPart('orderBy')
             ->join('o.target', 'totals_target')
             ->join('totals_target.project', 'totals_project')
@@ -32,6 +36,14 @@ class ChargesTotalsStateProvider implements ProviderInterface
             ->getQuery()
             ->getSingleScalarResult();
 
-        return new ChargesTotalsDto($count);
+        $money = $this->totalizerLocator
+            ->get(MoneyArrayTotalizer::class)
+            ->totalize($this->queryBuilderExtractor
+                ->getQueryBuilder($operation, $context, fn($e) => !$e instanceof PaginationExtension)
+                ->resetDQLPart('select')
+                ->select('o.money.amount AS amount')
+                ->addSelect('o.money.currency AS currency')->getQuery()->toIterable([], Query::HYDRATE_ARRAY));
+
+        return new ChargesTotalsDto($projects, $money);
     }
 }
