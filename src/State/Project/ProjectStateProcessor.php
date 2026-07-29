@@ -27,6 +27,8 @@ class ProjectStateProcessor implements ProcessorInterface
 
     /**
      * @param ProjectCreationDto|ProjectUpdationDto $data
+     *
+     * @return ProjectApiResource
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
@@ -60,12 +62,12 @@ class ProjectStateProcessor implements ProcessorInterface
 
         $project->setOwner($owner);
 
-        if (!isset($data->release)) {
-            $data->release = new \DateTimeImmutable('+28 days');
+        if (!isset($data->calendar->release)) {
+            $data->calendar->release = new \DateTimeImmutable('+28 days');
         }
 
         $calendar = new ProjectCalendar();
-        $calendar->release = $data->release;
+        $calendar->release = $data->calendar->release;
 
         $project->setCalendar($calendar);
 
