@@ -9,6 +9,8 @@ use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Parameters;
 use ApiPlatform\Metadata\QueryParameter;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\Dto\UserSignupDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
@@ -54,6 +56,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 class UserApiResource
 {
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
+
     #[API\ApiProperty(writable: false, identifier: true)]
     public int $id;
 
