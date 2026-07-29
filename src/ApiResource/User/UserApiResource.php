@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
@@ -9,10 +10,13 @@ use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Parameters;
 use ApiPlatform\Metadata\QueryParameter;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\TimestampedCreationApiResource;
+use App\ApiResource\TimestampedUpdationApiResource;
 use App\Dto\UserSignupDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Filter\InArrayFilter;
 use App\Filter\OrderedLikeFilter;
 use App\Library\Link;
 use App\Mapping\Transformer\UserDisplayNameMapTransformer;
@@ -54,6 +58,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 class UserApiResource
 {
+    use TimestampedCreationApiResource;
+    use TimestampedUpdationApiResource;
+
     #[API\ApiProperty(writable: false, identifier: true)]
     public int $id;
 
@@ -89,6 +96,7 @@ class UserApiResource
      * Is this User for an individual acting on their own or a group of individuals?
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public UserType $type;
 
     /**
@@ -96,10 +104,8 @@ class UserApiResource
      *
      * @var array<int, string>
      */
-    #[API\ApiProperty(
-        security: 'is_granted("USER_EDIT", object)',
-        securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
-    )]
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
+    #[API\ApiFilter(InArrayFilter::class, strategy: 'and')]
     public array $roles;
 
     #[API\ApiProperty(writable: false)]
@@ -138,6 +144,7 @@ class UserApiResource
      * A flag determined by the platform for Users who are known to be active.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(BooleanFilter::class)]
     public bool $active;
 
     /**
