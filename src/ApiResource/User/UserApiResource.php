@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
@@ -94,6 +95,7 @@ class UserApiResource
      * Is this User for an individual acting on their own or a group of individuals?
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public UserType $type;
 
     /**
@@ -143,6 +145,7 @@ class UserApiResource
      * A flag determined by the platform for Users who are known to be active.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(BooleanFilter::class)]
     public bool $active;
 
     /**
