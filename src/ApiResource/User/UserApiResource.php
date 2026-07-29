@@ -16,6 +16,7 @@ use App\Dto\UserSignupDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Filter\InArrayFilter;
 use App\Filter\OrderedLikeFilter;
 use App\Library\Link;
 use App\Mapping\Transformer\UserDisplayNameMapTransformer;
@@ -103,10 +104,8 @@ class UserApiResource
      *
      * @var array<int, string>
      */
-    #[API\ApiProperty(
-        security: 'is_granted("USER_EDIT", object)',
-        securityPostDenormalize: 'is_granted("ROLE_ADMIN")'
-    )]
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
+    #[API\ApiFilter(InArrayFilter::class, strategy: 'and')]
     public array $roles;
 
     #[API\ApiProperty(writable: false)]
