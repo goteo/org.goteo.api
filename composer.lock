@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9b4c951ba8f2afcc4cedfba6827a654",
+    "content-hash": "f98b0b0be5bc6564bb8523cefd2233f7",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -2958,23 +2958,22 @@
         },
         {
             "name": "goteo/benzina",
-            "version": "0.5.2",
+            "version": "0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goteo/benzina.git",
-                "reference": "5fafb74117704e5b778232d39811b6e66884ba56"
+                "reference": "acceb2150fc08457a019bd85da46fdd5888dab11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goteo/benzina/zipball/5fafb74117704e5b778232d39811b6e66884ba56",
-                "reference": "5fafb74117704e5b778232d39811b6e66884ba56",
+                "url": "https://api.github.com/repos/goteo/benzina/zipball/acceb2150fc08457a019bd85da46fdd5888dab11",
+                "reference": "acceb2150fc08457a019bd85da46fdd5888dab11",
                 "shasum": ""
             },
             "require": {
                 "doctrine/orm": "^3.3",
                 "ext-ctype": "*",
                 "ext-iconv": "*",
-                "ocramius/doctrine-batch-utils": "^2.10",
                 "php": ">=8.1",
                 "symfony/console": "6.4.*",
                 "symfony/dotenv": "6.4.*",
@@ -3013,9 +3012,9 @@
             "description": "Migration tool to pump v3 data into a v4 schema",
             "support": {
                 "issues": "https://github.com/goteo/benzina/issues",
-                "source": "https://github.com/goteo/benzina/tree/0.5.2"
+                "source": "https://github.com/goteo/benzina/tree/0.6"
             },
-            "time": "2025-10-21T10:06:39+00:00"
+            "time": "2026-07-30T14:13:45+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -4587,70 +4586,6 @@
                 }
             ],
             "time": "2024-09-09T07:06:30+00:00"
-        },
-        {
-            "name": "ocramius/doctrine-batch-utils",
-            "version": "2.11.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Ocramius/DoctrineBatchUtils.git",
-                "reference": "35b164ea216da00ecccde6a0152f8be67bfb841f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Ocramius/DoctrineBatchUtils/zipball/35b164ea216da00ecccde6a0152f8be67bfb841f",
-                "reference": "35b164ea216da00ecccde6a0152f8be67bfb841f",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/orm": "^3.3.2",
-                "doctrine/persistence": "^4.0.0",
-                "php": "~8.2.0 || ~8.3.0 || ~8.4.0"
-            },
-            "require-dev": {
-                "doctrine/coding-standard": "^12.0.0",
-                "doctrine/dbal": "^4.2.2",
-                "phpunit/phpunit": "^11.5.6",
-                "psalm/plugin-phpunit": "^0.19.2",
-                "roave/infection-static-analysis-plugin": "^1.36.0",
-                "vimeo/psalm": "^6.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "DoctrineBatchUtils\\": "src/DoctrineBatchUtils"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com",
-                    "homepage": "http://ocramius.github.io/"
-                }
-            ],
-            "description": "A set of utilities to operate with Doctrine ORM's batch processing functionality",
-            "homepage": "https://github.com/Ocramius/DoctrineBatchUtils",
-            "keywords": [
-                "batch processing",
-                "doctrine",
-                "doctrine2",
-                "orm"
-            ],
-            "support": {
-                "issues": "https://github.com/Ocramius/DoctrineBatchUtils/issues",
-                "source": "https://github.com/Ocramius/DoctrineBatchUtils/tree/2.11.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/Ocramius",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-02-05T12:04:35+00:00"
         },
         {
             "name": "oscarotero/html-parser",
