@@ -114,7 +114,7 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
-    #[API\ApiFilter(SearchFilter::class, properties: ['trackings.values'])]
+    #[API\ApiFilter(SearchFilter::class, properties: ['trackings.value'])]
     public array $trackings = [];
 
     #[API\ApiProperty(writable: false)]
