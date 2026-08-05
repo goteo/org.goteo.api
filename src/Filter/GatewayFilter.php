@@ -46,6 +46,7 @@ final class GatewayFilter extends AbstractFilter
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $parameterName = ':'.$queryNameGenerator->generateParameterName($property);
 
+        $alias = $rootAlias;
         if ($this->isPropertyNested($property, $resourceClass)) {
             [$alias] = $this->addJoinsForNestedProperty($property, $rootAlias, $queryBuilder, $queryNameGenerator, $resourceClass, Join::LEFT_JOIN);
         }
