@@ -16,6 +16,7 @@ use App\Dto\UserSignupDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Filter\EncryptedSearchFilter;
 use App\Filter\InArrayFilter;
 use App\Filter\OrderedLikeFilter;
 use App\Library\Link;
@@ -105,7 +106,7 @@ class UserApiResource
      * @var array<int, string>
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
-    #[API\ApiFilter(InArrayFilter::class, strategy: 'and')]
+    #[API\ApiFilter(InArrayFilter::class, strategy: InArrayFilter::STRATEGY_AND)]
     public array $roles;
 
     #[API\ApiProperty(writable: false)]
@@ -116,13 +117,15 @@ class UserApiResource
      * For `individual` User types: personal data about the User themselves.\
      * For `organization` User types: data for the organization representative or person managing the User.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("ROLE_ADMIN")')]
+    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['person.taxId'])]
     public PersonApiResource $person;
 
     /**
      * For `organization` User types only. Legal entity data.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("ROLE_ADMIN")')]
+    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['organization.taxId'])]
     public ?OrganizationApiResource $organization = null;
 
     /**
