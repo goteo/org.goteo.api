@@ -6,6 +6,8 @@ use App\Mapping\Provider\PersonMapProvider;
 use App\Repository\User\PersonRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
+use Kyzegs\DoctrineEncryptionBundle\Attribute\BlindIndex;
+use Kyzegs\DoctrineEncryptionBundle\Attribute\Encrypted;
 
 /**
  * Person is the detailed data of an individual behind a User,
@@ -27,8 +29,13 @@ class Person
     /**
      * Personal ID for tax purposes. e.g: NIF, Steuernummer, TIN ID, etc.
      */
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Encrypted()]
     private ?string $taxId = null;
+
+    #[ORM\Column(type: 'string', length: 64, unique: true, nullable: true)]
+    #[BlindIndex(sourceField: 'taxId', normalizer: BlindIndex::NORMALIZE_UPPERCASE)]
+    private ?string $taxIdLookup = null;
 
     /**
      * First-part of the name of the person, usually the given name(s). e.g: John, Juan.
@@ -70,6 +77,18 @@ class Person
     public function setTaxId(?string $taxId): static
     {
         $this->taxId = $taxId;
+
+        return $this;
+    }
+
+    public function getTaxIdLookup(): ?string
+    {
+        return $this->taxIdLookup;
+    }
+
+    public function setTaxIdLookup(?string $taxIdLookup): static
+    {
+        $this->taxIdLookup = $taxIdLookup;
 
         return $this;
     }
