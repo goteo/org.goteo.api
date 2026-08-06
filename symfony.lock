@@ -90,6 +90,9 @@
             "config/packages/knpu_oauth2_client.yaml"
         ]
     },
+    "kyzegs/doctrine-encryption-bundle": {
+        "version": "v1.1.0"
+    },
     "league/oauth2-server-bundle": {
         "version": "1.1",
         "recipe": {

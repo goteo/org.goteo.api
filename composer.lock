@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1dfc52c3e283549901ca4376e9c5290b",
+    "content-hash": "f9b4c951ba8f2afcc4cedfba6827a654",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -3493,6 +3493,75 @@
                 "source": "https://github.com/knpuniversity/oauth2-client-bundle/tree/v2.20.2"
             },
             "time": "2026-02-12T17:07:18+00:00"
+        },
+        {
+            "name": "kyzegs/doctrine-encryption-bundle",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Kyzegs/doctrine-encryption-bundle.git",
+                "reference": "a798156762f27a22b189659bd01175f8b9bf27d4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Kyzegs/doctrine-encryption-bundle/zipball/a798156762f27a22b189659bd01175f8b9bf27d4",
+                "reference": "a798156762f27a22b189659bd01175f8b9bf27d4",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/doctrine-bundle": "^2.12||^3.0",
+                "doctrine/orm": "^2.20||^3.2",
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "php": ">=8.2",
+                "symfony/console": "^6.4||^7.4||^8.0",
+                "symfony/framework-bundle": "^6.4||^7.4||^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.75",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^11.5||^12.0",
+                "rector/rector": "^2.1",
+                "symfony/phpunit-bridge": "^6.4||^7.4||^8.0",
+                "symfony/twig-bundle": "^6.4||^7.4||^8.0"
+            },
+            "suggest": {
+                "symfony/twig-bundle": "Required only when the optional decrypt Twig filter is enabled."
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Kyzegs\\DoctrineEncryptionBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kyzegs"
+                }
+            ],
+            "description": "Doctrine field encryption and blind indexes for Symfony applications.",
+            "homepage": "https://github.com/kyzegs/doctrine-encryption-bundle",
+            "keywords": [
+                "blind index",
+                "doctrine",
+                "encryption",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/Kyzegs/doctrine-encryption-bundle/issues",
+                "source": "https://github.com/Kyzegs/doctrine-encryption-bundle/tree/v1.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/kyzegs",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-06-24T13:37:38+00:00"
         },
         {
             "name": "lcobucci/jwt",
