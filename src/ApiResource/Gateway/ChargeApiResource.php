@@ -63,6 +63,7 @@ class ChargeApiResource
      * The Checkout to which this Charge item belongs to.
      */
     #[API\ApiFilter(GatewayFilter::class, properties: ['checkout.gateway'])]
+    #[API\ApiFilter(Filter\SearchFilter::class, properties: ['checkout.origin'])]
     #[API\ApiFilter(Filter\SearchFilter::class, properties: ['checkout.trackings.value'])]
     public CheckoutApiResource $checkout;
 
@@ -81,6 +82,7 @@ class ChargeApiResource
      * May be displayed to the payer.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(Filter\SearchFilter::class, strategy: 'exact')]
     public string $title;
 
     /**

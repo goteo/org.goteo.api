@@ -2,12 +2,14 @@
 
 namespace App\ApiResource\Gateway;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Dto\Gateway\CheckoutCreationDto;
 use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
+use App\Filter\GatewayFilter;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\GatewayLink;
 use App\Gateway\RefundStrategy;
@@ -49,12 +51,14 @@ class CheckoutApiResource
     #[Assert\NotBlank()]
     #[MapFrom(property: 'gatewayId', transformer: GatewayIdMapTransformer::class)]
     #[MapTo(property: 'gatewayId', transformer: 'source.gateway.id')]
+    #[API\ApiFilter(GatewayFilter::class)]
     public GatewayApiResource $gateway;
 
     /**
      * The Accounting paying for the charges.
      */
     #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object.origin)')]
+    #[API\ApiFilter(SearchFilter::class)]
     #[Assert\NotBlank()]
     public AccountingApiResource $origin;
 
@@ -91,6 +95,7 @@ class CheckoutApiResource
      * The status of this Checkout, as confirmed by the Gateway.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class)]
     public CheckoutStatus $status = CheckoutStatus::ToCharge;
 
     /**
@@ -109,6 +114,7 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, properties: ['trackings.value'])]
     public array $trackings = [];
 
     #[API\ApiProperty(writable: false)]
