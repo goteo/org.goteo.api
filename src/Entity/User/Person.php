@@ -2,7 +2,6 @@
 
 namespace App\Entity\User;
 
-use Ambta\DoctrineEncryptBundle\Configuration\Encrypted;
 use App\Mapping\Provider\PersonMapProvider;
 use App\Repository\User\PersonRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -29,7 +28,6 @@ class Person
      * Personal ID for tax purposes. e.g: NIF, Steuernummer, TIN ID, etc.
      */
     #[ORM\Column(length: 255, nullable: true)]
-    #[Encrypted]
     private ?string $taxId = null;
 
     /**

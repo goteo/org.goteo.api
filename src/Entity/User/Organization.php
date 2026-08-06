@@ -2,7 +2,6 @@
 
 namespace App\Entity\User;
 
-use Ambta\DoctrineEncryptBundle\Configuration\Encrypted;
 use App\Mapping\Provider\OrganizationMapProvider;
 use App\Repository\User\OrganizationRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -22,7 +21,6 @@ class Organization
      * ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
      */
     #[ORM\Column(length: 255, nullable: true)]
-    #[Encrypted()]
     private ?string $taxId = null;
 
     /**
