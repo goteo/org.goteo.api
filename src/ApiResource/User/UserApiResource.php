@@ -114,7 +114,7 @@ class UserApiResource
     #[API\ApiFilter(InArrayFilter::class, strategy: InArrayFilter::STRATEGY_AND)]
     public array $roles;
 
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_VIEW", object)')]
     #[MapFrom(User::class, transformer: UserDisplayNameMapTransformer::class)]
     public string $displayName;
 
@@ -123,15 +123,15 @@ class UserApiResource
      * For `organization` User types: data for the organization representative or person managing the User.\
      * Only available to themselves and platform administrators.
      */
-    #[API\ApiProperty(writable: false, security: 'is_granted("ROLE_ADMIN")')]
-    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['person.taxId'])]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_EDIT", object)')]
+    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['person.taxId'], strategy: 'is_granted("ROLE_ADMIN")')]
     public PersonApiResource $person;
 
     /**
      * For `organization` User types only. Legal entity data.
      */
-    #[API\ApiProperty(writable: false, security: 'is_granted("ROLE_ADMIN")')]
-    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['organization.taxId'])]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_EDIT", object)')]
+    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['organization.taxId'], strategy: 'is_granted("ROLE_ADMIN")')]
     public ?OrganizationApiResource $organization = null;
 
     /**
