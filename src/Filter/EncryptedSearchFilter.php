@@ -4,7 +4,6 @@ namespace App\Filter;
 
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
@@ -12,19 +11,15 @@ use Doctrine\Persistence\ManagerRegistry;
 use Kyzegs\DoctrineEncryptionBundle\Attribute\BlindIndex;
 use Kyzegs\DoctrineEncryptionBundle\Hashers\BlindIndexHasherInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 final class EncryptedSearchFilter extends AbstractFilter
 {
+    use SecuredFilterTrait;
+
     public function __construct(
         private BlindIndexHasherInterface $blindIndexHasher,
-        #[Autowire(service: 'security.expression_language')]
-        private ExpressionLanguage $expressionLanguage,
-        private Security $security,
         protected ?ManagerRegistry $managerRegistry,
         ?LoggerInterface $logger = null,
         protected ?array $properties = null,
@@ -44,9 +39,9 @@ final class EncryptedSearchFilter extends AbstractFilter
         array $context = [],
     ): void {
         if (
-            !$this->isPropertyEnabled($property, $resourceClass)
+            !$this->isFilteringGranted($this->properties[$property])
+            || !$this->isPropertyEnabled($property, $resourceClass)
             || !$this->isPropertyMapped($property, $resourceClass)
-            || !$this->isPropertyGranted($property, $resourceClass, $context)
         ) {
             return;
         }
@@ -98,36 +93,13 @@ final class EncryptedSearchFilter extends AbstractFilter
                 'required' => false,
                 'is_collection' => true,
             ];
+
+            if ($strategy !== null) {
+                $description[$property]['description'] = \sprintf('Secured by `%s`', $strategy);
+                $description[$property.'[]']['description'] = \sprintf('Secured by `%s`', $strategy);
+            }
         }
 
         return $description;
-    }
-
-    private function isPropertyGranted(string $property, string $resourceClass, array $context): bool
-    {
-        if ($this->isPropertyNested($property, $resourceClass)) {
-            $propertyParts = $this->splitPropertyParts($property, $resourceClass);
-            $metadata = new \ReflectionProperty($context['resource_class'], $propertyParts['associations'][0]);
-        } else {
-            $metadata = new \ReflectionProperty($context['resource_class'], $property);
-        }
-
-        foreach ($metadata->getAttributes(ApiProperty::class) as $attribute) {
-            $security = $attribute->getArguments()['security'] ?? null;
-
-            if ($security === null) {
-                continue;
-            }
-
-            return $this->expressionLanguage->evaluate(
-                $security,
-                [
-                    'user' => $this->security->getUser(),
-                    'auth_checker' => $this->security,
-                ]
-            );
-        }
-
-        return true;
     }
 }
