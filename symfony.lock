@@ -27,15 +27,6 @@
             "src/ApiResource/.gitignore"
         ]
     },
-    "doctrine/annotations": {
-        "version": "2.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "1.10",
-            "ref": "64d8583af5ea57b7afa4aba4b159907f3a148b05"
-        }
-    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {
@@ -72,9 +63,6 @@
             "migrations/.gitignore"
         ]
     },
-    "doctrineencryptbundle/doctrine-encrypt-bundle": {
-        "version": "5.4.0"
-    },
     "friendsofphp/php-cs-fixer": {
         "version": "3.58",
         "recipe": {
@@ -101,6 +89,9 @@
         "files": [
             "config/packages/knpu_oauth2_client.yaml"
         ]
+    },
+    "kyzegs/doctrine-encryption-bundle": {
+        "version": "v1.1.0"
     },
     "league/oauth2-server-bundle": {
         "version": "1.1",

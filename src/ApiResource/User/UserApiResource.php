@@ -7,8 +7,6 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use ApiPlatform\Metadata\Parameters;
-use ApiPlatform\Metadata\QueryParameter;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
@@ -16,8 +14,10 @@ use App\Dto\UserSignupDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Filter\EncryptedSearchFilter;
 use App\Filter\InArrayFilter;
 use App\Filter\OrderedLikeFilter;
+use App\Filter\QFilter;
 use App\Library\Link;
 use App\Mapping\Transformer\UserDisplayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
@@ -36,12 +36,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     stateOptions: new Options(entityClass: User::class),
     provider: ApiResourceStateProvider::class,
     processor: UserStateProcessor::class,
-    parameters: new Parameters([
-        'email' => new QueryParameter(
-            security: 'is_granted("ROLE_ADMIN")',
-            description: 'Only available to admin users'
-        ),
-    ])
 )]
 #[API\GetCollection()]
 #[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
@@ -56,6 +50,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 #[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+#[API\ApiFilter(QFilter::class, properties: [
+    'q' => [
+        'email',
+        'person.firstName',
+        'person.lastName',
+        'organization.legalName',
+        'organization.businessName',
+    ],
+])]
 class UserApiResource
 {
     use TimestampedCreationApiResource;
@@ -74,6 +77,9 @@ class UserApiResource
     #[API\ApiFilter(OrderFilter::class, properties: ['handle'])]
     public string $handle;
 
+    /**
+     * The User's given email address. Only available to themselves and platform administrators.
+     */
     #[Assert\NotBlank()]
     #[Assert\Email()]
     #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
@@ -105,24 +111,27 @@ class UserApiResource
      * @var array<int, string>
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
-    #[API\ApiFilter(InArrayFilter::class, strategy: 'and')]
+    #[API\ApiFilter(InArrayFilter::class, strategy: InArrayFilter::STRATEGY_AND)]
     public array $roles;
 
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_VIEW", object)')]
     #[MapFrom(User::class, transformer: UserDisplayNameMapTransformer::class)]
     public string $displayName;
 
     /**
      * For `individual` User types: personal data about the User themselves.\
-     * For `organization` User types: data for the organization representative or person managing the User.
+     * For `organization` User types: data for the organization representative or person managing the User.\
+     * Only available to themselves and platform administrators.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_EDIT", object)')]
+    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['person.taxId'], strategy: 'is_granted("ROLE_ADMIN")')]
     public PersonApiResource $person;
 
     /**
      * For `organization` User types only. Legal entity data.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_EDIT", object)')]
+    #[API\ApiFilter(EncryptedSearchFilter::class, properties: ['organization.taxId'], strategy: 'is_granted("ROLE_ADMIN")')]
     public ?OrganizationApiResource $organization = null;
 
     /**
