@@ -17,6 +17,7 @@ use App\Entity\User\UserType;
 use App\Filter\EncryptedSearchFilter;
 use App\Filter\InArrayFilter;
 use App\Filter\OrderedLikeFilter;
+use App\Filter\QFilter;
 use App\Library\Link;
 use App\Mapping\Transformer\UserDisplayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
@@ -49,6 +50,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
 #[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+#[API\ApiFilter(QFilter::class, properties: [
+    'q' => [
+        'email',
+        'person.firstName',
+        'person.lastName',
+        'organization.legalName',
+        'organization.businessName',
+    ],
+])]
 class UserApiResource
 {
     use TimestampedCreationApiResource;
