@@ -3496,16 +3496,16 @@
         },
         {
             "name": "kyzegs/doctrine-encryption-bundle",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Kyzegs/doctrine-encryption-bundle.git",
-                "reference": "a798156762f27a22b189659bd01175f8b9bf27d4"
+                "reference": "a8f9ae72ebc2c309ed77a084001022ef3cd9bd43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Kyzegs/doctrine-encryption-bundle/zipball/a798156762f27a22b189659bd01175f8b9bf27d4",
-                "reference": "a798156762f27a22b189659bd01175f8b9bf27d4",
+                "url": "https://api.github.com/repos/Kyzegs/doctrine-encryption-bundle/zipball/a8f9ae72ebc2c309ed77a084001022ef3cd9bd43",
+                "reference": "a8f9ae72ebc2c309ed77a084001022ef3cd9bd43",
                 "shasum": ""
             },
             "require": {
@@ -3553,7 +3553,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Kyzegs/doctrine-encryption-bundle/issues",
-                "source": "https://github.com/Kyzegs/doctrine-encryption-bundle/tree/v1.1.0"
+                "source": "https://github.com/Kyzegs/doctrine-encryption-bundle/tree/v1.1.1"
             },
             "funding": [
                 {
@@ -3561,7 +3561,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-06-24T13:37:38+00:00"
+            "time": "2026-08-10T12:00:28+00:00"
         },
         {
             "name": "lcobucci/jwt",
