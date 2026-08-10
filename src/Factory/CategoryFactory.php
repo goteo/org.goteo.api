@@ -15,10 +15,13 @@ final class CategoryFactory extends PersistentProxyObjectFactory
         return Category::class;
     }
 
-    protected function defaults(string $id = 'test'): array|callable
-    {
+    protected function defaults(
+        string $id = 'test',
+        string $name = 'Test Category',
+    ): array|callable {
         return [
             'id' => $id,
+            'name' => $name,
         ];
     }
 

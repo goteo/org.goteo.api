@@ -37,9 +37,14 @@ class StripeGateway extends AbstractGateway
         $this->stripe = new StripeClient($stripeApiKey);
     }
 
-    public static function getName(): string
+    public static function getId(): string
     {
         return 'stripe';
+    }
+
+    public static function getName(): string
+    {
+        return 'Stripe';
     }
 
     public static function getSupportedChargeTypes(): array

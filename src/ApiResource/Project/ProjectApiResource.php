@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -114,14 +115,16 @@ class ProjectApiResource
      * Deadlines and important Project dates.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(filterClass: DateFilter::class, properties: ['calendar.release', 'calendar.minimum', 'calendar.optimum'])]
     public ProjectCalendar $calendar;
 
     /**
-     * A list of the available categories most relevant to this Project.
+     * A list of the available Categories of this Project.
      *
-     * @var array<int, CategoryApiResource>
+     * @var CategoryApiResource[]
      */
     #[Assert\NotBlank()]
+    #[API\ApiProperty(writableLink: false)]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public array $categories;
 

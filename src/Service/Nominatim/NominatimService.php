@@ -10,6 +10,8 @@ class NominatimService
 {
     public const NOMINATIM_BASE_URI = 'https://nominatim.openstreetmap.org';
 
+    private float $lastRequestTime = 0.0;
+
     /**
      * Cache calls to Nominatim for 1 hour.
      * This ensures freshness of the data but minimizes bulk-operations hit rates to Nominatim.
@@ -46,6 +48,7 @@ class NominatimService
             function (CacheItemInterface $item) use ($endpoint, $options) {
                 $item->expiresAfter(self::NOMINATIM_CACHE_TTL);
 
+                $this->throttle();
                 $response = $this->httpClient->request('GET', $endpoint, $options);
 
                 return \json_decode($response->getContent(), true);
@@ -75,5 +78,19 @@ class NominatimService
                 'format' => OutputFormat::Json->value,
             ],
         ]);
+    }
+
+    private function throttle(): void
+    {
+        $minInterval = 1.1;
+
+        $now = microtime(true);
+        $delta = $now - $this->lastRequestTime;
+
+        if ($delta < $minInterval) {
+            usleep((int) (($minInterval - $delta) * 1000000));
+        }
+
+        $this->lastRequestTime = microtime(true);
     }
 }

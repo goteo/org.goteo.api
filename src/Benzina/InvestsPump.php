@@ -117,7 +117,7 @@ class InvestsPump implements PumpInterface
 
         $checkout->setOrigin($user->getAccounting());
         $checkout->setStatus($this->getCheckoutStatus($record));
-        $checkout->setGatewayName($this->getCheckoutGateway($record));
+        $checkout->setGatewayId($this->getCheckoutGatewayId($record));
         $checkout->setReturnUrl(self::PLATFORM_RETURN_URL);
 
         foreach ($this->getCheckoutTrackings($record) as $tracking) {
@@ -396,21 +396,21 @@ class InvestsPump implements PumpInterface
         }
     }
 
-    private function getCheckoutGateway(array $record): string
+    private function getCheckoutGatewayId(array $record): string
     {
         switch ($record['method']) {
             case 'tpv':
-                return CecaGateway::getName();
+                return CecaGateway::getId();
             case 'paypal':
-                return PaypalGateway::getName();
+                return PaypalGateway::getId();
             case 'pool':
-                return WalletGateway::getName();
+                return WalletGateway::getId();
             case 'cash':
-                return CashGateway::getName();
+                return CashGateway::getId();
             case 'drop':
-                return DropGateway::getName();
+                return DropGateway::getId();
             case 'stripe_subscription':
-                return StripeGateway::getName();
+                return StripeGateway::getId();
             default:
                 return '';
         }

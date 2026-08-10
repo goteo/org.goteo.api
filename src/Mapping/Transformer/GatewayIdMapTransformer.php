@@ -6,7 +6,7 @@ use App\ApiResource\Gateway\GatewayApiResource;
 use App\Gateway\GatewayLocator;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
-class GatewayNameMapTransformer implements PropertyTransformerInterface
+class GatewayIdMapTransformer implements PropertyTransformerInterface
 {
     public function __construct(
         private GatewayLocator $gatewayLocator,
@@ -17,6 +17,7 @@ class GatewayNameMapTransformer implements PropertyTransformerInterface
         $gateway = $this->gatewayLocator->get($value);
 
         $resource = new GatewayApiResource();
+        $resource->id = $gateway::getId();
         $resource->name = $gateway::getName();
         $resource->supports = $gateway::getSupportedChargeTypes();
 

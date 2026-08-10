@@ -60,7 +60,7 @@ class CheckoutStateProcessor implements ProcessorInterface
             ));
         }
 
-        $checkout = $this->gatewayLocator->get($data->gateway->name)->process($checkout);
+        $checkout = $this->gatewayLocator->get($data->gateway->id)->process($checkout);
         $checkout = $this->innerProcessor->process($checkout, $operation, $uriVariables, $context);
 
         return $this->autoMapper->map($checkout, CheckoutApiResource::class);

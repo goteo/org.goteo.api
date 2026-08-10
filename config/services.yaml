@@ -91,7 +91,7 @@ services:
         arguments:
             - !tagged 'app.service.scout.processor'
 
-    App\State\MoneyTotalStateProvider:
+    App\State\QueryBuilderExtractor:
         arguments:
             - !tagged 'api_platform.doctrine.orm.query_extension.collection'
 

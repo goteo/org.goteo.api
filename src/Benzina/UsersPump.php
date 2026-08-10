@@ -2,11 +2,13 @@
 
 namespace App\Benzina;
 
+use App\Entity\Territory;
 use App\Entity\User\Organization;
 use App\Entity\User\Person;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Library\Link;
+use App\Service\Project\TerritoryService;
 use App\Service\UserService;
 use Doctrine\Persistence\ManagerRegistry;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
@@ -20,9 +22,11 @@ class UsersPump implements PumpInterface
     use ArrayPumpTrait;
     use DoctrinePumpTrait;
     use UsersPumpTrait;
+    use TerritoryPumpTrait;
 
     public function __construct(
         private ManagerRegistry $managerRegistry,
+        private TerritoryService $territoryService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -80,6 +84,8 @@ class UsersPump implements PumpInterface
         $user->setDateUpdated(new \DateTime());
         $user->setType($this->getUserType($record));
         $user->setLinks($this->getLinks($record));
+        $user->setTerritory($this->getTerritory($record));
+        $user->setDescription($record['about']);
 
         match ($user->getType()) {
             UserType::Individual => $user = $this->setUserPerson($record, $user),
@@ -182,5 +188,20 @@ class UsersPump implements PumpInterface
         }
 
         return $links;
+    }
+
+    private function getTerritory(array $record): Territory
+    {
+        if ($record['location'] === null) {
+            return Territory::unknown();
+        }
+
+        $cleanAddress = $this->cleanLocation($record['location'], 2);
+
+        if ($cleanAddress === '') {
+            return Territory::unknown($record['location']);
+        }
+
+        return $this->territoryService->search($cleanAddress);
     }
 }

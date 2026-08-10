@@ -28,6 +28,7 @@ class ProjectsPump implements PumpInterface
     use DatabasePumpTrait;
     use ProjectsPumpTrait;
     use LocalizedPumpTrait;
+    use TerritoryPumpTrait;
 
     public function __construct(
         private ProjectRepository $projectRepository,
@@ -197,10 +198,10 @@ class ProjectsPump implements PumpInterface
             return Territory::unknown();
         }
 
-        $cleanAddress = $this->cleanProjectLocation($record['project_location'], 2);
+        $cleanAddress = $this->cleanLocation($record['project_location'], 2);
 
         if ($cleanAddress === '') {
-            return Territory::unknown();
+            return Territory::unknown($record['project_location']);
         }
 
         return $this->territoryService->search($cleanAddress);

@@ -5,6 +5,7 @@ namespace App\Dto;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
@@ -14,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectUpdationDto
 {
+    use CategoryInputDtoTrait;
+
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
@@ -29,11 +32,12 @@ class ProjectUpdationDto
     public string $subtitle;
 
     /**
-     * One of the available categories.
+     * List of Categories.
      *
-     * @var array<int, CategoryApiResource>
+     * @var CategoryApiResource[]
      */
     #[Assert\Count(min: 1, max: 2)]
+    #[API\ApiProperty(writableLink: false, openapiContext: self::CATEGORIES_OPENAPI_CONTEXT)]
     public array $categories;
 
     /**
@@ -53,6 +57,12 @@ class ProjectUpdationDto
      * and then until the optimum deadline if it did raise the minimum.
      */
     public ProjectDeadline $deadline;
+
+    /**
+     * Deadlines and important Project dates.
+     */
+    #[Assert\Valid()]
+    public ProjectCalendar $calendar;
 
     /**
      * A URL to a video showcasing the Project.
