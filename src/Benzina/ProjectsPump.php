@@ -194,14 +194,30 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectTerritory(array $record): Territory
     {
-        if ($record['project_location'] === null) {
+        $address = $record['project_location'];
+
+        if ($address === null) {
+            if ($record['address'] !== null) {
+                $address = $record['address'];
+            }
+
+            if ($record['location'] !== null) {
+                $address = $record['location'];
+            }
+
+            if ($record['address'] !== null && $record['location'] !== null) {
+                $address = \sprintf('%s, %s', $record['address'], $record['location']);
+            }
+        }
+
+        if ($address === null) {
             return Territory::unknown();
         }
 
-        $cleanAddress = $this->cleanLocation($record['project_location'], 2);
+        $cleanAddress = $this->cleanLocation($address, 2);
 
         if ($cleanAddress === '') {
-            return Territory::unknown($record['project_location']);
+            return Territory::unknown($address);
         }
 
         return $this->territoryService->search($cleanAddress);
