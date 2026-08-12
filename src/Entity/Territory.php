@@ -40,7 +40,7 @@ class Territory
      * Plain-text address.\
      * e.g: Forn de l’Olivera 22B, 07012 Palma, Illes Balears.
      */
-    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     public readonly ?string $address;
 
     public function __construct(
