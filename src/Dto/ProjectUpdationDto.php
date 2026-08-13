@@ -47,9 +47,28 @@ class ProjectUpdationDto
     public Territory $territory;
 
     /**
-     * Free-form rich text description for the Project.
+     * Rich-text (markdown allowed) introduction to the project.
      */
-    public string $description;
+    #[Assert\NotBlank()]
+    public string $descBrief;
+
+    /**
+     * Rich-text (markdown allowed) description on the main features of the project.
+     */
+    #[Assert\NotBlank()]
+    public string $descAbout;
+
+    /**
+     * Rich-text (markdown allowed) about why this project is important.
+     */
+    #[Assert\NotBlank()]
+    public string $descGoal;
+
+    /**
+     * Rich-text (markdown allowed) about team and previous experience.
+     */
+    #[Assert\NotBlank()]
+    public string $descTeam;
 
     /**
      * On `minimum`, Project will campaign until the minimum deadline.\

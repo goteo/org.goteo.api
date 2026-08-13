@@ -92,7 +92,10 @@ class ProjectsPump implements PumpInterface
         $project->addLocale($record['lang']);
         $project->setTitle($record['name'] ?? '');
         $project->setSubtitle($record['subtitle'] ?? '');
-        $project->setDescription($this->getProjectDescription($record));
+        $project->setDescBrief($record['description']);
+        $project->setDescAbout($record['about']);
+        $project->setDescGoal($record['motivation']);
+        $project->setDescTeam($record['related']);
 
         $this->setPreventFlushAndClear(true);
         $this->persist($project, $context);
@@ -103,7 +106,10 @@ class ProjectsPump implements PumpInterface
         $this->localize($project, $localizations, $context, [
             'title' => fn($l) => $l['name'],
             'subtitle' => fn($l) => $l['subtitle'],
-            'description' => fn($l) => $this->getProjectDescription($l),
+            'descBrief' => fn($l) => $l['description'],
+            'descAbout' => fn($l) => $l['about'],
+            'descGoal' => fn($l) => $l['motivation'],
+            'descTeam' => fn($l) => $l['related'],
         ]);
     }
 
@@ -121,34 +127,6 @@ class ProjectsPump implements PumpInterface
             ->setMaxResults(1);
 
         return $this->userRepository->matching($criteria)->first() ?? null;
-    }
-
-    private function getProjectDescription(array $record): string
-    {
-        $lang = $record['lang'];
-        $hasTitles = \array_key_exists($lang, self::PROJECT_DESC_TITLES);
-
-        $description = $record['description'];
-
-        if ($hasTitles) {
-            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['about']);
-        }
-
-        $description .= \sprintf("\n%s", $record['about']);
-
-        if ($hasTitles) {
-            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['motivation']);
-        }
-
-        $description .= \sprintf("\n\n%s", $record['motivation']);
-
-        if ($hasTitles) {
-            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['related']);
-        }
-
-        $description .= \sprintf("\n%s", $record['related']);
-
-        return $description;
     }
 
     private function getProjectLocalizations(Project $project, array $context): array

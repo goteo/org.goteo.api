@@ -141,11 +141,24 @@ class ProjectApiResource
     public Territory $territory;
 
     /**
-     * Free-form rich text description for the Project.
+     * Rich-text (markdown) introduction to the project.
      */
-    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
-    #[Assert\NotBlank()]
-    public string $description;
+    public string $descBrief;
+
+    /**
+     * Rich-text (markdown) description on the main features of the project.
+     */
+    public string $descAbout;
+
+    /**
+     * Rich-text (markdown) about why this project is important.
+     */
+    public string $descGoal;
+
+    /**
+     * Rich-text (markdown) about team and previous experience.
+     */
+    public string $descTeam;
 
     /**
      * Extracted embedding data from the Project's video.
