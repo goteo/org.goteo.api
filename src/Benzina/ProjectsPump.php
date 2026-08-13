@@ -225,12 +225,14 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectVideoSource(array $record): ?string
     {
-        if ($record['video'] !== null) {
-            return \trim($record['video']);
+        $video = \trim($record['video']);
+        if ($video !== '' && $record['video'] !== null) {
+            return $video;
         }
 
-        if ($record['media'] !== null) {
-            return \trim($record['media']);
+        $media = \trim($record['media']);
+        if ($media !== '' && $record['media'] !== null) {
+            return $media;
         }
 
         return null;
