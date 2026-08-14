@@ -24,6 +24,7 @@ class ProjectUpdationDto
      * Main headline for the Project.
      */
     #[Assert\Regex('/[a-zA-Z]{1,}/')]
+    #[Assert\Length(min: 3)]
     public string $title;
 
     /**
@@ -49,25 +50,25 @@ class ProjectUpdationDto
     /**
      * Rich-text (markdown allowed) introduction to the project.
      */
-    #[Assert\NotBlank()]
+    #[Assert\Length(min: 20)]
     public string $descBrief;
 
     /**
      * Rich-text (markdown allowed) description on the main features of the project.
      */
-    #[Assert\NotBlank()]
+    #[Assert\Length(min: 20)]
     public string $descAbout;
 
     /**
      * Rich-text (markdown allowed) about why this project is important.
      */
-    #[Assert\NotBlank()]
+    #[Assert\Length(min: 20)]
     public string $descGoal;
 
     /**
      * Rich-text (markdown allowed) about team and previous experience.
      */
-    #[Assert\NotBlank()]
+    #[Assert\Length(min: 20)]
     public string $descTeam;
 
     /**
