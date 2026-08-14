@@ -26,7 +26,7 @@ abstract class ProjectTestCase extends ApiTestCase
     {
         self::bootKernel();
 
-        save(CategoryFactory::createOne(['id' => 'test']));
+        save(CategoryFactory::createOne(['name' => 'test']));
     }
 
     // Auxiliary Methods

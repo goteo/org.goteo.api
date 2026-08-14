@@ -18,7 +18,7 @@
         "doctrine/orm": "^3.3",
         "embed/embed": "^4.4",
         "gedmo/doctrine-extensions": "^3.22",
-        "goteo/benzina": "^0.5",
+        "goteo/benzina": "^0.6.0",
         "jolicode/automapper": "9.2.1",
         "knpuniversity/oauth2-client-bundle": "^2.20",
         "kyzegs/doctrine-encryption-bundle": "^1.1",

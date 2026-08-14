@@ -78,12 +78,21 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Embedded(class: Territory::class)]
     private ?Territory $territory;
 
-    /**
-     * The description body for the Project.
-     */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Gedmo\Translatable()]
-    private ?string $description = null;
+    private ?string $descBrief = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Gedmo\Translatable()]
+    private ?string $descAbout = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Gedmo\Translatable()]
+    private ?string $descGoal = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Gedmo\Translatable()]
+    private ?string $descTeam = null;
 
     /**
      * A video showcasing the Project.
@@ -277,14 +286,50 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescBrief(): ?string
     {
-        return $this->description;
+        return $this->descBrief;
     }
 
-    public function setDescription(string $description): static
+    public function setDescBrief(?string $descBrief): static
     {
-        $this->description = $description;
+        $this->descBrief = $descBrief;
+
+        return $this;
+    }
+
+    public function getDescAbout(): ?string
+    {
+        return $this->descAbout;
+    }
+
+    public function setDescAbout(?string $descAbout): static
+    {
+        $this->descAbout = $descAbout;
+
+        return $this;
+    }
+
+    public function getDescGoal(): ?string
+    {
+        return $this->descGoal;
+    }
+
+    public function setDescGoal(?string $descGoal): static
+    {
+        $this->descGoal = $descGoal;
+
+        return $this;
+    }
+
+    public function getDescTeam(): ?string
+    {
+        return $this->descTeam;
+    }
+
+    public function setDescTeam(?string $descTeam): static
+    {
+        $this->descTeam = $descTeam;
 
         return $this;
     }

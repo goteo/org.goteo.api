@@ -15,8 +15,13 @@ class Category implements LocalizedInterface
     use LocalizedTrait;
 
     #[ORM\Id]
-    #[ORM\Column(length: 255)]
-    private ?string $id = null;
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 56, unique: true)]
+    #[Gedmo\Slug(fields: ['name'])]
+    private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
     #[Gedmo\Translatable()]
@@ -27,9 +32,14 @@ class Category implements LocalizedInterface
         return $this->id;
     }
 
-    public function setId(string $id): static
+    public function getSlug(): ?string
     {
-        $this->id = $id;
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
