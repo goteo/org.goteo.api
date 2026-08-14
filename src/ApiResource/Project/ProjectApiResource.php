@@ -143,6 +143,7 @@ class ProjectApiResource
     /**
      * Rich-text (markdown) introduction to the project.
      */
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     public string $descBrief;
 
     /**
