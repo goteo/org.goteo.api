@@ -28,9 +28,9 @@ use AutoMapper\Attribute\MapTo;
 )]
 #[API\GetCollection()]
 #[API\Get()]
-#[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class AccountingApiResource
 {
+    #[API\ApiProperty(identifier: true)]
     public int $id;
 
     /**

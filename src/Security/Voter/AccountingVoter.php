@@ -3,7 +3,6 @@
 namespace App\Security\Voter;
 
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\ApiResource\User\UserApiResource;
 use App\Entity\User\User;
 use App\Repository\Accounting\AccountingRepository;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -38,10 +37,10 @@ class AccountingVoter extends Voter
         $accounting = $this->accountingRepository->find($subject->id);
 
         switch ($accounting->getOwnerClass()) {
-            case UserApiResource::class:
+            case User::class:
                 return $this->voteOnUser($attribute, $accounting->getOwner(), $user);
             default:
-                return $this->voteOn($attribute, $subject, $user);
+                return $this->voteOn($attribute, $accounting, $user);
         }
     }
 
@@ -51,11 +50,9 @@ class AccountingVoter extends Voter
             case self::EDIT:
                 return $this->security->isGranted('ROLE_ADMIN', $user)
                     || $this->isOwnerOf($subject, $user);
-            case self::VIEW:
+            default:
                 return true;
         }
-
-        return false;
     }
 
     private function voteOnUser(string $attribute, User $owner, ?UserInterface $user): bool
