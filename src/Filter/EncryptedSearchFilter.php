@@ -48,7 +48,7 @@ final class EncryptedSearchFilter extends AbstractFilter
 
         $values = (array) $value;
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $parameterName = ':' . $queryNameGenerator->generateParameterName($property);
+        $parameterName = ':'.$queryNameGenerator->generateParameterName($property);
 
         $alias = $rootAlias;
         if ($this->isPropertyNested($property, $resourceClass)) {
@@ -87,7 +87,7 @@ final class EncryptedSearchFilter extends AbstractFilter
                 'is_collection' => false,
             ];
 
-            $description[$property . '[]'] = [
+            $description[$property.'[]'] = [
                 'property' => $property,
                 'type' => Type::BUILTIN_TYPE_STRING,
                 'required' => false,
@@ -96,7 +96,7 @@ final class EncryptedSearchFilter extends AbstractFilter
 
             if ($strategy !== null) {
                 $description[$property]['description'] = \sprintf('Secured by `%s`', $strategy);
-                $description[$property . '[]']['description'] = \sprintf('Secured by `%s`', $strategy);
+                $description[$property.'[]']['description'] = \sprintf('Secured by `%s`', $strategy);
             }
         }
 
