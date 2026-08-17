@@ -39,9 +39,9 @@ final class EncryptedSearchFilter extends AbstractFilter
         array $context = [],
     ): void {
         if (
-            !$this->isFilteringGranted($this->properties[$property])
-            || !$this->isPropertyEnabled($property, $resourceClass)
+            !$this->isPropertyEnabled($property, $resourceClass)
             || !$this->isPropertyMapped($property, $resourceClass)
+            || !$this->isFilteringGranted($this->properties[$property])
         ) {
             return;
         }
