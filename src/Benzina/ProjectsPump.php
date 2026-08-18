@@ -74,7 +74,6 @@ class ProjectsPump implements PumpInterface
 
         $project->setSlug($record['id']);
         $project->setTerritory($this->getProjectTerritory($record));
-        $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
         $project->setStatus($status);
         $project->setMigrated(true);
@@ -83,6 +82,11 @@ class ProjectsPump implements PumpInterface
         $project->setDateUpdated(new \DateTime());
         $project->setTranslatableLocale($record['lang']);
         $project->setUpdates(new ArrayCollection($this->getProjectUpdates($project, $context)));
+
+        $video = $this->getProjectVideo($record);
+
+        $project->setVideo($video);
+        $project->setCover($video->cover);
 
         $conf = $this->getProjectConf($project, $context);
 
