@@ -104,6 +104,12 @@ class ProjectApiResource
     public string $subtitle;
 
     /**
+     * URL to an image resource to be displayed as header.
+     */
+    #[Assert\Url()]
+    public string $cover;
+
+    /**
      * On `minimum`, Project will campaign until the minimum deadline.\
      * On `optimum`, Project will campaing until the minimum deadline,
      * and then until the optimum deadline if it did raise the minimum.
