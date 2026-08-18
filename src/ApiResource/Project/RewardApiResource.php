@@ -58,6 +58,12 @@ class RewardApiResource
     public ?string $description = null;
 
     /**
+     * URL to an image resource to be displayed as header.
+     */
+    #[Assert\Url()]
+    public string $cover;
+
+    /**
      * The minimal monetary sum to be able to claim this reward.
      */
     #[Assert\NotBlank()]
