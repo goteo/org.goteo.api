@@ -33,6 +33,12 @@ class ProjectUpdationDto
     public string $subtitle;
 
     /**
+     * URL to an image resource to be displayed as header.
+     */
+    #[Assert\Url()]
+    public string $cover;
+
+    /**
      * List of Categories.
      *
      * @var CategoryApiResource[]
