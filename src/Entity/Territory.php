@@ -16,6 +16,7 @@ class Territory
      * ISO 3166-1 alpha-2 two-letter country code.\
      * e.g: ES (Spain).
      */
+    #[Assert\NotBlank()]
     #[Assert\Country(alpha3: false)]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     public readonly ?string $country;
