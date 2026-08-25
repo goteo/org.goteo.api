@@ -41,12 +41,14 @@ class ProjectCreationDto
      * ISO 3166 data about the Project's territory of interest.
      */
     #[Assert\Valid()]
+    #[Assert\NotBlank()]
     public Territory $territory;
 
     /**
      * Deadlines and important Project dates.
      */
     #[Assert\Valid()]
+    #[Assert\NotBlank()]
     public ProjectCalendar $calendar;
 
     #[API\ApiProperty(writable: false)]
