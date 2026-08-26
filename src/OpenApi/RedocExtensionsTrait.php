@@ -37,6 +37,7 @@ trait RedocExtensionsTrait
                     'ProjectUpdate',
                     'ProjectSupport',
                     'ProjectCollaboration',
+                    'ProjectCollaborationCandidacy',
                     'Category',
                 ],
             ],
