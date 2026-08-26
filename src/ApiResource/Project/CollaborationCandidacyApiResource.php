@@ -12,6 +12,7 @@ use App\Entity\Project\CollaborationCandidacy;
 use App\Entity\Project\CollaborationCandidacyStatus;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\Validator as AssertCustom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -36,8 +37,9 @@ class CollaborationCandidacyApiResource
      * The ProjectCollaboration to which this candidacy is applying to.
      */
     #[Assert\NotBlank()]
+    #[AssertCustom\CollaborationIsOpen()]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
-    public CollaborationApiResource $project;
+    public CollaborationApiResource $collaboration;
 
     /**
      * The User applying to fill for the ProjectCollaboration.
@@ -59,5 +61,6 @@ class CollaborationCandidacyApiResource
      */
     #[Assert\NotNull()]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("PROJECT_EDIT", object.collaboration.project)')]
     public CollaborationCandidacyStatus $status = CollaborationCandidacyStatus::ToReview;
 }
