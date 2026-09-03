@@ -4,6 +4,7 @@ namespace App\State\User;
 
 use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata as API;
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
@@ -34,6 +35,10 @@ class UserStateProcessor implements ProcessorInterface
         }
 
         $user = $this->persistProcessor->process($user, $operation, $uriVariables, $context);
+
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
 
         return $this->autoMapper->map($user, $data);
     }

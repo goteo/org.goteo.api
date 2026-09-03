@@ -2,6 +2,7 @@
 
 namespace App\State\Project;
 
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\RewardApiResource;
@@ -31,6 +32,10 @@ class RewardStateProcessor implements ProcessorInterface
         }
 
         $reward = $this->entityStateProcessor->process($reward, $operation, $uriVariables, $context);
+
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
 
         return $this->autoMapper->map($reward, $data);
     }
