@@ -8,7 +8,6 @@ use App\ApiResource\Project\SupportApiResource;
 use App\Entity\Project\Support;
 use App\Mapping\AutoMapper;
 use App\State\EntityStateProcessor;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
@@ -18,7 +17,6 @@ class SupportStateProcessor implements ProcessorInterface
         private EntityStateProcessor $entityStateProcessor,
         private Security $security,
         private AutoMapper $autoMapper,
-        private EntityManagerInterface $entityManager,
     ) {}
 
     /**

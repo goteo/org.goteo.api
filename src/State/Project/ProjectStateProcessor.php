@@ -2,6 +2,7 @@
 
 namespace App\State\Project;
 
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -41,6 +42,10 @@ class ProjectStateProcessor implements ProcessorInterface
         }
 
         $project = $this->entityStateProcessor->process($project, $operation, $uriVariables, $context);
+
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
 
         if ($project === null) {
             return null;
