@@ -26,6 +26,7 @@ class RewardStateProcessor implements ProcessorInterface
     {
         /** @var Reward */
         $reward = $this->autoMapper->map($data, Reward::class);
+        $reward->setIsFinite($data->isFinite);
 
         if (!$reward->getId()) {
             $reward->setUnitsAvailable($reward->getUnitsTotal());
