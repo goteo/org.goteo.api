@@ -41,6 +41,7 @@ class BudgetItemApiResource
      * The type of need this item solves.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public BudgetItemType $type;
 
     /**
@@ -68,5 +69,6 @@ class BudgetItemApiResource
      * This field specifies whether the budget item belongs to the minimum or optimum budget:
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ProjectDeadline $deadline;
 }
