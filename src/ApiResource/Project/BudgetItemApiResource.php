@@ -34,6 +34,7 @@ class BudgetItemApiResource
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
+    #[Assert\NotBlank()]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ProjectApiResource $project;
 
