@@ -205,6 +205,14 @@ class ProjectApiResource
     public array $budgetItems;
 
     /**
+     * A list of the ProjectCollaborations this Project has.
+     *
+     * @var array<int, CollaborationApiResource>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $collaborations;
+
+    /**
      * A list of the ProjectUpdates this Project has.
      *
      * @var array<int, UpdateApiResource>
