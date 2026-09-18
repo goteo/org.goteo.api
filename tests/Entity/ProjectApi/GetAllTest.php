@@ -249,7 +249,7 @@ class GetAllTest extends ProjectTestCase
         $partialDescription = 'Physically defined as a modulable space';
 
         $this->testGetAllByParam(
-            'description',
+            'descBrief',
             "lorem ipsum $partialDescription",
             'lorem ipsum vitae'
         );

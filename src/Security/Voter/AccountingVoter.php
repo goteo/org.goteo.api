@@ -2,10 +2,9 @@
 
 namespace App\Security\Voter;
 
-use ApiPlatform\Metadata\IriConverterInterface;
 use App\ApiResource\Accounting\AccountingApiResource;
-use App\ApiResource\User\UserApiResource;
 use App\Entity\User\User;
+use App\Repository\Accounting\AccountingRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -20,7 +19,7 @@ class AccountingVoter extends Voter
 
     public function __construct(
         private Security $security,
-        private IriConverterInterface $iriConverter,
+        private AccountingRepository $accountingRepository,
     ) {}
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -35,16 +34,14 @@ class AccountingVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        $owner = $this->iriConverter->getResourceFromIri($subject->owner);
+        $accounting = $this->accountingRepository->find($subject->id);
 
-        switch ($owner::class) {
-            case UserApiResource::class:
-                return $this->voteOnUser($attribute, $owner, $user);
+        switch ($accounting->getOwnerClass()) {
+            case User::class:
+                return $this->voteOnUser($attribute, $accounting->getOwner(), $user);
             default:
-                return $this->voteOn($attribute, $subject, $user);
+                return $this->voteOn($attribute, $accounting, $user);
         }
-
-        return false;
     }
 
     private function voteOn(string $attribute, mixed $subject, ?UserInterface $user): bool
@@ -53,14 +50,12 @@ class AccountingVoter extends Voter
             case self::EDIT:
                 return $this->security->isGranted('ROLE_ADMIN', $user)
                     || $this->isOwnerOf($subject, $user);
-            case self::VIEW:
+            default:
                 return true;
         }
-
-        return false;
     }
 
-    private function voteOnUser(string $attribute, UserApiResource $owner, ?UserInterface $user): bool
+    private function voteOnUser(string $attribute, User $owner, ?UserInterface $user): bool
     {
         if (!$user instanceof User) {
             return false;

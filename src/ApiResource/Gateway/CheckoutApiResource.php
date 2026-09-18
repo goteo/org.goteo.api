@@ -17,6 +17,7 @@ use App\Gateway\Tracking;
 use App\Mapping\Transformer\GatewayIdMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\CheckoutStateProcessor;
+use App\Validator\ChargeToProjectInCampaign;
 use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -70,6 +71,7 @@ class CheckoutApiResource
     #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
+    #[Assert\All([new ChargeToProjectInCampaign()])]
     public array $charges = [];
 
     /**

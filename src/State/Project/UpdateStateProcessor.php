@@ -2,6 +2,7 @@
 
 namespace App\State\Project;
 
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\UpdateApiResource;
@@ -40,6 +41,10 @@ class UpdateStateProcessor implements ProcessorInterface
         }
 
         $update = $this->entityStateProcessor->process($update, $operation, $uriVariables, $context);
+
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
 
         return $this->autoMapper->map($update, $data);
     }

@@ -24,12 +24,19 @@ class ProjectUpdationDto
      * Main headline for the Project.
      */
     #[Assert\Regex('/[a-zA-Z]{1,}/')]
+    #[Assert\Length(min: 3)]
     public string $title;
 
     /**
      * Secondary headline for the Project.
      */
     public string $subtitle;
+
+    /**
+     * URL to an image resource to be displayed as header.
+     */
+    #[Assert\Url()]
+    public string $cover;
 
     /**
      * List of Categories.
@@ -47,9 +54,28 @@ class ProjectUpdationDto
     public Territory $territory;
 
     /**
-     * Free-form rich text description for the Project.
+     * Rich-text (markdown allowed) introduction to the project.
      */
-    public string $description;
+    #[Assert\Length(min: 20)]
+    public string $descBrief;
+
+    /**
+     * Rich-text (markdown allowed) description on the main features of the project.
+     */
+    #[Assert\Length(min: 20)]
+    public string $descAbout;
+
+    /**
+     * Rich-text (markdown allowed) about why this project is important.
+     */
+    #[Assert\Length(min: 20)]
+    public string $descGoal;
+
+    /**
+     * Rich-text (markdown allowed) about team and previous experience.
+     */
+    #[Assert\Length(min: 20)]
+    public string $descTeam;
 
     /**
      * On `minimum`, Project will campaign until the minimum deadline.\

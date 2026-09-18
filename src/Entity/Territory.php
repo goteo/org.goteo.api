@@ -16,6 +16,7 @@ class Territory
      * ISO 3166-1 alpha-2 two-letter country code.\
      * e.g: ES (Spain).
      */
+    #[Assert\NotBlank()]
     #[Assert\Country(alpha3: false)]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     public readonly ?string $country;
@@ -40,7 +41,7 @@ class Territory
      * Plain-text address.\
      * e.g: Forn de l’Olivera 22B, 07012 Palma, Illes Balears.
      */
-    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     public readonly ?string $address;
 
     public function __construct(

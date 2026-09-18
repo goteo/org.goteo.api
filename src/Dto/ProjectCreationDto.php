@@ -6,6 +6,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
 use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Territory;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectCreationDto
@@ -17,6 +18,7 @@ class ProjectCreationDto
      */
     #[Assert\NotBlank()]
     #[Assert\Regex('/[a-zA-Z]{1,}/')]
+    #[Assert\Length(min: 3)]
     public string $title;
 
     /**
@@ -36,9 +38,17 @@ class ProjectCreationDto
     public array $categories;
 
     /**
+     * ISO 3166 data about the Project's territory of interest.
+     */
+    #[Assert\Valid()]
+    #[Assert\NotBlank()]
+    public Territory $territory;
+
+    /**
      * Deadlines and important Project dates.
      */
     #[Assert\Valid()]
+    #[Assert\NotBlank()]
     public ProjectCalendar $calendar;
 
     #[API\ApiProperty(writable: false)]

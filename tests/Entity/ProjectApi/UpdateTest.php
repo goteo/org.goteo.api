@@ -25,7 +25,7 @@ class UpdateTest extends ProjectTestCase
             'headers' => $this->withAuthHeader(TestUser::get()),
             'json' => [
                 'title' => 'New project title',
-                'description' => 'Updated project description',
+                'descBrief' => 'Updated Project\'s brief description',
             ],
         ]);
 

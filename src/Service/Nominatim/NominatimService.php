@@ -13,10 +13,10 @@ class NominatimService
     private float $lastRequestTime = 0.0;
 
     /**
-     * Cache calls to Nominatim for 1 hour.
+     * Cache calls to Nominatim for 24 hours.
      * This ensures freshness of the data but minimizes bulk-operations hit rates to Nominatim.
      */
-    public const NOMINATIM_CACHE_TTL = 3600;
+    public const NOMINATIM_CACHE_TTL = 86400;
 
     private HttpClientInterface $httpClient;
 

@@ -8,6 +8,7 @@ use App\ApiResource\Gateway\GatewayApiResource;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\RefundStrategy;
 use App\Mapping\Transformer\GatewayIdMapTransformer;
+use App\Validator\ChargeToProjectInCampaign;
 use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -37,6 +38,7 @@ class CheckoutCreationDto
     #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
+    #[Assert\All([new ChargeToProjectInCampaign()])]
     public array $charges = [];
 
     /**
